@@ -1,6 +1,6 @@
 'use server';
 
-import { createListQuery } from '../../db/queries';
+import { createListQuery } from '@/db/queries';
 import { z } from 'zod';
 import { auth } from '../../auth';
 import { revalidatePath } from 'next/cache';

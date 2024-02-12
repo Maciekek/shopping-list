@@ -5,9 +5,14 @@ export interface User {
   email: string;
 }
 
+export interface ListItem {
+  uuid: string;
+  name: string;
+  selected: boolean;
+}
+
 export interface List {
   id: number;
   name: string;
-  items: string[];
-
+  items: ListItem[];
 }

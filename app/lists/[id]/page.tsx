@@ -1,49 +1,72 @@
 'use client';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { getList, updateList } from '../../api/list';
+import { getList, updateListItems } from '@/app/api/list';
 import { Checkbox } from '@/components/ui/checkbox';
+import { List, ListItem } from '@/models';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface FormListElements extends HTMLFormControlsCollection {
+  itemName: HTMLInputElement;
+}
+
+interface ListForm extends HTMLFormElement {
+  readonly elements: FormListElements;
+}
 
 export default function List({ params }: { params: { id: number } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
-  const [list, setList] = useState<{ name: string; items: string[] }>();
+  const [list, setList] = useState<ListItem[]>([]);
 
   useEffect(() => {
     getList(params.id).then((result) => {
-      setList({ name: result.name, items: result.items });
+      setList(result.items);
       setStatus('ready');
     });
   }, []);
 
-  const addListItem = (e: React.FormEvent<HTMLFormElement>) => {
+  const addListItem = (e: React.FormEvent<ListForm>) => {
     e.preventDefault();
-    // @ts-ignore
-    const listNameInput = e.target.elements.itemName;
+    const listNameInput = e.currentTarget.elements.itemName;
 
-    const newList = {
-      name: list!.name,
-      items: [...list!.items, listNameInput.value]
+    const item: ListItem = {
+      uuid: (Math.random() * 1000000).toFixed(0),
+      name: listNameInput.value,
+      selected: false
     };
 
+    const newList: ListItem[] = [item, ...list];
     setList(newList);
-    // @ts-ignore
-    updateList(params.id, newList);
+
+    updateListItems(params.id, newList);
     listNameInput.value = '';
   };
 
+  const selectItem = (id: string) => {
+    const updatedList = list.map((item) => {
+      if (item.uuid === id) {
+        return {
+          ...item,
+          selected: !item.selected
+        };
+      }
+
+      return item;
+    });
+
+    setList(updatedList);
+
+    updateListItems(params.id, updatedList);
+  };
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen max-w-md mx-auto">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center gap-4">
-          <form onSubmit={addListItem} className={'w-1/1'}>
+        <form onSubmit={addListItem} className={'w-1/1'}>
+          <div className="flex items-center gap-4">
             <Input
               name={'itemName'}
               className="flex-1"
@@ -56,20 +79,38 @@ export default function List({ params }: { params: { id: number } }) {
               value={params.id}
             />
             <Button variant="outline">Add</Button>
-          </form>
-        </div>
+          </div>
+        </form>
+
         <div className="border shadow-sm rounded-lg">
-          {status === 'loading' && <div>loading</div>}
           <Table>
             <TableBody>
+              {status === 'loading' && (
+                <TableRow>
+                  <TableCell>
+                    <Skeleton className="h-4 w-4" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-[250px]" />
+                  </TableCell>
+                </TableRow>
+              )}
+
               {status === 'ready' &&
-                list?.items.map((key: any) => {
+                list?.map((item: ListItem) => {
                   return (
-                    <TableRow key={key}>
+                    <TableRow className={'cursor-pointer'} key={item.uuid} onClick={() => {
+                      selectItem(item.uuid);
+                    }}>
                       <TableCell className={'w-2'}>
-                        <Checkbox id="select-1"/>
+                        <Checkbox
+                          checked={item.selected}
+                          onClick={() => {
+                            selectItem(item.uuid);
+                          }}
+                        />
                       </TableCell>
-                      <TableCell className="font-medium">{key.name}</TableCell>
+                      <TableCell className="font-medium">{item.name}</TableCell>
                     </TableRow>
                   );
                 })}

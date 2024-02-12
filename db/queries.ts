@@ -1,6 +1,6 @@
 import { sql } from '@vercel/postgres';
-import { auth } from '../auth';
-import { List } from '../models';
+import { auth } from '@/app/auth';
+import { List, ListItem } from '@/models';
 
 export const getUsersListsQuery = async (email: string) => sql`
       SELECT "ShoppingList".id, "ShoppingList".name
@@ -34,18 +34,18 @@ export const createListQuery = async (
   if (result.rows[0]) {
     return sql`
     insert into "ShoppingList" (name, items, user_id)
-    values (${list.name}, ${list.items as any}, ${result.rows[0].id});`;
+    values (${list.name}, '[]', ${result.rows[0].id});`;
   }
 };
 
 export const updateListQuery = async (
   listId: number,
-  list: List
+  list: ListItem[]
 ) => {
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
 
-  const a = `{${list.items.join(',')}}`
+  const a = JSON.stringify(list)
   console.log(54, a)
   if (result.rows[0]) {
     return sql`

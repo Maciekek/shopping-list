@@ -1,7 +1,7 @@
 'use server'
 import { auth } from '../auth';
-import { getListByIdQuery, updateListQuery } from '../db/queries';
-import { List } from '../models';
+import { getListByIdQuery, updateListQuery } from '@/db/queries';
+import { List, ListItem } from '@/models';
 
 export async function getList(listId: number) {
   const session = await auth();
@@ -13,7 +13,7 @@ export async function getList(listId: number) {
 
 }
 
-export async function updateList(listId: number, list: List) {
+export async function updateListItems(listId: number, list: ListItem[]) {
   const session = await auth();
   console.log(3, 'hello', session, listId);
 

@@ -1,7 +1,7 @@
 'use client'
-import { SubmitButton } from '../SubmitButton';
+import { SubmitButton } from '@/components/ui/submitButton';
 import { useFormState } from 'react-dom'
-import { createListAction } from '../../lists/actions/createList';
+import { createListAction } from '@/app/lists/actions/createList';
 import { Input } from '@/components/ui/input';
 
 

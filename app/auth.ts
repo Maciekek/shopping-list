@@ -1,11 +1,7 @@
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
-import {
-  createUserQuery,
-  getUserByEmail,
-  isUserByEmailExist
-} from './db/queries';
+import { createUserQuery, getUserByEmail } from '@/db/queries';
 
 export const {
   handlers: { GET, POST },
