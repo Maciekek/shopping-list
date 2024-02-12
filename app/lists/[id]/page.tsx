@@ -5,12 +5,12 @@ import {
   TableBody,
   TableCell,
   TableRow
-} from '../../../@/components/ui/table';
-import { Input } from '../../../@/components/ui/input';
-import { Button } from '../../../@/components/ui/button';
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { getList, updateList } from '../../api/list';
-import { Checkbox } from '../../../@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function List({ params }: { params: { id: number } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');

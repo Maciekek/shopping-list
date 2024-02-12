@@ -2,7 +2,7 @@
 import { SubmitButton } from '../SubmitButton';
 import { useFormState } from 'react-dom'
 import { createListAction } from '../../lists/actions/createList';
-import { Input } from '../../../@/components/ui/input';
+import { Input } from '@/components/ui/input';
 
 
 const initialState = {
