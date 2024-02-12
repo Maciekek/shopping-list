@@ -25,6 +25,7 @@ export default function List({ params }: { params: { id: number } }) {
 
   const addListItem = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // @ts-ignore
     const listNameInput = e.target.elements.itemName;
 
     const newList = {
@@ -33,6 +34,7 @@ export default function List({ params }: { params: { id: number } }) {
     };
 
     setList(newList);
+    // @ts-ignore
     updateList(params.id, newList);
     listNameInput.value = '';
   };
@@ -41,7 +43,7 @@ export default function List({ params }: { params: { id: number } }) {
     <div className="flex flex-col h-screen">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="flex items-center gap-4">
-          <form action={addListItem} className={'w-1/1'}>
+          <form onSubmit={addListItem} className={'w-1/1'}>
             <Input
               name={'itemName'}
               className="flex-1"
