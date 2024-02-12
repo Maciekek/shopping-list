@@ -1,5 +1,11 @@
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
+import {
+  createUserQuery,
+  getUserByEmail,
+  isUserByEmailExist
+} from './db/queries';
 
 export const {
   handlers: { GET, POST },
@@ -9,8 +15,24 @@ export const {
     GitHub({
       clientId: process.env.OAUTH_CLIENT_KEY as string,
       clientSecret: process.env.OAUTH_CLIENT_SECRET as string
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
     })
   ],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      const result = await getUserByEmail(profile?.email || '');
+      console.log(25, result.rowCount === 1);
+      if (result.rowCount === 1) {
+        return true;
+      }
+
+      await createUserQuery(profile?.email!);
+      return true;
+    }
+  },
   pages: {
     signIn: '/sign-in'
   }

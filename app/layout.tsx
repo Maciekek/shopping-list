@@ -2,13 +2,11 @@ import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
-import Toast from './toast';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
-  description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+  title: 'Sharable shopping lists',
+  description: ''
 };
 
 export default function RootLayout({
@@ -22,9 +20,10 @@ export default function RootLayout({
         <Suspense>
           <Nav />
         </Suspense>
-        {children}
+        <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
+          {children}
+        </div>
         <Analytics />
-        <Toast />
       </body>
     </html>
   );

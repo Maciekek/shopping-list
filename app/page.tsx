@@ -1,36 +1,49 @@
 import { sql } from '@vercel/postgres';
 import { Card, Title, Text } from '@tremor/react';
-import Search from './search';
-import UsersTable from './table';
+import { auth } from './auth';
+import { getUsersListsQuery } from './db/queries';
+import { List, User } from './models';
+import { SimpleTile } from './ui/SimpleTile';
+import Link from 'next/link';
+import { Button } from './ui/Button';
 
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-}
+export default async function IndexPage() {
+  const session = await auth();
 
-export default async function IndexPage({
-  searchParams
-}: {
-  searchParams: { q: string };
-}) {
-  const search = searchParams.q ?? '';
-  const result = await sql`
-    SELECT id, name, username, email 
-    FROM users 
-    WHERE name ILIKE ${'%' + search + '%'};
-  `;
-  const users = result.rows as User[];
+  const result = await getUsersListsQuery(session?.user?.email || '');
+  const lists = result.rows as List[];
+  console.log(25, lists);
+
+  if (!session) {
+    return (
+      <main className="overflow-hidden ">
+        <div className="flex-1 space-y-4 pt-6">
+          <div className="flex items-center justify-between space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight">Please login :)</h2>
+            <div className="flex items-center space-x-2"></div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Title>Users</Title>
-      <Text>A list of users retrieved from a Postgres database.</Text>
-      <Search />
-      <Card className="mt-6">
-        <UsersTable users={users} />
-      </Card>
+    <main className="overflow-hidden ">
+      <div className="flex-1 space-y-4 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Your lists</h2>
+          <div className="flex items-center space-x-2">
+            <Button>
+              <Link href={'/lists/create'}>Create new list</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
+        {lists.map((list) => (
+          <SimpleTile key={list.name} text={list.name} href={`lists/${list.id}`}></SimpleTile>
+        ))}
+      </div>
     </main>
   );
 }
