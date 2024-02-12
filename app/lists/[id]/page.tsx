@@ -63,13 +63,13 @@ export default function List({ params }: { params: { id: number } }) {
           <Table>
             <TableBody>
               {status === 'ready' &&
-                list!.items.map((item) => {
+                list?.items.map((key: any) => {
                   return (
-                    <TableRow key={item}>
+                    <TableRow key={key}>
                       <TableCell className={'w-2'}>
-                        <Checkbox id="select-1" />
+                        <Checkbox id="select-1"/>
                       </TableCell>
-                      <TableCell className="font-medium">{item}</TableCell>
+                      <TableCell className="font-medium">{key.name}</TableCell>
                     </TableRow>
                   );
                 })}
