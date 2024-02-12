@@ -23,7 +23,7 @@ export default function List({ params }: { params: { id: number } }) {
 
   useEffect(() => {
     getList(params.id).then((result) => {
-      setList(result.items);
+      setList(result?.items);
       setStatus('ready');
     });
   }, []);
