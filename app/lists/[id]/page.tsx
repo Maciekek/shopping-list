@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { getList, updateListItems } from '@/app/api/list';
+import { getList, getSharedLists, updateListItems } from '@/app/api/list';
 import { Checkbox } from '@/components/ui/checkbox';
 import { List, ListItem } from '@/models';
 import { Skeleton } from '@/components/ui/skeleton';

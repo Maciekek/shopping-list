@@ -9,12 +9,30 @@ export const getUsersListsQuery = async (email: string) => sql`
       WHERE "ShoppingListUsers".email = ${email};
   `;
 
-export const getListByIdQuery = async (email: string, listId: number) => sql`
-      SELECT "ShoppingList".id, "ShoppingList".name, "ShoppingList".items 
-      FROM "ShoppingList"
-               JOIN "ShoppingListUsers" ON "ShoppingList".user_id = "ShoppingListUsers".id
-      WHERE "ShoppingListUsers".email = ${email} AND "ShoppingList".id = ${listId};
+export const getListByIdQuery = async (email: string, listId: number) => {
+  const session = await auth();
+  const result = await getUserByEmail(session?.user?.email || '');
+
+  return sql`
+      SELECT *
+      FROM "ShoppingList" sl
+               JOIN "ShoppingListUserMapping" slum ON sl.id = slum.shopping_list_id
+               JOIN "ShoppingListUsers" slu ON slum.user_id = slu.id
+      WHERE slu.id = ${result.rows[0].id} AND slum.shopping_list_id = ${listId};
   `;
+}
+
+export const getSharedListsQuery = async () => {
+  const session = await auth();
+  const result = await getUserByEmail(session?.user?.email || '');
+
+  return sql`SELECT sl.id, sl.name, sl.items, sl.user_id
+      FROM "ShoppingList" sl
+               JOIN "ShoppingListUserMapping" slum ON sl.id = slum.shopping_list_id
+               JOIN "ShoppingListUsers" slu ON slum.user_id = slu.id
+      WHERE slu.id = ${result.rows[0].id}`;
+}
+
 
 export const getUserByEmail = async (email: string) => sql`
     SELECT * FROM "ShoppingListUsers" WHERE "ShoppingListUsers".email = ${email};
@@ -45,13 +63,23 @@ export const updateListQuery = async (
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
 
-  const a = JSON.stringify(list)
-  console.log(54, a)
+  const items = JSON.stringify(list)
+  console.log(54, items)
   if (result.rows[0]) {
+    // return sql`
+    //     UPDATE "ShoppingList"
+    //     SET items = ${a}
+    //     WHERE user_id = ${result.rows[0].id} AND id = ${listId};`;
+
     return sql`
-        UPDATE "ShoppingList"
-        SET items = ${a}
-        WHERE user_id = ${result.rows[0].id} AND id = ${listId};`;
+        UPDATE public."ShoppingList"
+        SET items = ${items}
+            FROM public."ShoppingListUserMapping" slum
+        JOIN public."ShoppingListUsers" slu ON slum.user_id = slu.id
+            WHERE slum.shopping_list_id = public."ShoppingList".id
+          AND slu.id = ${result.rows[0].id};
+`
+
   }
 };
 
@@ -62,3 +90,5 @@ export const createUserQuery = async (email: string) => {
     values (${email}, '', '');
 `;
 };
+
+

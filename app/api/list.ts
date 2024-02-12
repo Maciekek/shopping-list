@@ -1,6 +1,6 @@
 'use server'
 import { auth } from '../auth';
-import { getListByIdQuery, updateListQuery } from '@/db/queries';
+import { getListByIdQuery, getSharedListsQuery, updateListQuery } from '@/db/queries';
 import { List, ListItem } from '@/models';
 
 export async function getList(listId: number) {
@@ -19,7 +19,15 @@ export async function updateListItems(listId: number, list: ListItem[]) {
 
   const result = await updateListQuery(listId, list);
   console.log(21, result)
-  // console.log(12, result);
-  // return result.rows[0]
+}
+
+export async function getSharedLists() {
+  const session = await auth();
+
+  const result = await getSharedListsQuery()
+  console.log(21, result)
+
+  return result
+
 
 }

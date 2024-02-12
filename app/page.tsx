@@ -4,13 +4,17 @@ import { List, User } from '@/models';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SimpleTile } from '@/components/ui/simpleTile';
+import { getSharedLists } from '@/app/api/list';
 
 export default async function IndexPage() {
   const session = await auth();
 
   const result = await getUsersListsQuery(session?.user?.email || '');
   const lists = result.rows as List[];
-  console.log(25, lists);
+
+  const sharedResults = await getSharedLists();
+  const sharedList = sharedResults.rows as List[]
+  console.log(25,sharedList);
 
   if (!session) {
     return (
@@ -41,6 +45,16 @@ export default async function IndexPage() {
       </div>
       <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
         {lists.map((list) => (
+          <SimpleTile
+            key={list.name}
+            text={list.name}
+            href={`lists/${list.id}`}
+          ></SimpleTile>
+        ))}
+      </div>
+      <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
+        Udostepnione Tobie:
+        {sharedList.map((list) => (
           <SimpleTile
             key={list.name}
             text={list.name}
