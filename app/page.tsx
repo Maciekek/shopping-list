@@ -19,7 +19,7 @@ export default async function IndexPage() {
   const sharedResults = await getSharedLists();
   const sharedList = sharedResults?.rows as List[];
   console.log(25, sharedList);
-
+  console.log(22, session)
   if (!session) {
     return (
       <main className="overflow-hidden ">
