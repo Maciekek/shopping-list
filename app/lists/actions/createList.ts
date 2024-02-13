@@ -28,7 +28,7 @@ export async function createListAction(previousState: any, formData: any) {
     items: []
   };
 
-  await createListQuery(list, 1);
+  await createListQuery(list);
   revalidatePath('/');
   redirect('/');
 }
