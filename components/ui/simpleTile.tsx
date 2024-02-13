@@ -21,9 +21,9 @@ export default async function SimpleTile({
 
   return (
     <div>
-      <div className="p-4 w-72 bg-white rounded-lg border shadow-md">
+      <div className="p-2 pr-4 w-72 bg-white rounded-lg border shadow-md">
         <div className="flex justify-between items-center ">
-          <Link href={href}>
+          <Link href={href} className={'flex-1 p-4'}>
             <h5 className="text-xl font-bold leading-none text-gray-900">
               {text}
             </h5>
