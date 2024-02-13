@@ -94,7 +94,7 @@ export const updateListQuery = async (listId: number, list: ListItem[]) => {
 };
 
 export const createUserQuery = async (email: string) => {
-  sql`
+  return sql`
     insert into "ShoppingListUsers" (email, name, username)
     values (${email}, '', '');
 `;

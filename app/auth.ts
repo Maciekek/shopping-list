@@ -29,7 +29,7 @@ export const {
       }
 
       await createUserQuery(profile?.email!);
-      return true;
+      return true
     }
   },
   pages: {
