@@ -11,13 +11,13 @@ export const getUsersListsQuery = async (email: string) => sql`
 
 export const getListByIdQuery = async (listId: number) => {
   const session = await auth();
-  console.log(14, session)
+
   if( !session) {
     return;
   }
 
   const result = await getUserByEmail(session?.user?.email || '');
-  console.log(15, result.rows[0].id);
+
   return sql`
       SELECT *
       FROM "ShoppingList" sl
@@ -30,7 +30,7 @@ export const getListByIdQuery = async (listId: number) => {
 export const getSharedListsQuery = async () => {
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
-  console.log(33, session)
+
   if(!session) {
     return;
   }
@@ -52,7 +52,6 @@ export const isUserByEmailExist = async (email: string) => sql`
 
 export const createListQuery = async (
   list: { name: string | string; items: any[] },
-  userId: number
 ) => {
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
@@ -62,8 +61,7 @@ export const createListQuery = async (
     insert into "ShoppingList" (name, items, user_id)
     values (${list.name}, '[]', ${result.rows[0].id})
         RETURNING id;`;
-    console.log(56, newListResult.rows);
-    //
+
     return sql`
     insert into "ShoppingListUserMapping" (shopping_list_id, user_id)
     values (${newListResult.rows[0].id}, ${result.rows[0].id});`;
@@ -75,13 +73,8 @@ export const updateListQuery = async (listId: number, list: ListItem[]) => {
   const result = await getUserByEmail(session?.user?.email || '');
 
   const items = JSON.stringify(list);
-  console.log(54, items);
-  if (result.rows[0]) {
-    // return sql`
-    //     UPDATE "ShoppingList"
-    //     SET items = ${a}
-    //     WHERE user_id = ${result.rows[0].id} AND id = ${listId};`;
 
+  if (result.rows[0]) {
     return sql`
         UPDATE public."ShoppingList"
         SET items = ${items}

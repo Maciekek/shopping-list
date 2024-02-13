@@ -19,10 +19,7 @@ export const {
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-
-      console.log(23, 'SIGN IN CALLBACK')
       const result = await getUserByEmail(profile?.email || '');
-      console.log(25, result.rowCount === 1);
 
       if (result.rowCount === 1) {
         return true;
