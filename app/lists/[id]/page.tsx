@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getList, getSharedLists, updateListItems } from '@/app/api/list';
 import { Checkbox } from '@/components/ui/checkbox';
 import { List, ListItem } from '@/models';
@@ -20,6 +20,7 @@ interface ListForm extends HTMLFormElement {
 export default function List({ params }: { params: { id: number } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
   const [list, setList] = useState<ListItem[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     getList(params.id).then((result) => {
@@ -28,21 +29,20 @@ export default function List({ params }: { params: { id: number } }) {
     });
   }, []);
 
-  const addListItem = (e: React.FormEvent<ListForm>) => {
-    e.preventDefault();
-    const listNameInput = e.currentTarget.elements.itemName;
+  const addListItem = async (formData: FormData) => {
+    const listNameInput = formData.get('itemName');
 
     const item: ListItem = {
       uuid: (Math.random() * 1000000).toFixed(0),
-      name: listNameInput.value,
+      name: listNameInput as string,
       selected: false
     };
 
     const newList: ListItem[] = [item, ...list];
     setList(newList);
+    formRef.current?.reset();
 
     updateListItems(params.id, newList);
-    listNameInput.value = '';
   };
 
   const selectItem = (id: string) => {
@@ -58,14 +58,13 @@ export default function List({ params }: { params: { id: number } }) {
     });
 
     setList(updatedList);
-
     updateListItems(params.id, updatedList);
   };
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <form onSubmit={addListItem} className={'w-1/1'}>
+        <form ref={formRef} action={addListItem} className={'w-1/1'}>
           <div className="flex items-center gap-4">
             <Input
               name={'itemName'}
@@ -99,9 +98,13 @@ export default function List({ params }: { params: { id: number } }) {
               {status === 'ready' &&
                 list?.map((item: ListItem) => {
                   return (
-                    <TableRow className={'cursor-pointer'} key={item.uuid} onClick={() => {
-                      selectItem(item.uuid);
-                    }}>
+                    <TableRow
+                      className={'cursor-pointer'}
+                      key={item.uuid}
+                      onClick={() => {
+                        selectItem(item.uuid);
+                      }}
+                    >
                       <TableCell className={'w-2'}>
                         <Checkbox
                           checked={item.selected}

@@ -78,10 +78,10 @@ export const updateListQuery = async (listId: number, list: ListItem[]) => {
     return sql`
         UPDATE public."ShoppingList"
         SET items = ${items}
-            FROM public."ShoppingListUserMapping" slum
+            FROM "ShoppingListUserMapping" slum
         JOIN public."ShoppingListUsers" slu ON slum.user_id = slu.id
-            WHERE slum.shopping_list_id = public."ShoppingList".id
-          AND slu.id = ${result.rows[0].id};
+            WHERE slum.shopping_list_id = "ShoppingList".id
+          AND slu.id = ${result.rows[0].id} AND "ShoppingList".id = ${listId}
 `;
   }
 };

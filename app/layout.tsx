@@ -30,6 +30,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body
@@ -38,7 +39,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Suspense>
+        <Suspense fallback={'loading...'}>
           <Nav />
         </Suspense>
         <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
