@@ -1,13 +1,13 @@
 'use client';
 
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableRow } from '@/components/atoms/Table';
+import { Input } from '@/components/atoms/Input';
+import { Button } from '@/components/atoms/Button';
 import { useEffect, useRef, useState } from 'react';
-import { getList, getSharedLists, updateListItems } from '@/app/api/list';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/atoms/Checkbox';
 import { List, ListItem } from '@/models';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/atoms/Skeleton';
+import { getList, updateListItems } from '@/app/lists/actions/list';
 
 interface FormListElements extends HTMLFormControlsCollection {
   itemName: HTMLInputElement;

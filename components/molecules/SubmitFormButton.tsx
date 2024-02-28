@@ -1,7 +1,7 @@
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/atoms/Button';
 
-export function SubmitButton() {
+export function SubmitFormButton() {
   const { pending } = useFormStatus();
 
   return (

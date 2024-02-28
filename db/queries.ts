@@ -12,7 +12,7 @@ export const getUsersListsQuery = async (email: string) => sql`
 export const getListByIdQuery = async (listId: number) => {
   const session = await auth();
 
-  if( !session) {
+  if (!session) {
     return;
   }
 
@@ -31,10 +31,10 @@ export const getSharedListsQuery = async () => {
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
 
-  if(!session) {
+  if (!session) {
     return;
   }
-  
+
   return sql`SELECT sl.id, sl.name, sl.items, sl.user_id
       FROM "ShoppingList" sl
                JOIN "ShoppingListUserMapping" slum ON sl.id = slum.shopping_list_id
@@ -50,9 +50,10 @@ export const isUserByEmailExist = async (email: string) => sql`
     SELECT EXISTS(SELECT 1 FROM "ShoppingListUsers" WHERE "ShoppingListUsers".email = ${email})
 `;
 
-export const createListQuery = async (
-  list: { name: string | string; items: any[] },
-) => {
+export const createListQuery = async (list: {
+  name: string | string;
+  items: any[];
+}) => {
   const session = await auth();
   const result = await getUserByEmail(session?.user?.email || '');
 
@@ -86,6 +87,21 @@ export const updateListQuery = async (listId: number, list: ListItem[]) => {
   }
 };
 
+export const shareListQuery = async (email: string, listId: number) => {
+  const userToShareWith = await getUserByEmail(email);
+
+  const list = await getListByIdQuery(listId);
+
+  if (userToShareWith.rows.length === 0 || list?.rows.length === 0) {
+    throw new Error('User or list does not exist.');
+  }
+
+  return sql`
+    insert into "ShoppingListUserMapping" (shopping_list_id, user_id)
+    values (${listId}, ${userToShareWith.rows[0].id}) 
+`;
+};
+
 export const createUserQuery = async (email: string) => {
   return sql`
     insert into "ShoppingListUsers" (email, name, username)
@@ -103,5 +119,3 @@ export const deleteListQuery = async (listId: number) => {
         AND user_id = ${result.rows[0].id};
 `;
 };
-
-

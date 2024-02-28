@@ -4,9 +4,10 @@ import { auth } from './auth';
 import { getUsersListsQuery } from '@/db/queries';
 import { List, User } from '@/models';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { getSharedLists } from '@/app/api/list';
-import SimpleTile from '@/components/ui/simpleTile';
+import { Button } from '@/components/atoms/Button';
+
+import ListTile from '@/components/molecules/ListTile';
+import { getSharedLists } from '@/app/lists/actions/list';
 
 export default async function IndexPage() {
   const session = await auth();
@@ -18,8 +19,7 @@ export default async function IndexPage() {
 
   const sharedResults = await getSharedLists();
   const sharedList = sharedResults?.rows as List[];
-  console.log(25, sharedList);
-  console.log(22, session)
+
   if (!session) {
     return (
       <main className="overflow-hidden ">
@@ -50,7 +50,7 @@ export default async function IndexPage() {
 
       <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
         {lists.map((list) => (
-          <SimpleTile
+          <ListTile
             key={list.name}
             text={list.name}
             href={`/lists/${list.id}`}
@@ -66,7 +66,7 @@ export default async function IndexPage() {
           </h1>
           <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
             {sharedList.map((list) => (
-              <SimpleTile
+              <ListTile
                 key={list.name}
                 text={list.name}
                 href={`/lists/${list.id}`}

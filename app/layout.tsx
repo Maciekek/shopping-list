@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Viewport } from 'next';
+import { Toaster } from '@/components/atoms/Toaster';
 
 export const metadata = {
   title: 'Sharable shopping lists',
@@ -45,6 +46,8 @@ export default function RootLayout({
         <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
           {children}
         </div>
+        <Toaster />
+
         <Analytics />
       </body>
     </html>

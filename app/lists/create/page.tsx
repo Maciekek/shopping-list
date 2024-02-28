@@ -1,9 +1,9 @@
-import { CreateList } from '@/components/ui/forms/CreateList';
+import { CreateListForm } from '@/components/organisms/CreateListForm';
 
 export default function createList({ params }: { params: { slug: string } }) {
   return (
     <div>
-      <CreateList/>
+      <CreateListForm/>
     </div>
   );
 }

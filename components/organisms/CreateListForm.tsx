@@ -1,15 +1,15 @@
 'use client'
-import { SubmitButton } from '@/components/ui/submitButton';
 import { useFormState } from 'react-dom'
-import { createListAction } from '@/app/lists/actions/createList';
-import { Input } from '@/components/ui/input';
+import { createListAction } from '@/app/lists/actions/list';
+import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
+import { Input } from '@/components/atoms/Input';
 
 
 const initialState = {
   name: '',
 }
 
-export function CreateList() {
+export function CreateListForm() {
   const [state, formAction] = useFormState(createListAction, initialState)
 
   return (
@@ -31,7 +31,7 @@ export function CreateList() {
           {state.errors?.name.map((error: string) => error)}
         </p>
 
-        <SubmitButton/>
+        <SubmitFormButton/>
       </div>
     </form>
   )
