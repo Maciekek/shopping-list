@@ -1,11 +1,16 @@
 'use client';
 
-import { Table, TableBody, TableCell, TableRow } from '@/components/atoms/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow
+} from '@/components/atoms/Table';
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
 import { useEffect, useRef, useState } from 'react';
 import { Checkbox } from '@/components/atoms/Checkbox';
-import { List, ListItem } from '@/models';
+import { ListItem } from '@/models';
 import { Skeleton } from '@/components/atoms/Skeleton';
 import { getList, updateListItems } from '@/app/lists/actions/list';
 
@@ -13,18 +18,23 @@ interface FormListElements extends HTMLFormControlsCollection {
   itemName: HTMLInputElement;
 }
 
-interface ListForm extends HTMLFormElement {
-  readonly elements: FormListElements;
-}
-
 export default function List({ params }: { params: { id: number } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
-  const [list, setList] = useState<ListItem[]>([]);
+  const [list, setList] = useState<{
+    active: ListItem[];
+    finished: ListItem[];
+  }>({
+    active: [],
+    finished: []
+  });
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     getList(params.id).then((result) => {
-      setList(result?.items);
+      setList({
+        active: result?.items.filter((item: ListItem) => !item.selected),
+        finished: result?.items.filter((item: ListItem) => item.selected)
+      });
       setStatus('ready');
     });
   }, []);
@@ -38,27 +48,31 @@ export default function List({ params }: { params: { id: number } }) {
       selected: false
     };
 
-    const newList: ListItem[] = [item, ...list];
-    setList(newList);
+    setList({ active: [item, ...list.active], finished: [...list.finished] });
     formRef.current?.reset();
 
-    updateListItems(params.id, newList);
+    updateListItems(params.id, [...list.active, ...list.finished]);
   };
 
-  const selectItem = (id: string) => {
-    const updatedList = list.map((item) => {
-      if (item.uuid === id) {
-        return {
-          ...item,
-          selected: !item.selected
-        };
-      }
+  const selectItem = (id: string, isSelected: boolean) => {
+    const movedElement = isSelected
+      ? list.finished.find((item) => item.uuid === id)!
+      : list.active.find((item) => item.uuid === id)!;
 
-      return item;
-    });
+    if(isSelected) {
+      const updatedList = list.finished.filter((item) => item.uuid !== id);
+      const newList = { active: [{...movedElement, selected: false}, ...list.active ], finished: [...updatedList ]}
+      setList(newList);
+      updateListItems(params.id, [...newList.active, ...list.finished]);
+      return;
+    }
 
-    setList(updatedList);
-    updateListItems(params.id, updatedList);
+    const updatedList = list.active.filter((item) => item.uuid !== id);
+    const newList = { active: [...updatedList ], finished: [{...movedElement, selected: true }, ...list.finished] }
+    setList(newList);
+    updateListItems(params.id, [...newList.active, ...list.finished]);
+    return;
+
   };
 
   return (
@@ -96,20 +110,20 @@ export default function List({ params }: { params: { id: number } }) {
               )}
 
               {status === 'ready' &&
-                list?.map((item: ListItem) => {
+                [...list.active, ...list.finished].map((item: ListItem) => {
                   return (
                     <TableRow
                       className={'cursor-pointer'}
                       key={item.uuid}
                       onClick={() => {
-                        selectItem(item.uuid);
+                        selectItem(item.uuid, item.selected);
                       }}
                     >
                       <TableCell className={'w-2'}>
                         <Checkbox
                           checked={item.selected}
                           onClick={() => {
-                            selectItem(item.uuid);
+                            selectItem(item.uuid, item.selected);
                           }}
                         />
                       </TableCell>
