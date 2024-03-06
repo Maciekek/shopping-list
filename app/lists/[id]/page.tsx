@@ -12,9 +12,6 @@ import SortableList from '@/components/molecules/sortableList/SortableList';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-interface FormListElements extends HTMLFormControlsCollection {
-  itemName: HTMLInputElement;
-}
 
 export default function List({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
@@ -39,6 +36,7 @@ export default function List({ params }: { params: { id: string } }) {
     };
 
     formRef.current?.reset();
+    formRef.current?.focus()
 
     const newList = [item, ...list];
 

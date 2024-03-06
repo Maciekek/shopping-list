@@ -39,7 +39,7 @@ export default async function IndexPage() {
           </div>
         </div>
       </div>
-      <div className={'mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3'}>
+      <div className={'mt-4 pb-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3'}>
         {userLists.map((userList) => (
           <ListTile
             key={userList.name}
