@@ -7,8 +7,6 @@ import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Viewport } from 'next';
 import { Toaster } from '@/components/atoms/Toaster';
-import { PrismaClient } from '@prisma/client';
-import { NextAuthProvider } from '@/app/nextAuthProvider';
 
 export const metadata = {
   title: 'Sharable shopping lists',
@@ -34,9 +32,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-
-
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body
@@ -50,10 +45,7 @@ export default function RootLayout({
 
         </Suspense>
         <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
-
-
           {children}
-
         </div>
         <Toaster />
 
