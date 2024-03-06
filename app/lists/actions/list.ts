@@ -53,7 +53,8 @@ export async function updateListItems(listId: string, list: ListItem[]) {
   const session = await auth();
   const existingList = await getList(listId)!;
   const items = existingList?.items as ListItem[];
-
+  console.log(56, items)
+  console.log(57, list)
   return prisma.list.update({
     where: {
       id: listId,
@@ -64,7 +65,7 @@ export async function updateListItems(listId: string, list: ListItem[]) {
       }
     },
     data: {
-      items: _.uniqWith([...list,...items], _.isEqual)
+      items: _.uniqBy([...list,...items], 'uuid')
     }
   });
 }
