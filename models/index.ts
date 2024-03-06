@@ -1,18 +1,20 @@
-export interface User {
+export type User = {
   id: number;
   name: string;
   username: string;
   email: string;
 }
 
-export interface ListItem {
+export type ListItem = {
   uuid: string;
   name: string;
   selected: boolean;
 }
 
-export interface List {
+export type List = {
   id: number;
   name: string;
   items: ListItem[];
 }
+
+

@@ -28,7 +28,7 @@ export default function ListTile({
 }: {
   text: string;
   href: string;
-  id: number;
+  id: string;
 }) {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareFormState, formAction] = useFormState(shareList, {
@@ -62,18 +62,18 @@ export default function ListTile({
                 <MoreHorizontalIcon className="w-5 h-5" />
               </a>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => deleteList(id)}>
-                Delete
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setIsShareModalOpen(true);
-                }}
-              >
-                Share
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            {/*<DropdownMenuContent align="end">*/}
+            {/*  <DropdownMenuItem onClick={() => deleteList(id)}>*/}
+            {/*    Delete*/}
+            {/*  </DropdownMenuItem>*/}
+            {/*  <DropdownMenuItem*/}
+            {/*    onClick={() => {*/}
+            {/*      setIsShareModalOpen(true);*/}
+            {/*    }}*/}
+            {/*  >*/}
+            {/*    Share*/}
+            {/*  </DropdownMenuItem>*/}
+            {/*</DropdownMenuContent>*/}
           </DropdownMenu>
         </div>
       </div>

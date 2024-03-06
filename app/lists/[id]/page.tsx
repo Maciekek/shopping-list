@@ -13,12 +13,14 @@ import { Checkbox } from '@/components/atoms/Checkbox';
 import { ListItem } from '@/models';
 import { Skeleton } from '@/components/atoms/Skeleton';
 import { getList, updateListItems } from '@/app/lists/actions/list';
+import { useDebouncedCallback } from 'use-debounce';
+import { AnimatePresence, motion, Reorder } from 'framer-motion';
 
 interface FormListElements extends HTMLFormControlsCollection {
   itemName: HTMLInputElement;
 }
 
-export default function List({ params }: { params: { id: number } }) {
+export default function List({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
   const [list, setList] = useState<{
     active: ListItem[];
@@ -31,49 +33,82 @@ export default function List({ params }: { params: { id: number } }) {
 
   useEffect(() => {
     getList(params.id).then((result) => {
+      const listItems = result?.items as unknown as ListItem[];
       setList({
-        active: result?.items.filter((item: ListItem) => !item.selected),
-        finished: result?.items.filter((item: ListItem) => item.selected)
+        active: listItems.filter((item: ListItem) => !item.selected),
+        finished: listItems.filter((item: ListItem) => item.selected)
       });
+
       setStatus('ready');
     });
   }, []);
 
   const addListItem = async (formData: FormData) => {
-    const listNameInput = formData.get('itemName');
-
+    const itemName = formData.get('itemName');
     const item: ListItem = {
       uuid: (Math.random() * 1000000).toFixed(0),
-      name: listNameInput as string,
+      name: itemName as string,
       selected: false
     };
+    const newList = {
+      active: [item, ...list.active],
+      finished: [...list.finished]
+    };
 
-    setList({ active: [item, ...list.active], finished: [...list.finished] });
     formRef.current?.reset();
 
-    updateListItems(params.id, [...list.active, ...list.finished]);
-  };
+    await updateListItems(params.id, [...newList.active, ...newList.finished]);
 
-  const selectItem = (id: string, isSelected: boolean) => {
-    const movedElement = isSelected
-      ? list.finished.find((item) => item.uuid === id)!
-      : list.active.find((item) => item.uuid === id)!;
-
-    if(isSelected) {
-      const updatedList = list.finished.filter((item) => item.uuid !== id);
-      const newList = { active: [{...movedElement, selected: false}, ...list.active ], finished: [...updatedList ]}
-      setList(newList);
-      updateListItems(params.id, [...newList.active, ...list.finished]);
-      return;
-    }
-
-    const updatedList = list.active.filter((item) => item.uuid !== id);
-    const newList = { active: [...updatedList ], finished: [{...movedElement, selected: true }, ...list.finished] }
     setList(newList);
-    updateListItems(params.id, [...newList.active, ...list.finished]);
-    return;
-
   };
+
+  const sortList = async () => {
+    const newActiveItemsList = list.active.filter((item) => !item.selected);
+    const newFinishedItemsFromActiveList = list.active.filter(
+      (item) => item.selected
+    );
+
+    const newFinishedItemsList = list.finished.filter((item) => item.selected);
+    const newActiveItemsFromFinishedList = list.finished.filter(
+      (item) => !item.selected
+    );
+
+    const sortedList = {
+      active: [...newActiveItemsFromFinishedList, ...newActiveItemsList],
+      finished: [...newFinishedItemsFromActiveList, ...newFinishedItemsList]
+    };
+
+    setList(sortedList);
+    await updateListItems(params.id, [
+      ...sortedList.active,
+      ...sortedList.finished
+    ]);
+  };
+
+  const sortListDebounced = useDebouncedCallback(sortList, 500);
+
+  const selectItem = async (id: string, isSelected: boolean) => {
+    const listToModify = isSelected ? list.finished : list.active;
+    const updatedList = listToModify.map((item) => {
+      if (item.uuid === id) {
+        return { ...item, selected: !item.selected };
+      }
+
+      return item;
+    });
+
+    isSelected
+      ? setList({ active: list.active, finished: updatedList })
+      : setList({ active: updatedList, finished: list.finished });
+
+    isSelected
+      ? await updateListItems(params.id, [...updatedList, ...list.finished])
+      : await updateListItems(params.id, [...list.active, ...updatedList]);
+
+    sortListDebounced();
+  };
+
+  const wholeList = [...list.active, ...list.finished];
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto">
@@ -96,43 +131,37 @@ export default function List({ params }: { params: { id: number } }) {
         </form>
 
         <div className="border shadow-sm rounded-lg">
-          <Table>
-            <TableBody>
-              {status === 'loading' && (
-                <TableRow>
-                  <TableCell>
-                    <Skeleton className="h-4 w-4" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[250px]" />
-                  </TableCell>
-                </TableRow>
-              )}
-
-              {status === 'ready' &&
-                [...list.active, ...list.finished].map((item: ListItem) => {
-                  return (
-                    <TableRow
-                      className={'cursor-pointer'}
-                      key={item.uuid}
+          <AnimatePresence>
+          {status === 'ready' &&
+            wholeList.map((item) => (
+              <motion.div
+                key={item.uuid}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div
+                  className={'cursor-pointer'}
+                  key={item.uuid}
+                  onClick={() => {
+                    selectItem(item.uuid, item.selected);
+                  }}
+                >
+                  <div className={'w-2'}>
+                    <Checkbox
+                      checked={item.selected}
                       onClick={() => {
                         selectItem(item.uuid, item.selected);
                       }}
-                    >
-                      <TableCell className={'w-2'}>
-                        <Checkbox
-                          checked={item.selected}
-                          onClick={() => {
-                            selectItem(item.uuid, item.selected);
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
+                    />
+                  </div>
+
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </main>
     </div>

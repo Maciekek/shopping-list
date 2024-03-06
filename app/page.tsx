@@ -1,24 +1,23 @@
-'use server'
-
-import { auth } from './auth';
-import { getUsersListsQuery } from '@/db/queries';
-import { List, User } from '@/models';
+'use server';
 import Link from 'next/link';
 import { Button } from '@/components/atoms/Button';
 
 import ListTile from '@/components/molecules/ListTile';
-import { getSharedLists } from '@/app/lists/actions/list';
+import prisma from '@/lib/prisma';
+import { auth } from '@/app/auth';
 
 export default async function IndexPage() {
   const session = await auth();
-  if(!session) {
-    return;
-  }
-  const result = await getUsersListsQuery(session?.user?.email || '');
-  const lists = result.rows as List[];
-
-  const sharedResults = await getSharedLists();
-  const sharedList = sharedResults?.rows as List[];
+  const lists = await prisma.list.findMany({
+    where: {
+      users: {
+        some: {
+          userId: session?.user?.id,
+        },
+        
+      }
+    }
+  });
 
   if (!session) {
     return (
@@ -47,7 +46,6 @@ export default async function IndexPage() {
           </div>
         </div>
       </div>
-
       <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
         {lists.map((list) => (
           <ListTile
@@ -58,24 +56,23 @@ export default async function IndexPage() {
           />
         ))}
       </div>
-
-      {sharedList.length > 0 && (
-        <>
-          <h1 className="text-xl font-bold leading-tight text-gray-900 pt-5">
-            Shared With You
-          </h1>
-          <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
-            {sharedList.map((list) => (
-              <ListTile
-                key={list.name}
-                text={list.name}
-                href={`/lists/${list.id}`}
-                id={list.id}
-              />
-            ))}
-          </div>
-        </>
-      )}
+      {/*{sharedList.length > 0 && (*/}
+      {/*  <>*/}
+      {/*    <h1 className="text-xl font-bold leading-tight text-gray-900 pt-5">*/}
+      {/*      Shared With You*/}
+      {/*    </h1>*/}
+      {/*    <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>*/}
+      {/*      {sharedList.map((list) => (*/}
+      {/*        <ListTile*/}
+      {/*          key={list.name}*/}
+      {/*          text={list.name}*/}
+      {/*          href={`/lists/${list.id}`}*/}
+      {/*          id={list.id}*/}
+      {/*        />*/}
+      {/*      ))}*/}
+      {/*    </div>*/}
+      {/*  </>*/}
+      {/*)}*/}
     </main>
   );
 }
