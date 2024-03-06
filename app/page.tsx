@@ -9,8 +9,8 @@ export default async function IndexPage() {
   const session = await auth();
   const userLists = await getLists();
 
-  const userId = session?.user.id;
-  console.log(13, userLists)
+  const userId = session?.user?.id;
+
 
   if (!session) {
     return (
