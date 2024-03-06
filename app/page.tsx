@@ -11,7 +11,6 @@ export default async function IndexPage() {
 
   const userId = session?.user?.id;
 
-
   if (!session) {
     return (
       <main className="overflow-hidden ">
