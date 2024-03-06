@@ -1,23 +1,16 @@
-'use server';
 import Link from 'next/link';
 import { Button } from '@/components/atoms/Button';
 
 import ListTile from '@/components/molecules/ListTile';
-import prisma from '@/lib/prisma';
 import { auth } from '@/app/auth';
+import { getLists } from '@/app/lists/actions/list';
 
 export default async function IndexPage() {
   const session = await auth();
-  const lists = await prisma.list.findMany({
-    where: {
-      users: {
-        some: {
-          userId: session?.user?.id,
-        },
-        
-      }
-    }
-  });
+  const userLists = await getLists();
+
+  const userId = session?.user.id;
+  console.log(13, userLists)
 
   if (!session) {
     return (
@@ -46,33 +39,18 @@ export default async function IndexPage() {
           </div>
         </div>
       </div>
-      <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>
-        {lists.map((list) => (
+      <div className={'mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3'}>
+        {userLists.map((userList) => (
           <ListTile
-            key={list.name}
-            text={list.name}
-            href={`/lists/${list.id}`}
-            id={list.id}
+            key={userList.name}
+            text={userList.name}
+            href={`/lists/${userList.id}`}
+            id={userList.id}
+            ownerEmail={userList.users.filter((user) => user.userId === userList.ownerId)[0]?.user.email || ''}
+            status={userId === userList.ownerId ? 'owner' : 'shared'}
           />
         ))}
       </div>
-      {/*{sharedList.length > 0 && (*/}
-      {/*  <>*/}
-      {/*    <h1 className="text-xl font-bold leading-tight text-gray-900 pt-5">*/}
-      {/*      Shared With You*/}
-      {/*    </h1>*/}
-      {/*    <div className={'mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4'}>*/}
-      {/*      {sharedList.map((list) => (*/}
-      {/*        <ListTile*/}
-      {/*          key={list.name}*/}
-      {/*          text={list.name}*/}
-      {/*          href={`/lists/${list.id}`}*/}
-      {/*          id={list.id}*/}
-      {/*        />*/}
-      {/*      ))}*/}
-      {/*    </div>*/}
-      {/*  </>*/}
-      {/*)}*/}
     </main>
   );
 }

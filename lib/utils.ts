@@ -14,17 +14,6 @@ export function mapArrayToObject<T, K extends keyof T>(array: T[], key: K): Reco
   }, {});
 }
 
-
 export function mapObjectToArray<T>(object: {[key: string]: T}): T[] {
   return Object.keys(object).map((key) => object[key])
 }
-
-//
-// export function debounce(callback: () => void, delay: number = 500) {
-//   let timeoutId: NodeJS.Timeout;
-//
-//   return function() {
-//     clearTimeout(timeoutId);
-//     timeoutId = setTimeout(callback, delay);
-//   }
-// }

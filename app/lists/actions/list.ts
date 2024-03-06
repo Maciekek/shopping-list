@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { ListItem } from '@/models';
 import { PrismaClient } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { mapArrayToObject, mapObjectToArray } from '@/lib/utils';
+import _ from 'lodash';
 
 export async function getList(listId: string) {
   const session = await auth();
@@ -23,17 +23,36 @@ export async function getList(listId: string) {
   });
 }
 
+export async function getLists() {
+  const session = await auth();
+
+  return prisma.list.findMany({
+    where: {
+      users: {
+        some: {
+          userId: session?.user?.id,
+        },
+      }
+    },
+    include: {
+      users: {
+        include: {
+          user: {
+            select: {
+              email: true,
+              _count: true
+            }
+          },
+        }
+      }
+    }
+  });
+}
+
 export async function updateListItems(listId: string, list: ListItem[]) {
   const session = await auth();
-  console.log(28, list)
   const existingList = await getList(listId)!;
   const items = existingList?.items as ListItem[];
-
-  const uniqItems = {
-    ...mapArrayToObject(items, 'uuid'),
-    ...mapArrayToObject(list, 'uuid'),
-
-  }
 
   return prisma.list.update({
     where: {
@@ -45,26 +64,29 @@ export async function updateListItems(listId: string, list: ListItem[]) {
       }
     },
     data: {
-      items: mapObjectToArray<ListItem>(uniqItems)
+      items: _.uniqWith([...list,...items], _.isEqual)
+    }
+  });
+}
+
+export async function deleteList(id: string) {
+  const session = await auth();
+
+  const result = await prisma.list.delete({
+    where: {
+      id,
+      users: {
+        some: {
+          userId: session?.user.id
+        }
+      }
     }
   });
 
-  // const result = await updateListQuery(listId, list);
-}
+  console.log(75, result);
 
-// export async function getSharedLists() {
-//   const session = await auth();
-//
-//   const result = await getSharedListsQuery();
-//
-//   return result;
-// }
-//
-// export async function deleteList(id: number) {
-//   const result = await deleteListQuery(id);
-//
-//   return redirect('/');
-// }
+  return redirect('/');
+}
 
 export async function createListAction(previousState: any, formData: any) {
   const session = await auth();
@@ -87,22 +109,13 @@ export async function createListAction(previousState: any, formData: any) {
     items: []
   };
 
-  // await createListQuery(list);
-  // const user = await prisma.li.create({
-  //   data: {
-  //     name: list.name,
-  //     items: [],
-  //     user_id: 1
-  //   }
-  // })
-
   const prisma = new PrismaClient();
 
-  const list2 = await prisma.list.create({
+  await prisma.list.create({
     data: {
       name: list.name,
       items: [],
-      ownerId: 1,
+      ownerId: session?.user.id,
       users: {
         create: {
           user: {
@@ -114,8 +127,6 @@ export async function createListAction(previousState: any, formData: any) {
       }
     }
   });
-
-  console.log(84, list2);
 
   revalidatePath('/');
   redirect('/');
@@ -138,14 +149,22 @@ export async function shareList(previousState: any, formData: any) {
     };
   }
 
-  // try {
-  //   const result = await shareListQuery(
-  //     formData.get('email'),
-  //     formData.get('listId')
-  //   );
-  // } catch (e) {
-  //   return 'ok';
-  // }
+  await prisma.list.update({
+    where: {
+      id: formData.get('listId')
+    },
+    data: {
+      users: {
+        create: {
+          user: {
+            connect: {
+              email: formData.get('email')
+            }
+          }
+        }
+      }
+    }
+  });
 
   return 'ok';
 }

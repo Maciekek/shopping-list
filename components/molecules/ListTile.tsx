@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/atoms/Dialog';
 import { Input } from '@/components/atoms/Input';
 import { useFormState } from 'react-dom';
@@ -24,11 +24,15 @@ import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 export default function ListTile({
   text,
   href = '',
-  id
+  id,
+  status,
+  ownerEmail = ''
 }: {
   text: string;
   href: string;
   id: string;
+  status: 'shared' | 'owner';
+  ownerEmail?: string;
 }) {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareFormState, formAction] = useFormState(shareList, {
@@ -49,31 +53,36 @@ export default function ListTile({
 
   return (
     <div>
-      <div className="p-2 pr-4 w-72 bg-white rounded-lg border shadow-md">
-        <div className="flex justify-between items-center ">
-          <Link href={href} className={'flex-1 p-4'}>
-            <h5 className="text-xl font-bold leading-none text-gray-900">
-              {text}
-            </h5>
-          </Link>
+      <div className="p-2 pr-4 bg-white rounded-lg border shadow-md">
+        <div className="flex justify-between items-center min-h-[60px] ">
+          <div className={'flex flex-col'}>
+            <Link href={href} className={'flex-1 pl-4 pt-4'}>
+              <h5 className="text-xl font-bold leading-none text-gray-900">
+                {text}
+              </h5>
+            </Link>
+            <div className={'pl-4 text-sm min-h-[20px] text-slate-400'}>
+              {status === 'shared' ? `Owner: ${ownerEmail}` : 'You are the owner of this list'}
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <a className="text-gray-400 hover:text-gray-500" href="#">
                 <MoreHorizontalIcon className="w-5 h-5" />
               </a>
             </DropdownMenuTrigger>
-            {/*<DropdownMenuContent align="end">*/}
-            {/*  <DropdownMenuItem onClick={() => deleteList(id)}>*/}
-            {/*    Delete*/}
-            {/*  </DropdownMenuItem>*/}
-            {/*  <DropdownMenuItem*/}
-            {/*    onClick={() => {*/}
-            {/*      setIsShareModalOpen(true);*/}
-            {/*    }}*/}
-            {/*  >*/}
-            {/*    Share*/}
-            {/*  </DropdownMenuItem>*/}
-            {/*</DropdownMenuContent>*/}
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => deleteList(id)}>
+                Delete
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setIsShareModalOpen(true);
+                }}
+              >
+                Share
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
@@ -95,13 +104,18 @@ export default function ListTile({
                       Email
                     </label>
 
-                    <Input aria-invalid="false" name="email" required={true} defaultValue={''} />
+                    <Input
+                      aria-invalid="false"
+                      name="email"
+                      required={true}
+                      defaultValue={''}
+                    />
 
                     <Input
                       aria-invalid="false"
                       className={'hidden'}
                       name="listId"
-                      value={'32'}
+                      value={id}
                       required={true}
                     />
 

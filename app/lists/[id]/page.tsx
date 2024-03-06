@@ -1,20 +1,16 @@
 'use client';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow
-} from '@/components/atoms/Table';
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Checkbox } from '@/components/atoms/Checkbox';
 import { ListItem } from '@/models';
-import { Skeleton } from '@/components/atoms/Skeleton';
 import { getList, updateListItems } from '@/app/lists/actions/list';
 import { useDebouncedCallback } from 'use-debounce';
-import { AnimatePresence, motion, Reorder } from 'framer-motion';
+
+import SortableList from '@/components/molecules/sortableList/SortableList';
+import { cn } from '@/lib/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface FormListElements extends HTMLFormControlsCollection {
   itemName: HTMLInputElement;
@@ -22,22 +18,13 @@ interface FormListElements extends HTMLFormControlsCollection {
 
 export default function List({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
-  const [list, setList] = useState<{
-    active: ListItem[];
-    finished: ListItem[];
-  }>({
-    active: [],
-    finished: []
-  });
+  const [list, setList] = useState<ListItem[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     getList(params.id).then((result) => {
       const listItems = result?.items as unknown as ListItem[];
-      setList({
-        active: listItems.filter((item: ListItem) => !item.selected),
-        finished: listItems.filter((item: ListItem) => item.selected)
-      });
+      setList(listItems);
 
       setStatus('ready');
     });
@@ -46,50 +33,42 @@ export default function List({ params }: { params: { id: string } }) {
   const addListItem = async (formData: FormData) => {
     const itemName = formData.get('itemName');
     const item: ListItem = {
-      uuid: (Math.random() * 1000000).toFixed(0),
+      uuid: uuidv4(),
       name: itemName as string,
       selected: false
-    };
-    const newList = {
-      active: [item, ...list.active],
-      finished: [...list.finished]
     };
 
     formRef.current?.reset();
 
-    await updateListItems(params.id, [...newList.active, ...newList.finished]);
+    const newList = [item, ...list];
 
     setList(newList);
+    await updateListItems(params.id, newList);
   };
 
   const sortList = async () => {
-    const newActiveItemsList = list.active.filter((item) => !item.selected);
-    const newFinishedItemsFromActiveList = list.active.filter(
-      (item) => item.selected
+    const updatedList = list.reduce(
+      (acc: { active: ListItem[]; finished: ListItem[] }, item) => {
+        if (item.selected) {
+          return { ...acc, finished: [...acc.finished, item] };
+        }
+
+        return { ...acc, active: [...acc.active, item] };
+      },
+      { active: [], finished: [] }
     );
 
-    const newFinishedItemsList = list.finished.filter((item) => item.selected);
-    const newActiveItemsFromFinishedList = list.finished.filter(
-      (item) => !item.selected
-    );
-
-    const sortedList = {
-      active: [...newActiveItemsFromFinishedList, ...newActiveItemsList],
-      finished: [...newFinishedItemsFromActiveList, ...newFinishedItemsList]
-    };
-
-    setList(sortedList);
+    setList([...updatedList.active, ...updatedList.finished]);
     await updateListItems(params.id, [
-      ...sortedList.active,
-      ...sortedList.finished
+      ...updatedList.active,
+      ...updatedList.finished
     ]);
   };
 
   const sortListDebounced = useDebouncedCallback(sortList, 500);
 
-  const selectItem = async (id: string, isSelected: boolean) => {
-    const listToModify = isSelected ? list.finished : list.active;
-    const updatedList = listToModify.map((item) => {
+  const selectItem = (id: string) => {
+    const updatedList = list.map((item) => {
       if (item.uuid === id) {
         return { ...item, selected: !item.selected };
       }
@@ -97,18 +76,9 @@ export default function List({ params }: { params: { id: string } }) {
       return item;
     });
 
-    isSelected
-      ? setList({ active: list.active, finished: updatedList })
-      : setList({ active: updatedList, finished: list.finished });
-
-    isSelected
-      ? await updateListItems(params.id, [...updatedList, ...list.finished])
-      : await updateListItems(params.id, [...list.active, ...updatedList]);
-
+    setList(updatedList);
     sortListDebounced();
   };
-
-  const wholeList = [...list.active, ...list.finished];
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto">
@@ -130,38 +100,25 @@ export default function List({ params }: { params: { id: string } }) {
           </div>
         </form>
 
-        <div className="border shadow-sm rounded-lg">
-          <AnimatePresence>
-          {status === 'ready' &&
-            wholeList.map((item) => (
-              <motion.div
-                key={item.uuid}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                exit={{ opacity: 0 }}
-              >
+        <div>
+          {status === 'ready' && (
+            <SortableList list={list}>
+              {(item: ListItem) => (
                 <div
-                  className={'cursor-pointer'}
-                  key={item.uuid}
+                  className={cn('border cursor-pointer flex items-center p-4')}
                   onClick={() => {
-                    selectItem(item.uuid, item.selected);
+                    selectItem(item.uuid);
                   }}
                 >
-                  <div className={'w-2'}>
-                    <Checkbox
-                      checked={item.selected}
-                      onClick={() => {
-                        selectItem(item.uuid, item.selected);
-                      }}
-                    />
+                  <div className={'flex pr-6'}>
+                    <Checkbox checked={item.selected} />
                   </div>
 
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <div className="font-medium">{item.name}</div>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              )}
+            </SortableList>
+          )}
         </div>
       </main>
     </div>

@@ -74,16 +74,16 @@ model List {
   id                      String    @id @default(cuid())
   name                    String                    @db.VarChar(100)
   items                   Json?                     @db.Json
-  ownerId                 Int?
+  ownerId                 String?
   users                   ListsOnUsers[]
 
   @@map("lists")
 }
 
 model ListsOnUsers {
-   user       User     @relation(fields: [userId], references: [id])
+   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId     String
-   list       List      @relation(fields: [listId], references: [id])
+   list       List      @relation(fields: [listId], references: [id], onDelete: Cascade)
    listId   String
 
   @@id([userId, listId])
