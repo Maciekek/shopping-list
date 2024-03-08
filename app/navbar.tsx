@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [{ name: 'Your lists', href: '/' }];
 
-export default async function Navbar({ user }: { user: any }) {
+export default function Navbar({ user }: { user: any }) {
   const pathname = usePathname();
 
   return (
