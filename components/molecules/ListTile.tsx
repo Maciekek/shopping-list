@@ -56,7 +56,7 @@ export default function ListTile({
       <div className="p-2 pr-4 bg-white rounded-lg border shadow-md">
         <div className="flex justify-between items-center min-h-[60px] ">
           <div className={'flex flex-col'}>
-            <Link href={href} className={'flex-1 pl-4 pt-4'}>
+            <Link prefetch={true} href={href} className={'flex-1 pl-4 pt-4'}>
               <h5 className="text-xl font-bold leading-none text-gray-900">
                 {text}
               </h5>

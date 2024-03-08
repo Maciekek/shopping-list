@@ -32,7 +32,7 @@ export default async function IndexPage() {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Your lists</h2>
           <div className="flex items-center space-x-2">
-            <Link href={'/lists/create'}>
+            <Link prefetch={true} href={'/lists/create'}>
               <Button>Create new list</Button>
             </Link>
           </div>
