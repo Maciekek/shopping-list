@@ -20,11 +20,8 @@ export default function List({
   listId: string;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [optimisticListItems, addOptimisticListItem] = useOptimistic<
-    ListItem[]
-  >(
+  const [optimisticListItems, addOptimisticListItem] = useOptimistic(
     list,
-    // @ts-ignore
     (
       state: ListItem[],
       updateListAction: {
@@ -47,6 +44,7 @@ export default function List({
           return item;
         });
       }
+      return list;
     }
   );
 
