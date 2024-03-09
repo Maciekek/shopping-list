@@ -53,9 +53,19 @@ export async function updateListItems(listId: string, list: ListItem[]) {
   const session = await auth();
   const existingList = await getList(listId)!;
   const items = existingList?.items as ListItem[];
-  console.log(56, items)
-  console.log(57, list)
-  return prisma.list.update({
+
+  const updatedList = [...list].reduce(
+    (acc: { active: ListItem[]; finished: ListItem[] }, item) => {
+      if (item.selected) {
+        return { ...acc, finished: [...acc.finished, item] };
+      }
+
+      return { ...acc, active: [...acc.active, item] };
+    },
+    { active: [], finished: [] }
+  );
+
+  await prisma.list.update({
     where: {
       id: listId,
       users: {
@@ -65,9 +75,11 @@ export async function updateListItems(listId: string, list: ListItem[]) {
       }
     },
     data: {
-      items: _.uniqBy([...list,...items], 'uuid')
+      items: _.uniqBy([...updatedList.active, ...updatedList.finished, ...items], 'uuid')
     }
   });
+
+  revalidatePath(`/lists/${listId}`)
 }
 
 export async function deleteList(id: string) {
@@ -83,8 +95,6 @@ export async function deleteList(id: string) {
       }
     }
   });
-
-  console.log(75, result);
 
   return redirect('/');
 }
