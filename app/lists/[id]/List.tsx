@@ -105,7 +105,7 @@ export default function List({
         </form>
 
         <div>
-          <SortableList list={list}>
+          <SortableList list={optimisticListItems}>
             {(item: ListItem) => (
               <div
                 className={cn('border cursor-pointer flex items-center p-4')}
