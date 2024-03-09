@@ -14,11 +14,11 @@ export const metadata = {
 };
 
 
-// @ts-ignore
-export const fontSans = FontSans({
-  subsets: ['latin'],
-  variable: '--font-sans'
-});
+// // @ts-ignore
+// export const fontSans = FontSans({
+//   subsets: ['latin'],
+//   variable: '--font-sans'
+// });
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -37,7 +37,7 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
-          fontSans.variable
+          // fontSans.variable
         )}
       >
         {/*<Suspense fallback={'loading...'}>*/}
