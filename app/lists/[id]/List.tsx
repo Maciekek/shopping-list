@@ -110,7 +110,7 @@ export default function List({
               <div
                 className={cn('border cursor-pointer flex items-center p-4')}
                 onClick={() => {
-                  // selectItem(item);
+                  selectItem(item);
                 }}
               >
                 <div className={'flex pr-6'}>
