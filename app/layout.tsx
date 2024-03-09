@@ -41,7 +41,7 @@ export default function RootLayout({
         )}
       >
         {/*<Suspense fallback={'loading...'}>*/}
-        {/*  /!*<Nav />*!/*/}
+          <Nav />
 
         {/*</Suspense>*/}
         <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
