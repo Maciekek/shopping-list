@@ -40,10 +40,10 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Suspense fallback={'loading...'}>
-          <Nav />
+        {/*<Suspense fallback={'loading...'}>*/}
+        {/*  /!*<Nav />*!/*/}
 
-        </Suspense>
+        {/*</Suspense>*/}
         <div className={'container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'}>
           {children}
         </div>
