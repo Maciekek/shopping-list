@@ -20,7 +20,7 @@ export default function List({
   listId: string;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
-  /*const [optimisticListItems, addOptimisticListItem] = useOptimistic(
+  const [optimisticListItems, addOptimisticListItem] = useOptimistic(
     list,
     (
       state: ListItem[],
@@ -65,44 +65,44 @@ export default function List({
       action: 'ADD'
     });
     await updateListItems(listId, newList);
-  };*/
+  };
 
-  // const selectItem = async (item: ListItem) => {
-  //   const updatedList = optimisticListItems.map((el) => {
-  //     if (el.uuid === item.uuid) {
-  //       return { ...el, selected: !el.selected };
-  //     }
-  //
-  //     return el;
-  //   });
-  //
-  //   addOptimisticListItem({
-  //     item,
-  //     action: 'SELECT'
-  //   });
-  //
-  //   await updateListItems(listId, updatedList);
-  // };
+  const selectItem = async (item: ListItem) => {
+    const updatedList = optimisticListItems.map((el) => {
+      if (el.uuid === item.uuid) {
+        return { ...el, selected: !el.selected };
+      }
+
+      return el;
+    });
+
+    addOptimisticListItem({
+      item,
+      action: 'SELECT'
+    });
+
+    await updateListItems(listId, updatedList);
+  };
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        {/*<form ref={formRef} action={addListItem} className={'w-1/1'}>*/}
-        {/*  <div className="flex items-center gap-4">*/}
-        {/*    <Input*/}
-        {/*      name={'itemName'}*/}
-        {/*      className="flex-1"*/}
-        {/*      placeholder="Add new item"*/}
-        {/*    />*/}
-        {/*    <Input*/}
-        {/*      name={'listId'}*/}
-        {/*      className="flex-1 hidden"*/}
-        {/*      readOnly*/}
-        {/*      value={listId}*/}
-        {/*    />*/}
-        {/*    <Button variant="outline">Add</Button>*/}
-        {/*  </div>*/}
-        {/*</form>*/}
+        <form ref={formRef} action={addListItem} className={'w-1/1'}>
+          <div className="flex items-center gap-4">
+            <Input
+              name={'itemName'}
+              className="flex-1"
+              placeholder="Add new item"
+            />
+            <Input
+              name={'listId'}
+              className="flex-1 hidden"
+              readOnly
+              value={listId}
+            />
+            <Button variant="outline">Add</Button>
+          </div>
+        </form>
 
         <div>
           <SortableList list={list}>
