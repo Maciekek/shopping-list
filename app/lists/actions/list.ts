@@ -85,7 +85,7 @@ export async function updateListItems(listId: string, list: ListItem[]) {
 export async function deleteList(id: string) {
   const session = await auth();
 
-  const result = await prisma.list.delete({
+  await prisma.list.delete({
     where: {
       id,
       users: {
