@@ -24,6 +24,7 @@ export default function List({
     ListItem[]
   >(
     list,
+    // @ts-ignore
     (
       state: ListItem[],
       updateListAction: {
