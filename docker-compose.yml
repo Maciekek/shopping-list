@@ -12,17 +12,17 @@ services:
       - "5432:5432"
     networks:
       - app
-
-  client:
-    build:
-      dockerfile: Dockerfile
-    command: sh -c "./run-next-dev.sh"
-    volumes:
-      - ./:/user/src/app
-    ports:
-      - "3000:3000"
-    networks:
-      - app
+#
+#  client:
+#    build:
+#      dockerfile: Dockerfile
+#    command: sh -c "./run-next-dev.sh"
+#    volumes:
+#      - ./:/user/src/app
+#    ports:
+#      - "3000:3000"
+#    networks:
+#      - app
 
 volumes:
    db:
