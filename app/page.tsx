@@ -1,18 +1,22 @@
 import { auth } from '@/app/auth';
-import { getLists } from '@/app/lists/actions/list';
+import { getUserLists } from '@/app/lists/actions/list';
 import { NotInLoggedHero } from '@/components/molecules/NotInLoggedHero';
 import { Lists } from '@/components/molecules/Lists';
 import { NoListsHero } from '@/components/molecules/NoListsHero';
+import { UserLists } from '@/models';
+import { User } from 'next-auth';
+
 
 export default async function IndexPage() {
   const session = await auth();
-  const userLists = await getLists();
-
-  const user = session?.user;
+  const userLists: UserLists = await getUserLists();
 
   if (!session) {
+
     return <NotInLoggedHero />;
   }
+
+  const user: User = session!.user!;
 
   if (userLists.length > 0) {
     return <Lists user={user} lists={userLists}/>;

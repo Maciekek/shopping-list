@@ -1,3 +1,5 @@
+import { getList, getUserLists } from '@/app/lists/actions/list';
+
 export type User = {
   id: number;
   name: string;
@@ -11,10 +13,11 @@ export type ListItem = {
   selected: boolean;
 }
 
-export type List = {
-  id: number;
-  name: string;
-  items: ListItem[];
-}
+
+type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
+export type UserLists = ThenArg<ReturnType<typeof getUserLists>>
+export type ShareWithUser = UserLists[number]['users']
+export type UserList = UserLists[number]
+export type List = ThenArg<ReturnType<typeof getList>>;
 
 

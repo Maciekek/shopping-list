@@ -18,7 +18,6 @@ export const {
   ],
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      console.log(21, 'asd')
       const isLoggedIn = !!auth?.user;
       const paths = ['/profile', '/client-side'];
       const isProtected = paths.some((path) =>

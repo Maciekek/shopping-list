@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import _ from 'lodash';
 
-export async function getList(listId: string) {
+export async function getList(listId: string, withUsers = false) {
   const session = await auth();
   return prisma.list.findUnique({
     where: {
@@ -19,19 +19,22 @@ export async function getList(listId: string) {
           userId: session?.user.id
         }
       }
+    },
+    include: {
+      users: withUsers
     }
   });
 }
 
-export async function getLists() {
+export async function getUserLists() {
   const session = await auth();
 
   return prisma.list.findMany({
     where: {
       users: {
         some: {
-          userId: session?.user?.id,
-        },
+          userId: session?.user?.id
+        }
       }
     },
     include: {
@@ -40,9 +43,9 @@ export async function getLists() {
           user: {
             select: {
               email: true,
-              _count: true
+              id: true
             }
-          },
+          }
         }
       }
     }
@@ -75,11 +78,14 @@ export async function updateListItems(listId: string, list: ListItem[]) {
       }
     },
     data: {
-      items: _.uniqBy([...updatedList.active, ...updatedList.finished, ...items], 'uuid')
+      items: _.uniqBy(
+        [...updatedList.active, ...updatedList.finished, ...items],
+        'uuid'
+      )
     }
   });
 
-  revalidatePath(`/lists/${listId}`)
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function deleteList(id: string) {
@@ -88,6 +94,7 @@ export async function deleteList(id: string) {
   await prisma.list.delete({
     where: {
       id,
+      ownerId: session?.user.id,
       users: {
         some: {
           userId: session?.user.id
@@ -111,6 +118,7 @@ export async function createListAction(previousState: any, formData: any) {
 
   if (!validatedFields.success) {
     return {
+      success: false,
       errors: validatedFields.error.flatten().fieldErrors
     };
   }
@@ -156,26 +164,72 @@ export async function shareList(previousState: any, formData: any) {
 
   if (!validatedFields.success) {
     return {
+      success: false,
       errors: validatedFields.error.flatten().fieldErrors
     };
   }
 
-  await prisma.list.update({
-    where: {
-      id: formData.get('listId')
-    },
-    data: {
-      users: {
-        create: {
-          user: {
-            connect: {
-              email: formData.get('email')
+  try {
+    await prisma.list.update({
+      where: {
+        id: formData.get('listId')
+      },
+      data: {
+        users: {
+          create: {
+            user: {
+              connect: {
+                email: formData.get('email')
+              }
             }
           }
         }
       }
-    }
-  });
+    });
+  } catch (e) {
+    return {
+      success: false,
+      error: 'User with this email does not exist.'
+    };
+  }
 
-  return 'ok';
+  revalidatePath('/');
+  return {
+    success: true
+  };
+}
+
+export async function revokeAccessToList(userId: string, listId: string) {
+  const session = await auth();
+  const list = await getList(listId, true);
+
+  if (
+    _.isUndefined(list?.users.find((user) => user.userId === session?.user.id))
+  ) {
+    return {
+      success: false,
+      error: 'You are not allowed to revoke access to this list'
+    };
+  }
+
+  try {
+    await prisma.listsOnUsers.delete({
+      where: {
+        userId_listId: {
+          listId,
+          userId
+        }
+      }
+    });
+  } catch (e) {
+    return {
+      success: false,
+      error: 'Error revoking access'
+    };
+  }
+
+  revalidatePath('/');
+  return {
+    success: true
+  };
 }
