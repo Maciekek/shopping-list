@@ -35,14 +35,14 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-50">
       <body
         className={cn(
-          'flex flex-col min-h-screen bg-background font-sans antialiased'
-          // fontSans.variable
+          'flex flex-col min-h-screen bg-background font-sans antialiased',
+          fontSans.variable
         )}
       >
         <Nav />
         <div
           className={
-            'flex-grow container mx-auto max-w-7xl px-0 sm:px-6 lg:px-8'
+            'flex-grow container mx-auto max-w-7xl px-0 sm:px-6 lg:px-8 pb-8'
           }
         >
           {children}
