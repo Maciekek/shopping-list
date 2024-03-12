@@ -85,7 +85,7 @@ export default function List({
   };
 
   return (
-    <div className="flex flex-col mx-auto sm:border-0 md:border border-t-0 pb-2 md:border-slate-200 ">
+    <div className="flex flex-col mx-auto sm:border-0 md:border md:border-t-0 pb-2 md:border-slate-200 ">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <form ref={formRef} action={addListItem} className={'w-1/1'}>
           <div className="flex items-center gap-4">
