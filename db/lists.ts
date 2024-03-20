@@ -1,5 +1,4 @@
 import prisma from '@/lib/prisma';
-import _ from 'lodash';
 import { ListItem } from '@/models';
 
 export async function getList({

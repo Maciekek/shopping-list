@@ -51,8 +51,7 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.2.2",
     "uuid": "^9.0.1",
-    "zod": "^3.22.4",
-    "html2canvas": "^1.4.1"
+    "zod": "^3.22.4"
   },
   "prettier": {
     "arrowParens": "always",

@@ -1,5 +1,4 @@
 import List from '@/components/organisms/List';
-import { Button } from '@/components/atoms/Button';
 import { List as ListModel, SharedList } from '@/models';
 import { getPublicList } from '@/actions/lists';
 import { auth } from '@/app/auth';

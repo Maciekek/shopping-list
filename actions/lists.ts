@@ -9,7 +9,7 @@ import prisma from '@/lib/prisma';
 import _, { isObject } from 'lodash';
 import { auth } from '@/app/auth';
 import { db } from '@/db';
-import { randomUUID, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 
 const getCurrentUserOrThrowError = async () => {
   const session = await auth();
@@ -197,7 +197,7 @@ export async function makeListPublic(
     return;
   }
 
-  const result = await prisma.shareList.create({
+  await prisma.shareList.create({
     data: {
       type: accessType,
       token: randomBytes(3).toString('hex'),
