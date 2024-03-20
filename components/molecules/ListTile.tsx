@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/atoms/Dropdown-menu';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,7 @@ import {
   SelectValue
 } from '@/components/atoms/Select';
 import { motion } from 'framer-motion';
+import { Skeleton } from '@/components/atoms/Skeleton';
 
 export default function ListTile({
   list,
@@ -52,13 +53,13 @@ export default function ListTile({
   list: UserList;
   user: User;
 }) {
-
   const ownerEmail =
     list.users.filter((user) => user.userId === list.ownerId)[0]?.user.email ||
     '';
 
   const sharedWith = list.users.filter((user) => user.userId !== list.ownerId);
   const status = user.id === list.ownerId ? 'owner' : 'shared';
+  const [isPending, startTransition] = useTransition();
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareFormState, formAction] = useFormState(shareList, {
@@ -266,9 +267,9 @@ export default function ListTile({
                 <>
                   <Separator />
 
-                  <div className="flex items-center space-x-2">
+                  <div className='flex items-center space-x-2'>
                     <Label
-                      htmlFor="public-list"
+                      htmlFor='public-list'
                       className={'flex justify-between w-full'}
                     >
                       <div>
@@ -277,29 +278,46 @@ export default function ListTile({
                           Your list can be available for anyone with the link
                         </div>
                       </div>
+
+
                       <Switch
+                        disabled={isPending}
                         checked={!!list.share?.token}
                         onCheckedChange={() => {
-                          if (list.share?.token) {
-                            makeListProtected(list.id);
-                          } else {
-                            makeListPublic(list.id, 'READ');
-                          }
+                          startTransition(() => {
+                            if (list.share?.token) {
+                              makeListProtected(list.id);
+                            } else {
+                              makeListPublic(list.id, 'READ');
+                            }
+                          });
                         }}
-                        id="public-list"
+                        id='public-list'
                       />
                     </Label>
                   </div>
 
-                  {list.share?.token && (
+                  <div>
+                    {isPending && (
+                      <>
+                        <Skeleton className=' mt-4 h-8 w-[50px]' />
+                        <Skeleton className=' mt-2 h-8 w-[250px]' />
+                        <Skeleton className=' mt-8 h-8 w-[50px]' />
+                        <Skeleton className=' mt-2 h-8 w-[250px]' />
+                      </>
+                    )}
+                  </div>
+
+                  {list.share?.token && !isPending && (
                     <div>
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.05 }}
                       >
-                        <div className="space-y-2 gap-2 my-3">
+                        <div className='space-y-2 gap-2 my-3'>
                           <Label htmlFor={'share-link-url'}>Role</Label>
+                          <div>{isPending && <Skeleton className=' mt-4 h-8 w-[250px]' />}</div>
 
                           <Select
                             value={list.share.type.toUpperCase()}
@@ -308,22 +326,23 @@ export default function ListTile({
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a fruit" />
+                              <SelectValue placeholder='Select a fruit' />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="READ">Viewer</SelectItem>
-                                <SelectItem value="WRITE">Editor</SelectItem>
+                                <SelectItem value='READ'>Viewer</SelectItem>
+                                <SelectItem value='WRITE'>Editor</SelectItem>
                               </SelectGroup>
                             </SelectContent>
                           </Select>
                         </div>
 
-                        <div className="space-y-2 gap-2 my-3">
+                        <div className='space-y-2 gap-2 my-3'>
                           <Label htmlFor={'share-link-url'}>Share URL</Label>
+                          <div>{isPending && <Skeleton className=' mt-4 h-8 w-[250px]' />}</div>
 
                           <Input
-                            aria-invalid="false"
+                            aria-invalid='false'
                             readOnly={true}
                             value={`${window.location.href}sharedList/${list.share.token}`}
                             required={true}
