@@ -1,8 +1,9 @@
 'use client';
 import { useFormState } from 'react-dom';
-import { createListAction } from '@/app/lists/actions/list';
+
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { Input } from '@/components/atoms/Input';
+import { createListAction } from '@/actions/lists';
 
 const initialState = {
   name: ''

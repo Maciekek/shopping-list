@@ -76,6 +76,7 @@ model List {
   items                   Json?                     @db.Json
   ownerId                 String?
   users                   ListsOnUsers[]
+  share                   ShareList?
 
   @@map("lists")
 }
@@ -84,9 +85,25 @@ model ListsOnUsers {
    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId     String
    list       List      @relation(fields: [listId], references: [id], onDelete: Cascade)
-   listId   String
+   listId     String
 
   @@id([userId, listId])
 }
+
+model ShareList {
+  id         String    @id @default(cuid())
+  type       SharedListType
+  list       List      @relation(fields: [listId], references: [id])
+  listId     String    @unique
+  token      String    @unique
+
+  @@map("shareLists")
+}
+
+enum SharedListType {
+  READ
+  WRITE
+}
+
 
 

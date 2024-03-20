@@ -16,11 +16,6 @@ import {
 } from '@/components/atoms/Dialog';
 import { Input } from '@/components/atoms/Input';
 import { useFormState } from 'react-dom';
-import {
-  deleteList,
-  revokeAccessToList,
-  shareList
-} from '@/app/lists/actions/list';
 import { useToast } from '@/hooks/use-toast';
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { MoreHorizontalIcon } from '@/components/atoms/Icons';
@@ -28,6 +23,27 @@ import { Button } from '@/components/atoms/Button';
 import { UserList } from '@/models';
 import { User } from 'next-auth';
 import { isUndefined } from 'lodash';
+import { Separator } from '@/components/atoms/Separator';
+
+import { Switch } from '@/components/atoms/Switch';
+import { Label } from '@/components/atoms/Label';
+import {
+  deleteList,
+  revokeAccessToList,
+  shareList,
+  makeListPublic,
+  makeListProtected,
+  changePublicListRole
+} from '@/actions/lists';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/atoms/Select';
+import { motion } from 'framer-motion';
 
 export default function ListTile({
   list,
@@ -73,9 +89,13 @@ export default function ListTile({
 
   return (
     <div>
-      <div className="p-2 pr-4 bg-white rounded-lg border shadow-md">
+      <div className="p-2 pr-4 bg-white rounded-lg border">
         <div className="flex justify-between items-center min-h-[60px] ">
-          <Link prefetch={true} href={`/lists/${list.id}`} className={'flex-1 pl-4 pt-4'}>
+          <Link
+            prefetch={true}
+            href={`/lists/${list.id}`}
+            className={'flex-1 pl-4 pt-4'}
+          >
             <h5 className="text-xl font-bold leading-none text-gray-900">
               {list.name}
             </h5>
@@ -97,9 +117,17 @@ export default function ListTile({
               </a>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => deleteList(list.id)}>
-                Delete
-              </DropdownMenuItem>
+              {status === 'owner' && (
+                <DropdownMenuItem onClick={() => deleteList(list.id)}>
+                  Delete
+                </DropdownMenuItem>
+              )}
+
+              {status === 'shared' && (
+                <DropdownMenuItem onClick={() => revokeAccess(user.id)}>
+                  Reject share
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => {
                   setIsShareModalOpen(true);
@@ -114,101 +142,202 @@ export default function ListTile({
 
       {isShareModalOpen && (
         <Dialog open={true} onOpenChange={setIsShareModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Share with friend</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div>
-                <div className="bg-white p-26">
-                  <div className="mb-4">
-                    <div className=" items-center">
-                      <form ref={shareFormRef} action={formAction}>
-                        <div className="space-y-2 gap-2">
-                          <label
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            htmlFor="email"
-                          >
-                            Email
-                          </label>
-                          <div className={'flex justify-between flex-1 gap-2'}>
-                            <Input
-                              aria-invalid="false"
-                              name="email"
-                              required={true}
-                              defaultValue={''}
-                            />
+                <div>
+                  <div className="bg-white p-26">
+                    <div>
+                      <div className=" items-center">
+                        <form ref={shareFormRef} action={formAction}>
+                          <div className="space-y-2 gap-2 my-3">
+                            <Label htmlFor="email">Email</Label>
+                            <div
+                              className={'flex justify-between flex-1 gap-2'}
+                            >
+                              <Input
+                                aria-invalid="false"
+                                name="email"
+                                required={true}
+                                defaultValue={''}
+                              />
 
-                            <Input
-                              aria-invalid="false"
-                              className={'hidden'}
-                              name="listId"
-                              readOnly={true}
-                              value={list.id}
-                              required={true}
-                            />
+                              <Input
+                                aria-invalid="false"
+                                className={'hidden'}
+                                name="listId"
+                                readOnly={true}
+                                value={list.id}
+                                required={true}
+                              />
 
-                            <SubmitFormButton />
+                              <SubmitFormButton />
+                            </div>
                           </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  {list.ownerId !== user.id && (
-                    <div className={'pt-4'}>
-                      <h3 className="text-sm font-semibold mb-2">
-                        Owner of the list:
-                      </h3>
-                      <div className="flex flex-col items-c2enter j2ustify-between bg-gray-100 p-2 rounded">
-                        {ownerEmail}
+                        </form>
                       </div>
                     </div>
-                  )}
-                  <div className="pt-4">
-                    {sharedWith.length > 0 && (
-                      <>
+                    {list.ownerId !== user.id && (
+                      <div className={'pt-4'}>
                         <h3 className="text-sm font-semibold mb-2">
-                          Shared with:
+                          Owner of the list:
                         </h3>
                         <div className="flex flex-col items-c2enter j2ustify-between bg-gray-100 p-2 rounded">
-                          {sharedWith.map((sharedWithUser) => {
-                            return (
-                              <div
-                                className={'px-2 py-2 flex justify-between'}
-                                key={sharedWithUser.userId}
-                              >
-                                <div className="flex items-center">
-                                  <span>
-                                    {sharedWithUser.user.email}{' '}
-                                    <span className={'text-gray-500 '}>
-                                      {sharedWithUser.user.id === user.id
-                                        ? `(Me)`
-                                        : null}
-                                    </span>
-                                  </span>
-                                </div>
-
-                                {/*{status === 'owner' && (*/}
-                                <Button
-                                  className="text-gray-500"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    revokeAccess(sharedWithUser.userId);
-                                  }}
-                                >
-                                  ✕
-                                </Button>
-                                {/*)}*/}
-                              </div>
-                            );
-                          })}
+                          {ownerEmail}
                         </div>
-                      </>
+                      </div>
                     )}
+
+                    <div>
+                      {sharedWith.length > 0 && (
+                        <>
+                          <div className={'space-y-2 gap-2 my-3'}>
+                            <Label>Shared with:</Label>
+                          </div>
+                          <div className="flex flex-col bg-gray-100 p-2 rounded">
+                            {sharedWith.map((sharedWithUser: any) => {
+                              return (
+                                <div
+                                  className={'px-2 py-2 flex justify-between'}
+                                  key={sharedWithUser.userId}
+                                >
+                                  <div className="flex items-center">
+                                    <span>
+                                      {sharedWithUser.user.email}
+                                      <span className={'text-gray-500 '}>
+                                        {sharedWithUser.user.id === user.id
+                                          ? `(Me)`
+                                          : null}
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    className={
+                                      'pl-20 flex items-center font-light taext-gray-500'
+                                    }
+                                  >
+                                    <Select
+                                      value={'WRITE'}
+                                      disabled={true}
+                                      // onValueChange={(role: 'READ' | 'WRITE') => {
+                                      //   changePublicListRole(list.id, role);
+                                      // }}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select a fruit" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectGroup>
+                                          {/*<SelectItem value="READ">Viewer</SelectItem>*/}
+                                          <SelectItem value="WRITE">
+                                            Editor
+                                          </SelectItem>
+                                        </SelectGroup>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  {/*{status === 'owner' && (*/}
+                                  <Button
+                                    className="text-gray-500"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      revokeAccess(sharedWithUser.userId);
+                                    }}
+                                  >
+                                    ✕
+                                  </Button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+
+              {status === 'owner' && (
+                <>
+                  <Separator />
+
+                  <div className="flex items-center space-x-2">
+                    <Label
+                      htmlFor="public-list"
+                      className={'flex justify-between w-full'}
+                    >
+                      <div>
+                        <div>Public list</div>
+                        <div className={'font-light leading-6'}>
+                          Your list can be available for anyone with the link
+                        </div>
+                      </div>
+                      <Switch
+                        checked={!!list.share?.token}
+                        onCheckedChange={() => {
+                          if (list.share?.token) {
+                            makeListProtected(list.id);
+                          } else {
+                            makeListPublic(list.id, 'READ');
+                          }
+                        }}
+                        id="public-list"
+                      />
+                    </Label>
+                  </div>
+
+                  {list.share?.token && (
+                    <div>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.05 }}
+                      >
+                        <div className="space-y-2 gap-2 my-3">
+                          <Label htmlFor={'share-link-url'}>Role</Label>
+
+                          <Select
+                            value={list.share.type.toUpperCase()}
+                            onValueChange={(role: 'READ' | 'WRITE') => {
+                              changePublicListRole(list.id, role);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a fruit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="READ">Viewer</SelectItem>
+                                <SelectItem value="WRITE">Editor</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2 gap-2 my-3">
+                          <Label htmlFor={'share-link-url'}>Share URL</Label>
+
+                          <Input
+                            aria-invalid="false"
+                            readOnly={true}
+                            value={`http://localhost:3000/sharedList/${list.share.token}`}
+                            required={true}
+                            id={'share-link-url'}
+                          />
+                          {/*<Button className="ml-auto w-8 h-8" size="icon">*/}
+                          {/*  <span className="sr-only">Settings</span>*/}
+                          {/*</Button>*/}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
           </DialogContent>
         </Dialog>
       )}

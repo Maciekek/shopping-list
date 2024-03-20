@@ -1,4 +1,6 @@
-import { getList, getUserLists } from '@/app/lists/actions/list';
+import { getPublicList, getUserLists } from '@/actions/lists';
+import { getList } from '@/db/lists';
+
 
 export type User = {
   id: number;
@@ -19,5 +21,10 @@ export type UserLists = ThenArg<ReturnType<typeof getUserLists>>
 export type ShareWithUser = UserLists[number]['users']
 export type UserList = UserLists[number]
 export type List = ThenArg<ReturnType<typeof getList>>;
+export type SharedList = ThenArg<ReturnType<typeof getPublicList>>;
 
+
+export type StandardError = {
+  error: string
+}
 
