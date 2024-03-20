@@ -52,6 +52,7 @@ export default function ListTile({
   list: UserList;
   user: User;
 }) {
+
   const ownerEmail =
     list.users.filter((user) => user.userId === list.ownerId)[0]?.user.email ||
     '';
@@ -324,7 +325,7 @@ export default function ListTile({
                           <Input
                             aria-invalid="false"
                             readOnly={true}
-                            value={`http://localhost:3000/sharedList/${list.share.token}`}
+                            value={`${window.location.href}sharedList/${list.share.token}`}
                             required={true}
                             id={'share-link-url'}
                           />
