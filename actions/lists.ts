@@ -10,6 +10,7 @@ import _, { isObject } from 'lodash';
 import { auth } from '@/app/auth';
 import { db } from '@/db';
 import { randomBytes } from 'node:crypto';
+import { emailService } from '@/lib/emails';
 
 const getCurrentUserOrThrowError = async () => {
   const session = await auth();
@@ -117,6 +118,8 @@ export async function createListAction(previousState: any, formData: any) {
 // TODO: check if I have access to this list
 // TODO: send mail with invitation to list, or with notification
 export async function shareList(previousState: any, formData: any) {
+  const user = await getCurrentUserOrThrowError();
+
   const schema = z.object({
     email: z.string().min(3).max(60),
     listId: z.string()
@@ -145,6 +148,12 @@ export async function shareList(previousState: any, formData: any) {
       error: 'User with this email does not exist.'
     };
   }
+
+  emailService.sendShareEmail({
+    to: formData.get('email'),
+    from: user.email!,
+    listUrl: `${process.env.NEXTAUTH_URL}/lists/${formData.get('listId')}`
+  });
 
   revalidatePath('/');
   return {
