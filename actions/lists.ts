@@ -184,6 +184,8 @@ export async function makeListPublic(
   listId: string,
   accessType: 'READ' | 'WRITE'
 ) {
+  console.time('changePublicListRole');
+
   const user = await getCurrentUserOrThrowError();
 
   const list = await prisma.list.findUnique({
@@ -209,6 +211,7 @@ export async function makeListPublic(
       }
     }
   });
+  console.timeEnd('changePublicListRole');
 
   revalidatePath(`/`);
 }
@@ -217,6 +220,8 @@ export async function changePublicListRole(
   listId: string,
   accessType: 'READ' | 'WRITE'
 ) {
+  console.time('changePublicListRole');
+
   const user = await getCurrentUserOrThrowError();
 
   const list = await prisma.list.findUnique({
@@ -238,13 +243,13 @@ export async function changePublicListRole(
       type: accessType
     }
   });
-
+  console.timeEnd('changePublicListRole');
   revalidatePath('/');
 }
 
 export async function makeListProtected(listId: string) {
   const user = await getCurrentUserOrThrowError();
-
+  console.time('makeListProtected');
   const list = await prisma.list.findUnique({
     where: {
       id: listId,
@@ -268,8 +273,10 @@ export async function makeListProtected(listId: string) {
       }
     }
   });
-
+  console.timeEnd('makeListProtected');
+  console.time('revalidatePath makeListProtected');
   revalidatePath(`/`);
+  console.timeEnd('revalidatePath makeListProtected');
 }
 
 export async function getPublicList(token: string) {

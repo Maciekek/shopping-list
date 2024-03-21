@@ -10,7 +10,8 @@ export async function getList({
   userId?: string;
   withUsers?: boolean;
 }) {
-  return prisma.list.findUnique({
+  console.time('getList')
+  const result = await prisma.list.findUnique({
     where: {
       id: listId,
       users: {
@@ -24,6 +25,9 @@ export async function getList({
       share: true,
     }
   });
+
+  console.timeEnd('getList');
+  return result;
 }
 
 export async function getUserLists({ userId }: { userId: string }) {
@@ -65,7 +69,9 @@ export async function updateListItems({
   items: ListItem[];
   userId?: string;
 }) {
-  await prisma.list.update({
+  console.time('updateListItems')
+
+  const result = await prisma.list.update({
     where: {
       id: listId,
       users: {
@@ -78,6 +84,8 @@ export async function updateListItems({
       items: items
     }
   });
+  console.timeEnd('updateListItems')
+  return result;
 }
 
 
