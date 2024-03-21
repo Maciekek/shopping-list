@@ -206,52 +206,55 @@ export default function ListTile({
                                   className={'px-2 py-2 flex justify-between'}
                                   key={sharedWithUser.userId}
                                 >
-                                  <div className="flex items-center">
-                                    <span>
-                                      {sharedWithUser.user.email}
-                                      <span className={'text-gray-500 '}>
-                                        {sharedWithUser.user.id === user.id
-                                          ? `(Me)`
-                                          : null}
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  <div
-                                    className={
-                                      'pl-20 flex items-center font-light taext-gray-500'
-                                    }
-                                  >
-                                    <Select
-                                      value={'WRITE'}
-                                      disabled={true}
-                                      // onValueChange={(role: 'READ' | 'WRITE') => {
-                                      //   changePublicListRole(list.id, role);
-                                      // }}
+                                  <div className="flex  w-full bg-gray-100 p-2 rounded">
+                                    <div
+                                      className={'flex items-center'}
+                                      style={{
+                                        flex: '1 1 100%',
+                                        minWidth: '0px'
+                                      }}
                                     >
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select a fruit" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectGroup>
-                                          {/*<SelectItem value="READ">Viewer</SelectItem>*/}
-                                          <SelectItem value="WRITE">
-                                            Editor
-                                          </SelectItem>
-                                        </SelectGroup>
-                                      </SelectContent>
-                                    </Select>
+                                      <div className={'truncate'}>
+                                        {sharedWithUser.user.email}
+                                      </div>
+                                    </div>
+
+                                    <div
+                                      className={
+                                        'flex items-center font-light w-[100px]'
+                                      }
+                                    >
+                                      <Select
+                                        value={'WRITE'}
+                                        disabled={true}
+                                        // onValueChange={(role: 'READ' | 'WRITE') => {
+                                        //   changePublicListRole(list.id, role);
+                                        // }}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select a fruit" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectGroup>
+                                            {/*<SelectItem value="READ">Viewer</SelectItem>*/}
+                                            <SelectItem value="WRITE">
+                                              Editor
+                                            </SelectItem>
+                                          </SelectGroup>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    {/*{status === 'owner' && (*/}
+                                    <Button
+                                      className="text-gray-500"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        revokeAccess(sharedWithUser.userId);
+                                      }}
+                                    >
+                                      ✕
+                                    </Button>
                                   </div>
-                                  {/*{status === 'owner' && (*/}
-                                  <Button
-                                    className="text-gray-500"
-                                    variant="ghost"
-                                    onClick={() => {
-                                      revokeAccess(sharedWithUser.userId);
-                                    }}
-                                  >
-                                    ✕
-                                  </Button>
                                 </div>
                               );
                             })}
@@ -267,9 +270,9 @@ export default function ListTile({
                 <>
                   <Separator />
 
-                  <div className='flex items-center space-x-2'>
+                  <div className="flex items-center space-x-2">
                     <Label
-                      htmlFor='public-list'
+                      htmlFor="public-list"
                       className={'flex justify-between w-full'}
                     >
                       <div>
@@ -278,7 +281,6 @@ export default function ListTile({
                           Your list can be available for anyone with the link
                         </div>
                       </div>
-
 
                       <Switch
                         disabled={isPending}
@@ -292,7 +294,7 @@ export default function ListTile({
                             }
                           });
                         }}
-                        id='public-list'
+                        id="public-list"
                       />
                     </Label>
                   </div>
@@ -300,10 +302,10 @@ export default function ListTile({
                   <div>
                     {isPending && (
                       <>
-                        <Skeleton className=' mt-4 h-8 w-[50px]' />
-                        <Skeleton className=' mt-2 h-8 w-[250px]' />
-                        <Skeleton className=' mt-8 h-8 w-[50px]' />
-                        <Skeleton className=' mt-2 h-8 w-[250px]' />
+                        <Skeleton className=" mt-4 h-8 w-[50px]" />
+                        <Skeleton className=" mt-2 h-8 w-[250px]" />
+                        <Skeleton className=" mt-8 h-8 w-[50px]" />
+                        <Skeleton className=" mt-2 h-8 w-[250px]" />
                       </>
                     )}
                   </div>
@@ -315,9 +317,13 @@ export default function ListTile({
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.05 }}
                       >
-                        <div className='space-y-2 gap-2 my-3'>
+                        <div className="space-y-2 gap-2 my-3">
                           <Label htmlFor={'share-link-url'}>Role</Label>
-                          <div>{isPending && <Skeleton className=' mt-4 h-8 w-[250px]' />}</div>
+                          <div>
+                            {isPending && (
+                              <Skeleton className=" mt-4 h-8 w-[250px]" />
+                            )}
+                          </div>
 
                           <Select
                             value={list.share.type.toUpperCase()}
@@ -326,23 +332,27 @@ export default function ListTile({
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder='Select a fruit' />
+                              <SelectValue placeholder="Select a fruit" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value='READ'>Viewer</SelectItem>
-                                <SelectItem value='WRITE'>Editor</SelectItem>
+                                <SelectItem value="READ">Viewer</SelectItem>
+                                <SelectItem value="WRITE">Editor</SelectItem>
                               </SelectGroup>
                             </SelectContent>
                           </Select>
                         </div>
 
-                        <div className='space-y-2 gap-2 my-3'>
+                        <div className="space-y-2 gap-2 my-3">
                           <Label htmlFor={'share-link-url'}>Share URL</Label>
-                          <div>{isPending && <Skeleton className=' mt-4 h-8 w-[250px]' />}</div>
+                          <div>
+                            {isPending && (
+                              <Skeleton className=" mt-4 h-8 w-[250px]" />
+                            )}
+                          </div>
 
                           <Input
-                            aria-invalid='false'
+                            aria-invalid="false"
                             readOnly={true}
                             value={`${window.location.href}sharedList/${list.share.token}`}
                             required={true}
