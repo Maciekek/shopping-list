@@ -133,7 +133,7 @@ export default function ListTile({
 
               {status === 'shared' && (
                 <DropdownMenuItem
-                  onClick={() => withToastOnError(() => revokeAccess(user.id))}
+                  onClick={withToastOnError(() => revokeAccess(user.id))}
                 >
                   Reject share
                 </DropdownMenuItem>
