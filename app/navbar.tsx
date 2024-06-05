@@ -12,7 +12,7 @@ import { User } from 'next-auth';
 
 const navigation = [{ name: 'Your lists', href: '/' }];
 
-export default function Navbar({ user }: { user: User }) {
+export default function Navbar({ user }: { user?: User }) {
   const pathname = usePathname();
 
   return (

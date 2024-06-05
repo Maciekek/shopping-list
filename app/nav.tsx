@@ -5,5 +5,5 @@ import { redirect } from 'next/navigation';
 export default async function Nav() {
   const session = await auth();
 
-  return <Navbar user={session!.user!} />;
+  return <Navbar user={session?.user} />;
 }
