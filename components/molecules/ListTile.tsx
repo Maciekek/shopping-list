@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { MoreHorizontalIcon } from '@/components/atoms/Icons';
 import { Button } from '@/components/atoms/Button';
-import { UserList } from '@/models';
+import { ListWithUsersAndShare } from '@/models';
 import { User } from 'next-auth';
 import { isUndefined } from 'lodash';
 import { Separator } from '@/components/atoms/Separator';
@@ -45,17 +45,20 @@ import {
 } from '@/components/atoms/Select';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/atoms/Skeleton';
+import { useErrorSupport } from '@/hooks/use-error-support';
 
 export default function ListTile({
   list,
   user
 }: {
-  list: UserList;
+  list: ListWithUsersAndShare;
   user: User;
 }) {
   const ownerEmail =
     list.users.filter((user) => user.userId === list.ownerId)[0]?.user.email ||
     '';
+
+  console.log(60, list);
 
   const sharedWith = list.users.filter((user) => user.userId !== list.ownerId);
   const status = user.id === list.ownerId ? 'owner' : 'shared';
@@ -69,6 +72,7 @@ export default function ListTile({
   const shareFormRef = useRef<HTMLFormElement>(null);
 
   const { toast } = useToast();
+  const { withToastOnError } = useErrorSupport();
 
   useEffect(() => {
     if (!isUndefined(shareFormState?.success) && !shareFormState?.success) {
@@ -86,7 +90,7 @@ export default function ListTile({
   }, [toast, shareFormState]);
 
   const revokeAccess = (userId: string) => {
-    revokeAccessToList(userId, list.id);
+    return revokeAccessToList(userId, list.id);
   };
 
   return (
@@ -120,13 +124,17 @@ export default function ListTile({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {status === 'owner' && (
-                <DropdownMenuItem onClick={() => deleteList(list.id)}>
+                <DropdownMenuItem
+                  onClick={withToastOnError(() => deleteList(list.id))}
+                >
                   Delete
                 </DropdownMenuItem>
               )}
 
               {status === 'shared' && (
-                <DropdownMenuItem onClick={() => revokeAccess(user.id)}>
+                <DropdownMenuItem
+                  onClick={() => withToastOnError(() => revokeAccess(user.id))}
+                >
                   Reject share
                 </DropdownMenuItem>
               )}
@@ -187,7 +195,7 @@ export default function ListTile({
                         <h3 className="text-sm font-semibold mb-2">
                           Owner of the list:
                         </h3>
-                        <div className="flex flex-col items-c2enter j2ustify-between bg-gray-100 p-2 rounded">
+                        <div className="flex flex-col bg-gray-100 p-2 rounded">
                           {ownerEmail}
                         </div>
                       </div>
@@ -200,10 +208,10 @@ export default function ListTile({
                             <Label>Shared with:</Label>
                           </div>
                           <div className="flex flex-col bg-gray-100 p-2 rounded">
-                            {sharedWith.map((sharedWithUser: any) => {
+                            {sharedWith.map((sharedWithUser) => {
                               return (
                                 <div
-                                  className={'px-2 py-2 flex justify-between'}
+                                  className={'flex justify-between'}
                                   key={sharedWithUser.userId}
                                 >
                                   <div className="flex  w-full bg-gray-100 p-2 rounded">
@@ -227,16 +235,12 @@ export default function ListTile({
                                       <Select
                                         value={'WRITE'}
                                         disabled={true}
-                                        // onValueChange={(role: 'READ' | 'WRITE') => {
-                                        //   changePublicListRole(list.id, role);
-                                        // }}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Select a fruit" />
+                                          <SelectValue/>
                                         </SelectTrigger>
                                         <SelectContent>
                                           <SelectGroup>
-                                            {/*<SelectItem value="READ">Viewer</SelectItem>*/}
                                             <SelectItem value="WRITE">
                                               Editor
                                             </SelectItem>
@@ -244,16 +248,17 @@ export default function ListTile({
                                         </SelectContent>
                                       </Select>
                                     </div>
-                                    {/*{status === 'owner' && (*/}
-                                    <Button
-                                      className="text-gray-500"
-                                      variant="ghost"
-                                      onClick={() => {
-                                        revokeAccess(sharedWithUser.userId);
-                                      }}
-                                    >
-                                      ✕
-                                    </Button>
+                                    {status === 'owner' && (
+                                      <Button
+                                        className="text-gray-500"
+                                        variant="ghost"
+                                        onClick={() => {
+                                          revokeAccess(sharedWithUser.userId);
+                                        }}
+                                      >
+                                        ✕
+                                      </Button>
+                                    )}
                                   </div>
                                 </div>
                               );
@@ -290,7 +295,7 @@ export default function ListTile({
                             if (list.share?.token) {
                               makeListProtected(list.id);
                             } else {
-                              makeListPublic(list.id, 'READ');
+                              makeListPublic(list.id);
                             }
                           });
                         }}
@@ -327,8 +332,12 @@ export default function ListTile({
 
                           <Select
                             value={list.share.type.toUpperCase()}
-                            onValueChange={(role: 'READ' | 'WRITE') => {
-                              changePublicListRole(list.id, role);
+                            onValueChange={async (role: 'READ' | 'WRITE') => {
+                              const res = await changePublicListRole({
+                                listId: list.id,
+                                accessType: role
+                              });
+                              console.log(332, res);
                             }}
                           >
                             <SelectTrigger>

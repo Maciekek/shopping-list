@@ -3,94 +3,95 @@
 import { z } from 'zod';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { List, ListItem } from '@/models';
+import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import _, { isObject } from 'lodash';
 import { auth } from '@/app/auth';
-import { db } from '@/db';
-import { randomBytes } from 'node:crypto';
-import { emailService } from '@/lib/emails';
+import ListService from '@/services/ListService';
+import { isError } from '@/lib/utils';
+import { ListItem } from '@/models';
 
 const getCurrentUserOrThrowError = async () => {
   const session = await auth();
+
   if (!session) {
-    throw new Error('Not allowed operation. User is not logged in');
+    console.error('Not allowed operation. User is not logged in');
+    redirect('');
   }
 
-  return session.user;
+  return session!.user;
 };
 
 export async function getList(listId: string, withUsers = false) {
   const user = await getCurrentUserOrThrowError();
-  const list = await db.lists.getList({ listId, userId: user.id, withUsers });
-  return list;
+  const result = await ListService.getList({
+    listId,
+    userId: user.id,
+    withUsers
+  });
+
+  if (isError(result)) {
+    return result;
+  }
+
+  if (!result) {
+    notFound();
+  }
+
+  return result;
 }
 
 export async function getUserLists() {
   const user = await getCurrentUserOrThrowError();
 
-  return db.lists.getUserLists({ userId: user.id });
+  return ListService.getAllUserLists({ userId: user.id });
 }
 
-export async function updateListItems(
-  listId: string,
-  list: ListItem[],
-  isPublicList: boolean = false
-) {
+export async function updateListItems(listId: string, newItems: ListItem[]) {
   const session = await auth();
-  if (!session && !isPublicList) {
-    return;
-  }
 
-  const existingList: List = await db.lists.getList({
+  const result = await ListService.updateList({
     listId,
-    userId: isPublicList ? undefined : session!.user.id,
-    withUsers: true
+    user: session?.user,
+    newItems
   });
 
-  if (
-    (!isObject(existingList?.share) && isPublicList) ||
-    (isObject(existingList?.share) &&
-      existingList?.share.type === 'READ' &&
-      !existingList?.users.find((u) => u.userId === session?.user.id))
-  ) {
-    return;
+  if (isError(result)) {
+    return result;
   }
-
-  const items = existingList?.items as ListItem[];
-
-  const updatedList = [...list].reduce(
-    (acc: { active: ListItem[]; finished: ListItem[] }, item) => {
-      if (item.selected) {
-        return { ...acc, finished: [...acc.finished, item] };
-      }
-
-      return { ...acc, active: [...acc.active, item] };
-    },
-    { active: [], finished: [] }
-  );
-
-  await db.lists.updateListItems({
-    listId,
-    userId: isPublicList ? undefined : session!.user.id,
-    items: _.uniqBy(
-      [...updatedList.active, ...updatedList.finished, ...items],
-      'uuid'
-    )
-  });
 
   revalidatePath(`/lists/${listId}`);
 }
 
+export async function deleteItemFromList(listId: string, itemId: string) {
+  const session = await auth();
+
+  const result = await ListService.deleteItemFromList({
+    listId,
+    itemId,
+    user: session?.user!
+  });
+
+  if (isError(result)) {
+    return result;
+  }
+
+  revalidatePath(`/lists/${listId}`);
+
+}
+
 export async function deleteList(listId: string) {
   const user = await getCurrentUserOrThrowError();
-  await db.lists.deleteList({ listId, userId: user.id });
+
+  const result = await ListService.deleteList({ listId, userId: user.id });
+
+  if (result && isError(result)) {
+    return result;
+  }
 
   return redirect('/');
 }
 
-export async function createListAction(previousState: any, formData: any) {
+export async function createList(previousState: any, formData: FormData) {
   const user = await getCurrentUserOrThrowError();
   const schema = z.object({
     name: z.string().min(3).max(60)
@@ -102,22 +103,28 @@ export async function createListAction(previousState: any, formData: any) {
 
   if (!validatedFields.success) {
     return {
-      success: false,
-      errors: validatedFields.error.flatten().fieldErrors
+      hasError: true,
+      message: 'Form validation error',
+      formErrors: validatedFields.error.flatten().fieldErrors
     };
   }
 
   const listName = formData.get('name') ? formData.get('name')! : '';
 
-  await db.lists.createList({ name: listName, userId: user.id });
+  const result = await ListService.createList({
+    name: listName.toString(),
+    userId: user.id
+  });
+
+  if (isError(result)) {
+    return result;
+  }
 
   revalidatePath('/');
   redirect('/');
 }
 
-// TODO: check if I have access to this list
-// TODO: send mail with invitation to list, or with notification
-export async function shareList(previousState: any, formData: any) {
+export async function shareList(previousState: any, formData: FormData) {
   const user = await getCurrentUserOrThrowError();
 
   const schema = z.object({
@@ -132,160 +139,86 @@ export async function shareList(previousState: any, formData: any) {
 
   if (!validatedFields.success) {
     return {
-      success: false,
-      errors: validatedFields.error.flatten().fieldErrors
+      hasError: true,
+      message: '',
+      formErrors: validatedFields.error.flatten().fieldErrors
     };
   }
 
-  try {
-    await db.lists.grantAccess({
-      listId: formData.get('listId'),
-      email: formData.get('email')
-    });
-  } catch (e) {
-    return {
-      success: false,
-      error: 'User with this email does not exist.'
-    };
-  }
-
-  emailService.sendShareEmail({
-    to: formData.get('email'),
-    from: user.email!,
-    listUrl: `${process.env.NEXTAUTH_URL}/lists/${formData.get('listId')}`
+  const result = await ListService.grantAccessToList({
+    listId: formData.get('listId')!.toString(),
+    email: formData.get('email')!.toString(),
+    user
   });
 
+  if (result && isError(result)) {
+    return result;
+  }
+
   revalidatePath('/');
-  return {
-    success: true
-  };
 }
 
 export async function revokeAccessToList(userId: string, listId: string) {
-  const currentUser = await getCurrentUserOrThrowError();
-  const list = await getList(listId, true);
+  const user = await getCurrentUserOrThrowError();
 
-  if (
-    _.isUndefined(list?.users.find((user) => user.userId === currentUser.id))
-  ) {
-    return {
-      success: false,
-      error: 'You are not allowed to revoke access to this list'
-    };
-  }
+  const result = await ListService.revokeAccessToList({ listId, userId, user });
 
-  try {
-    await db.lists.revokeAccess({ listId, userId });
-  } catch (e) {
-    return {
-      success: false,
-      error: 'Error revoking access'
-    };
+  if (result && isError(result)) {
+    return result;
   }
 
   revalidatePath('/');
-  return {
-    success: true
-  };
 }
 
-export async function makeListPublic(
-  listId: string,
-  accessType: 'READ' | 'WRITE'
-) {
-  console.time('changePublicListRole');
-
+export async function makeListPublic(listId: string) {
   const user = await getCurrentUserOrThrowError();
 
-  const list = await prisma.list.findUnique({
-    where: {
-      id: listId,
-      ownerId: user.id
-    }
+  const result = await ListService.makeListPublic({
+    listId,
+    user
   });
 
-  if (!list) {
-    return;
+  if (isError(result)) {
+    return result;
   }
-
-  await prisma.shareList.create({
-    data: {
-      type: accessType,
-      token: randomBytes(3).toString('hex'),
-
-      list: {
-        connect: {
-          id: listId
-        }
-      }
-    }
-  });
-  console.timeEnd('changePublicListRole');
 
   revalidatePath(`/`);
 }
 
-export async function changePublicListRole(
-  listId: string,
-  accessType: 'READ' | 'WRITE'
-) {
-  console.time('changePublicListRole');
-
+export async function changePublicListRole({
+  listId,
+  accessType
+}: {
+  listId: string;
+  accessType: 'READ' | 'WRITE';
+}) {
   const user = await getCurrentUserOrThrowError();
-
-  const list = await prisma.list.findUnique({
-    where: {
-      id: listId,
-      ownerId: user.id
-    }
+  const result = await ListService.changePublicListRole({
+    listId,
+    user,
+    accessType
   });
 
-  if (!list) {
-    return;
+  if (isError(result)) {
+    return result;
   }
 
-  await prisma.shareList.update({
-    where: {
-      listId
-    },
-    data: {
-      type: accessType
-    }
-  });
-  console.timeEnd('changePublicListRole');
   revalidatePath('/');
 }
 
 export async function makeListProtected(listId: string) {
   const user = await getCurrentUserOrThrowError();
-  console.time('makeListProtected');
-  const list = await prisma.list.findUnique({
-    where: {
-      id: listId,
-      ownerId: user.id
-    }
+
+  const result = await ListService.makeListProtected({
+    listId,
+    user
   });
 
-  if (!list) {
-    return;
+  if (isError(result)) {
+    return result;
   }
 
-  const result = await prisma.shareList.delete({
-    where: {
-      listId,
-      list: {
-        users: {
-          some: {
-            userId: user.id
-          }
-        }
-      }
-    }
-  });
-  console.timeEnd('makeListProtected');
-  console.time('revalidatePath makeListProtected');
   revalidatePath(`/`);
-  console.timeEnd('revalidatePath makeListProtected');
 }
 
 export async function getPublicList(token: string) {
@@ -300,6 +233,10 @@ export async function getPublicList(token: string) {
       users: true
     }
   });
+
+  if (!shareList) {
+    notFound();
+  }
 
   return shareList;
 }

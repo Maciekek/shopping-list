@@ -7,10 +7,10 @@ settings:
 dependencies:
   '@auth/pg-adapter':
     specifier: ^0.5.2
-    version: 0.5.2(nodemailer@6.9.12)(pg@8.11.3)
+    version: 0.5.2(pg@8.11.3)
   '@auth/prisma-adapter':
     specifier: 1.3.3
-    version: 1.3.3(@prisma/client@5.9.1)(nodemailer@6.9.12)
+    version: 1.3.3(@prisma/client@5.9.1)
   '@headlessui/react':
     specifier: ^1.7.17
     version: 1.7.17(react-dom@18.2.0)(react@18.2.0)
@@ -97,13 +97,10 @@ dependencies:
     version: 14.2.0-canary.11(react-dom@18.2.0)(react@18.2.0)
   next-auth:
     specifier: 5.0.0-beta.3
-    version: 5.0.0-beta.3(next@14.2.0-canary.11)(nodemailer@6.9.12)(react@18.2.0)
-  nodemailer:
-    specifier: ^6.9.12
-    version: 6.9.12
-  pg:
-    specifier: ^8.11.3
-    version: 8.11.3
+    version: 5.0.0-beta.3(next@14.2.0-canary.11)(react@18.2.0)
+  next-safe-action:
+    specifier: ^6.2.0
+    version: 6.2.0(ajv@6.12.6)(next@14.2.0-canary.11)(react@18.2.0)
   postcss:
     specifier: ^8.4.31
     version: 8.4.31
@@ -125,9 +122,6 @@ dependencies:
   react-email:
     specifier: 2.1.0
     version: 2.1.0(eslint@8.52.0)
-  resend:
-    specifier: ^3.2.0
-    version: 3.2.0
   server-only:
     specifier: ^0.0.1
     version: 0.0.1
@@ -185,7 +179,7 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /@auth/core@0.0.0-manual.e9863699(nodemailer@6.9.12):
+  /@auth/core@0.0.0-manual.e9863699:
     resolution: {integrity: sha512-/hVzGuFw7nAZimliD8kpuKnNjvkRu+jpaVhYB/FaIXLNJFNwhbO2MgXBnr5tvLIHgRJnR5C9UN5RNpQXiFHuSA==}
     peerDependencies:
       nodemailer: ^6.8.0
@@ -196,13 +190,12 @@ packages:
       '@panva/hkdf': 1.1.1
       cookie: 0.5.0
       jose: 4.15.5
-      nodemailer: 6.9.12
       oauth4webapi: 2.10.2
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
     dev: false
 
-  /@auth/core@0.26.2(nodemailer@6.9.12):
+  /@auth/core@0.26.2:
     resolution: {integrity: sha512-BK+NaUDLcX8AMW/O32wxzk+SE9lr/xvjO4PsTgla9ToHHanoPMl+6pYu2/WoNKnZomdHBWOl/00LFfajuulIVA==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
@@ -220,13 +213,12 @@ packages:
       '@types/cookie': 0.6.0
       cookie: 0.6.0
       jose: 5.2.1
-      nodemailer: 6.9.12
       oauth4webapi: 2.10.2
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
     dev: false
 
-  /@auth/core@0.26.3(nodemailer@6.9.12):
+  /@auth/core@0.26.3:
     resolution: {integrity: sha512-Ka6rMjWMdiQCvLW/CnYZxj4Rq2bhQ/ZtU32NLxmtyAaixGb0mRXQ9MxJUBZA7GHovbghdzu55p2Cb54qNlVFzw==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
@@ -244,18 +236,17 @@ packages:
       '@types/cookie': 0.6.0
       cookie: 0.6.0
       jose: 5.2.1
-      nodemailer: 6.9.12
       oauth4webapi: 2.10.2
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
     dev: false
 
-  /@auth/pg-adapter@0.5.2(nodemailer@6.9.12)(pg@8.11.3):
+  /@auth/pg-adapter@0.5.2(pg@8.11.3):
     resolution: {integrity: sha512-QEC9ZbBAl1jeP0Uf9kdJa717ToH+yIKfWQj1/q7CavnQVFkKX+vGx9mIOHmU5rlFRzG+PwXXT/PKNyXxDuFTRA==}
     peerDependencies:
       pg: ^8
     dependencies:
-      '@auth/core': 0.26.2(nodemailer@6.9.12)
+      '@auth/core': 0.26.2
       pg: 8.11.3
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
@@ -263,12 +254,12 @@ packages:
       - nodemailer
     dev: false
 
-  /@auth/prisma-adapter@1.3.3(@prisma/client@5.9.1)(nodemailer@6.9.12):
+  /@auth/prisma-adapter@1.3.3(@prisma/client@5.9.1):
     resolution: {integrity: sha512-KVR4a6ekgVzaX2i62XgWbKThOFOhB22bEVsITbMrA9kDZM4dHOZ9QOBbzpXP/e6hSUxTdO97zy1LZ8pASR1Ybw==}
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3 || >=4 || >=5'
     dependencies:
-      '@auth/core': 0.26.3(nodemailer@6.9.12)
+      '@auth/core': 0.26.3
       '@prisma/client': 5.9.1(prisma@5.9.1)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
@@ -311,6 +302,64 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
+    dev: false
+
+  /@decs/typeschema@0.12.2(ajv@6.12.6)(zod@3.22.4):
+    resolution: {integrity: sha512-PA8uAH/Xfsa5X2UNNSnb5i6vB8qWZywp4+d2U8kNMCO7qwirYRPbFCHwIfWBJyURh4rULn3Ey+VBADLcK2xxaQ==}
+    deprecated: TypeSchema has been restructured. Install @typeschema/main or @typeschema/all instead.
+    peerDependencies:
+      '@deepkit/type': ^1.0.1-alpha.113
+      '@effect/schema': ^0.60.6
+      '@sinclair/typebox': ^0.32.11
+      ajv: ^8.12.0
+      arktype: ^1.0.29-alpha
+      effect: ^2.1.2
+      fp-ts: ^2.16.2
+      io-ts: ^2.2.21
+      joi: ^17.12.0
+      ow: ^0.28.2
+      runtypes: ^6.7.0
+      superstruct: ^1.0.3
+      valibot: ^0.26.0
+      vite: ^5.0.12
+      yup: ^1.3.3
+      zod: ^3.22.4
+    peerDependenciesMeta:
+      '@deepkit/type':
+        optional: true
+      '@effect/schema':
+        optional: true
+      '@sinclair/typebox':
+        optional: true
+      ajv:
+        optional: true
+      arktype:
+        optional: true
+      effect:
+        optional: true
+      fp-ts:
+        optional: true
+      io-ts:
+        optional: true
+      joi:
+        optional: true
+      ow:
+        optional: true
+      runtypes:
+        optional: true
+      superstruct:
+        optional: true
+      valibot:
+        optional: true
+      vite:
+        optional: true
+      yup:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      ajv: 6.12.6
+      zod: 3.22.4
     dev: false
 
   /@emotion/is-prop-valid@0.8.8:
@@ -5176,7 +5225,7 @@ packages:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: false
 
-  /next-auth@5.0.0-beta.3(next@14.2.0-canary.11)(nodemailer@6.9.12)(react@18.2.0):
+  /next-auth@5.0.0-beta.3(next@14.2.0-canary.11)(react@18.2.0):
     resolution: {integrity: sha512-WOKhATBFGeONV+29HzFmspNmL7NXxrsCWLfaDKmAd/4DD1nqXE0BzNFH8t3SJBx7PUDMnB6F7xB76LM/AaV1MQ==}
     peerDependencies:
       next: ^14
@@ -5186,10 +5235,39 @@ packages:
       nodemailer:
         optional: true
     dependencies:
-      '@auth/core': 0.0.0-manual.e9863699(nodemailer@6.9.12)
+      '@auth/core': 0.0.0-manual.e9863699
       next: 14.2.0-canary.11(react-dom@18.2.0)(react@18.2.0)
-      nodemailer: 6.9.12
       react: 18.2.0
+    dev: false
+
+  /next-safe-action@6.2.0(ajv@6.12.6)(next@14.2.0-canary.11)(react@18.2.0):
+    resolution: {integrity: sha512-gssUs3OLoNjLXZalrQaly38s/mUtXsIcKWGIK3jFkW8GHl0/Xhq+3G8yEEyObET2YlYqUj79K+mH3iTNBLDcMw==}
+    engines: {node: '>=18.17'}
+    peerDependencies:
+      next: '>= 14.0.0'
+      react: '>= 18.2.0'
+    dependencies:
+      '@decs/typeschema': 0.12.2(ajv@6.12.6)(zod@3.22.4)
+      next: 14.2.0-canary.11(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+    optionalDependencies:
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - '@deepkit/type'
+      - '@effect/schema'
+      - '@sinclair/typebox'
+      - ajv
+      - arktype
+      - effect
+      - fp-ts
+      - io-ts
+      - joi
+      - ow
+      - runtypes
+      - superstruct
+      - valibot
+      - vite
+      - yup
     dev: false
 
   /next@14.1.0(react-dom@18.2.0)(react@18.2.0):
@@ -5277,11 +5355,6 @@ packages:
 
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
-    dev: false
-
-  /nodemailer@6.9.12:
-    resolution: {integrity: sha512-pnLo7g37Br3jXbF0bl5DekBJihm2q+3bB3l2o/B060sWmb5l+VqeScAQCBqaQ+5ezRZFzW5SciZNGdRDEbq89w==}
-    engines: {node: '>=6.0.0'}
     dev: false
 
   /nopt@7.2.0:
@@ -6161,13 +6234,6 @@ packages:
       call-bind: 1.0.5
       define-properties: 1.2.1
       set-function-name: 2.0.1
-    dev: false
-
-  /resend@3.2.0:
-    resolution: {integrity: sha512-lDHhexiFYPoLXy7zRlJ8D5eKxoXy6Tr9/elN3+Vv7PkUoYuSSD1fpiIfa/JYXEWyiyN2UczkCTLpkT8dDPJ4Pg==}
-    engines: {node: '>=18'}
-    dependencies:
-      '@react-email/render': 0.0.12
     dev: false
 
   /resolve-from@4.0.0:

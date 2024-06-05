@@ -12,10 +12,10 @@ export default function SortableList<T>({
   list,
   children
 }: SortableListProps<T>) {
-  const [items, setItems] = React.useState(list);
-  useEffect(() => {
-    setItems(list);
-  }, [list]);
+  // const [items, setItems] = React.useState(list);
+  // useEffect(() => {
+  //   setItems(list);
+  // }, [list]);
 
   return (
     <div>

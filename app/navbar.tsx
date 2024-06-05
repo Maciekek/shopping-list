@@ -8,10 +8,11 @@ import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { User } from 'next-auth';
 
 const navigation = [{ name: 'Your lists', href: '/' }];
 
-export default function Navbar({ user }: { user: any }) {
+export default function Navbar({ user }: { user: User }) {
   const pathname = usePathname();
 
   return (

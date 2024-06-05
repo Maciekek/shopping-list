@@ -1,9 +1,14 @@
-import { List as ListModel } from '@/models';
+import { List as ListModel, ListOrError } from '@/models';
 import { getList } from '@/actions/lists';
 import List from '@/components/organisms/List';
+import { isError } from '@/lib/utils';
 
 export default async function ListPage({ params }: { params: { id: string } }) {
-  const listDetails: ListModel = await getList(params.id, true);
+  const listDetails: ListOrError = await getList(params.id, true);
+
+  if (isError(listDetails)) {
+    return <div>{listDetails?.message}</div>;
+  }
 
   return (
     <>
@@ -11,7 +16,7 @@ export default async function ListPage({ params }: { params: { id: string } }) {
         <span className="text-lg font-semibold">{listDetails!.name}</span>
       </header>
 
-      <List list={listDetails} listId={params.id}  isReadOnly={false} />
+      <List list={listDetails} listId={params.id} isReadOnly={false} />
     </>
   );
 }

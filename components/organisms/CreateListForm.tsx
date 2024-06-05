@@ -3,14 +3,14 @@ import { useFormState } from 'react-dom';
 
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { Input } from '@/components/atoms/Input';
-import { createListAction } from '@/actions/lists';
+import { createList } from '@/actions/lists';
 
 const initialState = {
   name: ''
 };
 
 export function CreateListForm() {
-  const [state, formAction] = useFormState(createListAction, initialState);
+  const [state, formAction] = useFormState(createList, initialState);
 
   return (
     <form action={formAction} className={'px-4 pt-20 mx-auto max-w-md'}>
