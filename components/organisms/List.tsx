@@ -154,7 +154,7 @@ export default function List({
                   }
                   selectItem(item);
                 }}
-              >o
+              >
                 <div className={'flex justify-center2 items-center flex-1'}>
                   <div className={'flex pr-6'}>
                     <Checkbox disabled={isReadOnly} checked={item.selected} />
