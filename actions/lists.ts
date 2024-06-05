@@ -147,7 +147,7 @@ export async function shareList(previousState: any, formData: FormData) {
 
   const result = await ListService.grantAccessToList({
     listId: formData.get('listId')!.toString(),
-    email: formData.get('email')!.toString(),
+    email: formData.get('email')!.toString().toLowerCase(),
     user
   });
 
