@@ -142,9 +142,7 @@ export default function List({
         )}
 
         <div>
-          <SortableList list={optimisticListItems} onReorder={() => {
-            console.log(130, 'reoded 2');
-          }}>
+          <SortableList list={optimisticListItems}>
             {(item: ListItem) => (
               <div
                 className={cn('border flex items-center p-4', {
@@ -156,7 +154,7 @@ export default function List({
                   }
                   selectItem(item);
                 }}
-              >
+              >o
                 <div className={'flex justify-center2 items-center flex-1'}>
                   <div className={'flex pr-6'}>
                     <Checkbox disabled={isReadOnly} checked={item.selected} />

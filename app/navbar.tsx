@@ -163,7 +163,7 @@ export default function Navbar({ user }: { user: User }) {
                     <div className="flex-shrink-0">
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user.image}
+                        src={user.image!}
                         height={32}
                         width={32}
                         alt={`${user.name} avatar`}
