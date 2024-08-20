@@ -13,12 +13,18 @@ import {
   DndContext,
   DragOverlay,
   DropAnimation,
-  KeyboardSensor, Over,
-  PointerSensor,
+  KeyboardSensor,
+  Over,
+  PointerSensor, TouchSensor,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core/dist/types';
+import {
+  restrictToVerticalAxis,
+  restrictToWindowEdges
+} from '@dnd-kit/modifiers';
+import { Container } from '@react-email/components';
 
 interface SortableListProps<T> {
   list: Array<T & { uuid: string }>;
@@ -42,14 +48,15 @@ export default function SortableList<T>({
   onOrderChange
 }: SortableListProps<T>) {
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
-    })
+    // useSensor(PointerSensor),
+    useSensor(TouchSensor),
+    // useSensor(KeyboardSensor, {
+    //   coordinateGetter: sortableKeyboardCoordinates
+    // })
   );
 
   const [active, setActive] = useState<any | null>(null);
-  const activeItem  = useMemo(
+  const activeItem = useMemo(
     () => list.find((item) => item.uuid === active?.id),
     [active, list]
   );
@@ -61,18 +68,18 @@ export default function SortableList<T>({
   return (
     <div>
       <DndContext
+
         sensors={sensors}
-        onDragStart={({ active }: {active: Active}) => {
+        onDragStart={({ active }: { active: Active }) => {
           setActive(active);
         }}
+        modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
         onDragEnd={({ active, over }: DragEndEvent) => {
           if (over && active.id !== over?.id) {
             const activeIndex = list.findIndex(
               ({ uuid }) => uuid === active.id
             );
-            const overIndex = list.findIndex(
-              ({ uuid }) => uuid === over.id
-            );
+            const overIndex = list.findIndex(({ uuid }) => uuid === over.id);
 
             onChange(arrayMove(list, activeIndex, overIndex));
           }
@@ -85,20 +92,25 @@ export default function SortableList<T>({
         <SortableContext
           items={list.map((item) => item.uuid)}
           strategy={verticalListSortingStrategy}
+
         >
-          {list.map((item) => {
-            return (
-              <SortableItem
-                key={item.uuid}
-                item={item}
-                id={item.uuid}
-                value={item.uuid}
-                handle
-              >
-                {(dragHandleElement: ReactNode) => children(item, dragHandleElement)}
-              </SortableItem>
-            );
-          })}
+          <Container>
+            {list.map((item) => {
+              return (
+                <SortableItem
+                  key={item.uuid}
+                  item={item}
+                  id={item.uuid}
+                  value={item.uuid}
+                  handle
+                >
+                  {(dragHandleElement: ReactNode) =>
+                    children(item, dragHandleElement)
+                  }
+                </SortableItem>
+              );
+            })}
+          </Container>
         </SortableContext>
 
         <DragOverlay dropAnimation={dropAnimationConfig}>
