@@ -1,25 +1,62 @@
-import { Reorder, useDragControls, motion } from 'framer-motion';
-import React from 'react';
+import React, { CSSProperties } from 'react';
+import { AnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { DragIcon, UserIcon } from '@/components/atoms/Icons';
 
 interface ISortableListItemProps<T> {
   item: T & { uuid: string };
   children: (listItem: T) => React.ReactNode;
 }
 
-export default function SortableListItem<T>({
-  item,
-  children
-}: ISortableListItemProps<T>) {
+// export default function SortableListItem<T>({
+//   item,
+//   children
+// }: ISortableListItemProps<T>) {
+//   return (
+//     <div key={item.uuid}>
+//       <div>{children(item)}</div>
+//     </div>
+//   );
+// }
+
+const animateLayoutChanges: AnimateLayoutChanges = ({
+  isSorting,
+  wasDragging
+}: any) => (isSorting || wasDragging ? false : true);
+
+export function SortableItem({ id, value, item, children, ...props }: any) {
+  const {
+    setDroppableNodeRef,
+    transition,
+    setDraggableNodeRef,
+    transform,
+    attributes,
+    isDragging,
+    listeners
+  } = useSortable({
+    id,
+    animateLayoutChanges
+  });
+  const handleProps = { ...attributes, ...listeners };
+  const style: CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : undefined
+  };
+
+  const dragElement = (
+    <div {...handleProps}>
+      <DragIcon />
+    </div>
+  );
+
   return (
-    <Reorder.Item key={item.uuid} value={item} dragListener={false}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ delay: 0.1}}
-      >
-        {children(item)}
-      </motion.div>
-    </Reorder.Item>
+    <div style={style} ref={setDroppableNodeRef} {...props}>
+      <div ref={setDraggableNodeRef}>
+        <div key={item.uuid}>
+          <div>{children(dragElement)}</div>
+        </div>
+      </div>
+    </div>
   );
 }

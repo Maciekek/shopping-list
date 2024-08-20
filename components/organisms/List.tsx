@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
-import React, { useRef } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { Checkbox } from '@/components/atoms/Checkbox';
 import { List as ListModel, ListItem } from '@/models';
 
@@ -12,13 +12,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { useOptimistic } from 'react';
 import { deleteItemFromList, updateListItems } from '@/actions/lists';
 import { toast } from '@/hooks/use-toast';
-import { TrashIcon } from '@/components/atoms/Icons';
+import { TrashIcon, UserIcon } from '@/components/atoms/Icons';
 
 export default function List({
-                               list,
-                               listId,
-                               isReadOnly = false
-                             }: {
+  list,
+  listId,
+  isReadOnly = false
+}: {
   list: ListModel;
   listId: string;
   isReadOnly?: boolean;
@@ -31,12 +31,12 @@ export default function List({
     (
       state: ListItem[],
       updateListAction: {
-        action: 'ADD' | 'SELECT' | 'REMOVE';
+        action: 'ADD' | 'SELECT' | 'REMOVE' | 'CHANGED_ORDER';
         item: ListItem;
+        newList?: ListItem[];
       }
     ) => {
       if (updateListAction.action === 'ADD') {
-        console.log(39, 'addddd')
         return [updateListAction.item, ...state];
       }
 
@@ -54,6 +54,10 @@ export default function List({
           }
           return item as ListItem;
         });
+      }
+
+      if (updateListAction.action === 'CHANGED_ORDER') {
+        return updateListAction.newList as ListItem[];
       }
 
       return list?.items as ListItem[];
@@ -116,60 +120,87 @@ export default function List({
       action: 'REMOVE'
     });
     const result = await deleteItemFromList(listId, item.uuid);
-    console.log(118, result)
-  }
+  };
+
+  const onOrderChange = async (newList: ListItem[]) => {
+    addOptimisticListItem({
+      item: newList[0],
+      newList: newList,
+      action: 'CHANGED_ORDER'
+    });
+
+    const result = await updateListItems(listId, newList);
+
+    if (result?.hasError) {
+      toast({
+        title: result.message
+      });
+    }
+  };
 
   return (
-    <div className='flex flex-col mx-auto sm:border-0 md:border md:border-t-0 pb-2 md:border-slate-200 rounded-b-lg'>
-      <main className='flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6'>
+    <div className="flex flex-col mx-auto sm:border-0 md:border md:border-t-0 pb-2 md:border-slate-200 rounded-b-lg">
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         {!isReadOnly && (
           <form ref={formRef} action={addListItem} className={'w-1/1'}>
-            <div className='flex items-center gap-4'>
+            <div className="flex items-center gap-4">
               <Input
                 name={'itemName'}
-                className='flex-1'
-                placeholder='Add new item'
+                className="flex-1"
+                placeholder="Add new item"
               />
               <Input
                 name={'listId'}
-                className='flex-1 hidden'
+                className="flex-1 hidden"
                 readOnly
                 value={listId}
               />
-              <Button variant='outline'>Add</Button>
+              <Button variant="outline">Add</Button>
             </div>
           </form>
         )}
 
         <div>
-          <SortableList list={optimisticListItems}>
-            {(item: ListItem) => (
-              <div
-                className={cn('border flex items-center p-4', {
-                  'cursor-pointer': !isReadOnly
-                })}
-                onClick={() => {
-                  if (isReadOnly) {
-                    return;
-                  }
-                  selectItem(item);
-                }}
-              >
-                <div className={'flex justify-center2 items-center flex-1'}>
-                  <div className={'flex pr-6'}>
-                    <Checkbox disabled={isReadOnly} checked={item.selected} />
+          <SortableList
+            list={optimisticListItems}
+            onOrderChange={onOrderChange}
+          >
+            {(item: ListItem, dragHandleElement?: ReactNode) => {
+              return (
+                <div
+                  className={cn('border flex items-center p-4', {
+                    'cursor-pointer': !isReadOnly
+                  })}
+                  onClick={() => {
+                    if (isReadOnly) {
+                      return;
+                    }
+                    selectItem(item);
+                  }}
+                >
+                  <div className={'flex justify-center2 items-center flex-1'}>
+                    <div className={'flex pr-6'}>
+                      <Checkbox disabled={isReadOnly} checked={item.selected} />
+                    </div>
+
+                    <div className="font-medium">{item.name}</div>
                   </div>
 
-                  <div className='font-medium'>{item.name}</div>
+                  {!isReadOnly && dragHandleElement && (
+                    <div className={'flex pr-4'}>{dragHandleElement}</div>
+                  )}
+                  <div className={'flex pr-2'}>
+                    <TrashIcon
+                      className="h-5 w-5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeItem(item);
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className={'flex pr-2'}>
-                  <TrashIcon className='h-5 w-5' onClick={(e) => {
-                    e.stopPropagation();
-                    removeItem(item)
-                  }} />
-                </div>
-              </div>
-            )}
+              );
+            }}
           </SortableList>
         </div>
       </main>
