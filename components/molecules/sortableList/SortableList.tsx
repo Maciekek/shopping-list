@@ -36,7 +36,7 @@ const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: '0.4'
+        opacity: '0.1'
       }
     }
   })
