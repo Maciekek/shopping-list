@@ -1,23 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { AnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { DragIcon, UserIcon } from '@/components/atoms/Icons';
-
-interface ISortableListItemProps<T> {
-  item: T & { uuid: string };
-  children: (listItem: T) => React.ReactNode;
-}
-
-// export default function SortableListItem<T>({
-//   item,
-//   children
-// }: ISortableListItemProps<T>) {
-//   return (
-//     <div key={item.uuid}>
-//       <div>{children(item)}</div>
-//     </div>
-//   );
-// }
+import { DragIcon } from '@/components/atoms/Icons';
 
 const animateLayoutChanges: AnimateLayoutChanges = ({
   isSorting,

@@ -1,36 +1,24 @@
-import React, { CSSProperties, ReactNode, useMemo, useState } from 'react';
-import { CSS } from '@dnd-kit/utilities';
+import React, { ReactNode, useMemo, useState } from 'react';
 
 import {
-  AnimateLayoutChanges,
   arrayMove,
-  NewIndexGetter,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Container } from '@react-email/components';
 import { SortableItem } from '@/components/molecules/sortableList/SortableListItem';
 import {
-  closestCenter,
+  Active,
   defaultDropAnimationSideEffects,
   DndContext,
-  DragEndEvent,
-  DragMoveEvent,
-  DragOverEvent,
   DragOverlay,
-  DragStartEvent,
   DropAnimation,
-  KeyboardSensor,
-  MeasuringStrategy,
+  KeyboardSensor, Over,
   PointerSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { createPortal } from 'react-dom';
-import { UserIcon } from '@/components/atoms/Icons';
+import type { DragEndEvent } from '@dnd-kit/core/dist/types';
 
 interface SortableListProps<T> {
   list: Array<T & { uuid: string }>;
@@ -59,26 +47,25 @@ export default function SortableList<T>({
       coordinateGetter: sortableKeyboardCoordinates
     })
   );
-  // const [listTemp, setItems] = useState(list);
 
   const [active, setActive] = useState<any | null>(null);
-  const activeItem: any = useMemo(
+  const activeItem  = useMemo(
     () => list.find((item) => item.uuid === active?.id),
     [active, list]
   );
 
-  const onChange = (newArray: any) => {
-    // setItems([...newArray]);
+  const onChange = (newArray: Array<T & { uuid: string }>) => {
     onOrderChange(newArray);
   };
+
   return (
     <div>
       <DndContext
         sensors={sensors}
-        onDragStart={({ active }) => {
+        onDragStart={({ active }: {active: Active}) => {
           setActive(active);
         }}
-        onDragEnd={({ active, over }: any) => {
+        onDragEnd={({ active, over }: DragEndEvent) => {
           if (over && active.id !== over?.id) {
             const activeIndex = list.findIndex(
               ({ uuid }) => uuid === active.id
