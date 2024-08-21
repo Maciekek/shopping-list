@@ -13,9 +13,10 @@ import {
   DndContext,
   DragOverlay,
   DropAnimation,
-  KeyboardSensor,
+  KeyboardSensor, MouseSensor,
   Over,
-  PointerSensor, TouchSensor,
+  PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
@@ -36,7 +37,7 @@ const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: '0.1'
+        opacity: '0.4'
       }
     }
   })
@@ -48,11 +49,8 @@ export default function SortableList<T>({
   onOrderChange
 }: SortableListProps<T>) {
   const sensors = useSensors(
-    // useSensor(PointerSensor),
-    useSensor(TouchSensor),
-    // useSensor(KeyboardSensor, {
-    //   coordinateGetter: sortableKeyboardCoordinates
-    // })
+    useSensor(MouseSensor),
+    useSensor(TouchSensor)
   );
 
   const [active, setActive] = useState<any | null>(null);
@@ -68,12 +66,11 @@ export default function SortableList<T>({
   return (
     <div>
       <DndContext
-
         sensors={sensors}
         onDragStart={({ active }: { active: Active }) => {
           setActive(active);
         }}
-        modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+        modifiers={[restrictToWindowEdges]}
         onDragEnd={({ active, over }: DragEndEvent) => {
           if (over && active.id !== over?.id) {
             const activeIndex = list.findIndex(
@@ -92,25 +89,21 @@ export default function SortableList<T>({
         <SortableContext
           items={list.map((item) => item.uuid)}
           strategy={verticalListSortingStrategy}
-
         >
-          <Container>
-            {list.map((item) => {
-              return (
-                <SortableItem
-                  key={item.uuid}
-                  item={item}
-                  id={item.uuid}
-                  value={item.uuid}
-                  handle
-                >
-                  {(dragHandleElement: ReactNode) =>
-                    children(item, dragHandleElement)
-                  }
-                </SortableItem>
-              );
-            })}
-          </Container>
+          {list.map((item) => {
+            return (
+              <SortableItem
+                key={item.uuid}
+                item={item}
+                id={item.uuid}
+                value={item.uuid}
+              >
+                {(dragHandleElement: ReactNode) =>
+                  children(item, dragHandleElement)
+                }
+              </SortableItem>
+            );
+          })}
         </SortableContext>
 
         <DragOverlay dropAnimation={dropAnimationConfig}>

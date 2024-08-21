@@ -25,7 +25,7 @@ export function SortableItem({ id, value, item, children, ...props }: any) {
   const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : undefined
+    opacity: isDragging ? 0.1 : undefined,
   };
 
   const dragElement = (
