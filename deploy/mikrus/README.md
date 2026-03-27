@@ -1,26 +1,26 @@
-# Deploy na Mikrus VPS
+# Deploy on Mikrus VPS
 
-Poniżej minimalny setup dla tego projektu (`Next.js + Prisma + Postgres`) na małym VPS.
+Below is a minimal setup for this project (`Next.js + Prisma + Postgres`) on a small VPS.
 
-## 1) Wymagania systemowe
+## 1) System Requirements
 
 - Ubuntu/Debian
 - Node.js 20
-- npm (z Node)
+- npm (from Node)
 - PostgreSQL
 - nginx
 - certbot
 
-## 2) Aplikacja i build
+## 2) App Setup and Build
 
 ```bash
 mkdir -p ~/apps
 cd ~/apps
-git clone <URL_TWOJEGO_REPO> shopping-list
+git clone <YOUR_REPO_URL> shopping-list
 cd shopping-list
 
 cp deploy/mikrus/.env.production.example .env.production
-# Uzupełnij .env.production
+# Fill in .env.production
 
 npm ci
 npx prisma generate
@@ -28,17 +28,17 @@ npx prisma migrate deploy
 npm run build
 ```
 
-## 3) Konfiguracja systemd
+## 3) systemd Configuration
 
 ```bash
 sudo cp deploy/mikrus/shopping-list.service /etc/systemd/system/shopping-list.service
 ```
 
-Edytuj plik `/etc/systemd/system/shopping-list.service`:
-- podmień `YOUR_LINUX_USER`
-- upewnij się, że `WorkingDirectory` wskazuje na katalog projektu
+Edit `/etc/systemd/system/shopping-list.service`:
+- replace `YOUR_LINUX_USER`
+- make sure `WorkingDirectory` points to your project directory
 
-Następnie:
+Then run:
 
 ```bash
 sudo systemctl daemon-reload
@@ -47,37 +47,37 @@ sudo systemctl start shopping-list
 sudo systemctl status shopping-list
 ```
 
-## 4) Konfiguracja nginx
+## 4) nginx Configuration
 
 ```bash
 sudo cp deploy/mikrus/nginx-shopping-list.conf /etc/nginx/sites-available/shopping-list
 sudo ln -s /etc/nginx/sites-available/shopping-list /etc/nginx/sites-enabled/shopping-list
 ```
 
-Edytuj `/etc/nginx/sites-available/shopping-list`:
-- podmień `your-domain.example`
+Edit `/etc/nginx/sites-available/shopping-list`:
+- replace `your-domain.example`
 
-Sprawdź i przeładuj:
+Validate and reload:
 
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 5) Certyfikat SSL (Let's Encrypt)
+## 5) SSL Certificate (Let's Encrypt)
 
 ```bash
 sudo certbot --nginx -d your-domain.example -d www.your-domain.example
 ```
 
-Po wygenerowaniu certyfikatu sprawdź jeszcze raz:
+After issuing the certificate, validate again:
 
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 6) Deploy kolejnych zmian
+## 6) Deploying Updates
 
 ```bash
 cd ~/apps/shopping-list
@@ -88,14 +88,14 @@ npm run build
 sudo systemctl restart shopping-list
 ```
 
-## Checklista .env.production
+## .env.production Checklist
 
-Wymagane:
+Required:
 - `DATABASE_URL`
 - `NEXTAUTH_URL`
 - `AUTH_SECRET`
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
 
-Opcjonalne:
-- `POSTMARK_API_TOKEN` (jeśli chcesz wysyłkę e-maili)
+Optional:
+- `POSTMARK_API_TOKEN` (required only if you want email sending)
