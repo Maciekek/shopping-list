@@ -1,0 +1,18 @@
+[Unit]
+Description=Shopping List (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_LINUX_USER
+WorkingDirectory=/home/YOUR_LINUX_USER/apps/shopping-list
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=/home/YOUR_LINUX_USER/apps/shopping-list/.env.production
+ExecStart=/usr/bin/env npm run start
+Restart=always
+RestartSec=5
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target
