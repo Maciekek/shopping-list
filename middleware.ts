@@ -6,7 +6,9 @@ export async function middleware(request: NextRequest) {
   const session = await auth();
 
   if (!session) {
-    return NextResponse.redirect(new URL('/', request.url));
+    const signInUrl = new URL('/api/auth/signin', request.url);
+    signInUrl.searchParams.set('callbackUrl', request.nextUrl.href);
+    return NextResponse.redirect(signInUrl);
   }
 }
 

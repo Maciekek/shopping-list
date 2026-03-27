@@ -15,7 +15,7 @@ const getCurrentUserOrThrowError = async () => {
 
   if (!session) {
     console.error('Not allowed operation. User is not logged in');
-    redirect('');
+    redirect('/api/auth/signin?callbackUrl=/');
   }
 
   return session!.user;
