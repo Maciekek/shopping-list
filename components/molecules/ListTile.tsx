@@ -21,7 +21,7 @@ import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { MoreHorizontalIcon } from '@/components/atoms/Icons';
 import { Button } from '@/components/atoms/Button';
 import { ListWithUsersAndShare } from '@/models';
-import { User } from 'next-auth';
+import { Session } from 'next-auth';
 import { isUndefined } from 'lodash';
 import { Separator } from '@/components/atoms/Separator';
 
@@ -52,7 +52,7 @@ export default function ListTile({
   user
 }: {
   list: ListWithUsersAndShare;
-  user: User;
+  user: Session['user'];
 }) {
   const ownerEmail =
     list.users.filter((user) => user.userId === list.ownerId)[0]?.user.email ||

@@ -4,7 +4,6 @@ import { NotInLoggedHero } from '@/components/molecules/NotInLoggedHero';
 import { Lists } from '@/components/molecules/Lists';
 import { NoListsHero } from '@/components/molecules/NoListsHero';
 import { UserLists } from '@/models';
-import { User } from 'next-auth';
 import { getUserLists } from '@/actions/lists';
 import { isError } from '@/lib/utils';
 
@@ -16,7 +15,7 @@ export default async function IndexPage() {
   }
 
   const userLists = await getUserLists();
-  const user: User = session!.user!;
+  const user = session.user;
 
   if(isError(userLists)) {
     return <NoListsHero />;

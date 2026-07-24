@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { Button } from '@/components/atoms/Button';
 import ListTile from '@/components/molecules/ListTile';
 import { ListWithUsersAndShare } from '@/models';
-import { User } from 'next-auth';
+import { Session } from 'next-auth';
 
 export const Lists = ({
   lists,
   user
 }: {
   lists: ListWithUsersAndShare[];
-  user: User;
+  user: Session['user'];
 }) => {
   return (
     <main className="overflow-hidden px-4">
