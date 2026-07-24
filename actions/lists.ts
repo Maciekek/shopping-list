@@ -9,6 +9,7 @@ import { auth } from '@/app/auth';
 import ListService from '@/services/ListService';
 import { isError } from '@/lib/utils';
 import { ListItem } from '@/models';
+import { sortItemsByCategory } from '@/lib/categorize';
 
 const getCurrentUserOrThrowError = async () => {
   const session = await auth();
@@ -53,6 +54,49 @@ export async function updateListItems(listId: string, newItems: ListItem[]) {
     listId,
     user: session?.user,
     newItems
+  });
+
+  if (isError(result)) {
+    return result;
+  }
+
+  revalidatePath(`/lists/${listId}`);
+}
+
+export async function sortListByCategory(listId: string) {
+  const user = await getCurrentUserOrThrowError();
+
+  const list = await ListService.getList({ listId, userId: user.id });
+
+  if (isError(list)) {
+    return list;
+  }
+
+  if (!list) {
+    notFound();
+  }
+
+  const items = (list.items as ListItem[]) ?? [];
+
+  if (items.length < 2) {
+    return;
+  }
+
+  let sortedItems: ListItem[];
+  try {
+    sortedItems = await sortItemsByCategory(items);
+  } catch (error) {
+    console.error('Failed to sort list by category', error);
+    return {
+      hasError: true,
+      message: 'Sorting by category failed. Try again later.'
+    };
+  }
+
+  const result = await ListService.updateList({
+    listId,
+    user,
+    newItems: sortedItems
   });
 
   if (isError(result)) {

@@ -2,7 +2,8 @@
 
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
-import React, { ReactNode, useRef } from 'react';
+import React, { ReactNode, useRef, useTransition } from 'react';
+import { SparklesIcon } from 'lucide-react';
 import { Checkbox } from '@/components/atoms/Checkbox';
 import { List as ListModel, ListItem } from '@/models';
 
@@ -10,7 +11,11 @@ import SortableList from '@/components/molecules/sortableList/SortableList';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { useOptimistic } from 'react';
-import { deleteItemFromList, updateListItems } from '@/actions/lists';
+import {
+  deleteItemFromList,
+  sortListByCategory,
+  updateListItems
+} from '@/actions/lists';
 import { toast } from '@/hooks/use-toast';
 import { TrashIcon, UserIcon } from '@/components/atoms/Icons';
 
@@ -122,6 +127,20 @@ export default function List({
     const result = await deleteItemFromList(listId, item.uuid);
   };
 
+  const [isSorting, startSorting] = useTransition();
+
+  const sortByCategory = () => {
+    startSorting(async () => {
+      const result = await sortListByCategory(listId);
+
+      if (result?.hasError) {
+        toast({
+          title: result.message
+        });
+      }
+    });
+  };
+
   const onOrderChange = async (newList: ListItem[]) => {
     addOptimisticListItem({
       item: newList[0],
@@ -158,6 +177,21 @@ export default function List({
               <Button variant="outline">Add</Button>
             </div>
           </form>
+        )}
+
+        {!isReadOnly && items.length > 1 && (
+          <div className="flex justify-end -mt-2 -mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-500"
+              disabled={isSorting}
+              onClick={sortByCategory}
+            >
+              <SparklesIcon className="h-4 w-4 mr-2" />
+              {isSorting ? 'Sorting...' : 'Sort by category'}
+            </Button>
+          </div>
         )}
 
         <div>
