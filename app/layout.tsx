@@ -1,6 +1,5 @@
 import './globals.css';
 
-import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
@@ -48,8 +47,6 @@ export default function RootLayout({
           {children}
         </div>
         <Toaster />
-
-        <Analytics />
 
         <footer className="bg-gray-100">
           <div className="flex items-center justify-between mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">

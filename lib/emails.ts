@@ -1,31 +1,48 @@
-import * as postmark from 'postmark';
+import nodemailer from 'nodemailer';
 import { render } from '@react-email/render';
 import SharedListNotifyEmail from '@/emails/SharedListNotifyEmail';
 
-const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN || 'test');
+const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_FROM);
 
-const common_mail_config = {
-  From: 'hello@shopylist.xyz',
-}
+const transporter = smtpConfigured
+  ? nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: process.env.SMTP_USER
+        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+        : undefined
+    })
+  : null;
 
-const sendShareEmail = ({to, from, listUrl}: {to: string, from: string, listUrl: string}) => {
-  const emailHtml = render(SharedListNotifyEmail({ listUrl, from }));
+const sendShareEmail = async ({
+  to,
+  from,
+  listUrl
+}: {
+  to: string;
+  from: string;
+  listUrl: string;
+}) => {
+  if (!transporter) {
+    console.warn('[emails] SMTP not configured, skipping share email to', to);
+    return;
+  }
 
-  const options = {
-    ...common_mail_config,
-    To: to,
-    Subject: 'Shared list is waiting for you',
-    HtmlBody: emailHtml,
-  };
-
-  client.sendEmail(options);
-}
-
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject: 'Shared list is waiting for you',
+      html: render(SharedListNotifyEmail({ listUrl, from }))
+    });
+  } catch (error) {
+    console.error('[emails] failed to send share email to', to, error);
+  }
+};
 
 const emailService = {
   sendShareEmail
-}
+};
 
-export {
-  emailService
-}
+export { emailService };

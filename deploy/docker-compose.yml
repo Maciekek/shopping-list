@@ -1,0 +1,33 @@
+# Production: prebuilt image from GHCR. No source code or build step needed on the server.
+# TLS and routing are done by the shared vps-proxy stack (Caddy reading these labels).
+# See deploy/README.md.
+services:
+  shopping-list:
+    image: ghcr.io/maciekek/shopping-list:${SHOPPING_LIST_TAG:-latest}
+    container_name: shopping-list
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - web
+    labels:
+      caddy: ${DOMAIN}
+      caddy.import: secure
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy_1: www.${DOMAIN}
+      caddy_1.redir: https://${DOMAIN}{uri} permanent
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Created by the vps-proxy stack
+networks:
+  web:
+    external: true
