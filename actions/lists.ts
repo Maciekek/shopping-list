@@ -209,6 +209,7 @@ export async function shareList(previousState: any, formData: FormData) {
   }
 
   revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
   return { success: true };
 }
 
@@ -222,6 +223,7 @@ export async function revokeAccessToList(userId: string, listId: string) {
   }
 
   revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function makeListPublic(listId: string) {
@@ -236,7 +238,8 @@ export async function makeListPublic(listId: string) {
     return result;
   }
 
-  revalidatePath(`/`);
+  revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function changePublicListRole({
@@ -258,6 +261,7 @@ export async function changePublicListRole({
   }
 
   revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function makeListProtected(listId: string) {
@@ -272,7 +276,8 @@ export async function makeListProtected(listId: string) {
     return result;
   }
 
-  revalidatePath(`/`);
+  revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function getPublicList(token: string) {

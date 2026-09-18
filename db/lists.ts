@@ -47,7 +47,9 @@ export const getUserList = withPrismaError(
         }
       },
       include: {
-        users: withUsers,
+        users: withUsers
+          ? { include: { user: { select: { email: true, id: true } } } }
+          : false,
         share: true
       }
     });
