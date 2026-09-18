@@ -16,7 +16,8 @@
     "signIn": "Sign in",
     "signOut": "Sign out",
     "avatarAlt": "{name} avatar",
-    "language": "Language"
+    "language": "Language",
+    "admin": "Admin"
   },
   "Landing": {
     "title": "Shopylist",
@@ -100,7 +101,8 @@
     "sortFailed": "Sorting by category failed. Try again later.",
     "somethingWentWrong": "Something went wrong",
     "tryAgain": "Try again",
-    "notFound": "Page not found"
+    "notFound": "Page not found",
+    "cannotDeleteSelf": "You cannot delete your own account here"
   },
   "Email": {
     "subject": "{from} shared \"{listName}\" with you",
@@ -119,5 +121,20 @@
   "Legal": {
     "updated": "Last updated",
     "back": "Back to Shopylist"
+  },
+  "Admin": {
+    "title": "Admin",
+    "signedInAs": "Signed in as {email}",
+    "users": "Users",
+    "lists": "Lists",
+    "items": "Items on lists",
+    "publicLists": "Public links",
+    "user": "User",
+    "joined": "Joined",
+    "ownedLists": "Owns",
+    "memberOf": "Member of",
+    "delete": "Delete",
+    "deleted": "User and their data deleted",
+    "confirmDelete": "Delete {email} with all their lists, shares and sessions? This cannot be undone."
   }
 }

@@ -16,7 +16,8 @@
     "signIn": "Zaloguj się",
     "signOut": "Wyloguj się",
     "avatarAlt": "Awatar {name}",
-    "language": "Język"
+    "language": "Język",
+    "admin": "Admin"
   },
   "Landing": {
     "title": "Shopylist",
@@ -100,7 +101,8 @@
     "sortFailed": "Sortowanie po kategoriach nie powiodło się. Spróbuj później.",
     "somethingWentWrong": "Coś poszło nie tak",
     "tryAgain": "Spróbuj ponownie",
-    "notFound": "Nie znaleziono strony"
+    "notFound": "Nie znaleziono strony",
+    "cannotDeleteSelf": "Nie możesz usunąć tutaj własnego konta"
   },
   "Email": {
     "subject": "{from} udostępnia Ci listę \"{listName}\"",
@@ -119,5 +121,20 @@
   "Legal": {
     "updated": "Ostatnia aktualizacja",
     "back": "Wróć do Shopylist"
+  },
+  "Admin": {
+    "title": "Admin",
+    "signedInAs": "Zalogowany jako {email}",
+    "users": "Użytkownicy",
+    "lists": "Listy",
+    "items": "Produkty na listach",
+    "publicLists": "Publiczne linki",
+    "user": "Użytkownik",
+    "joined": "Dołączył",
+    "ownedLists": "Właściciel",
+    "memberOf": "Członek",
+    "delete": "Usuń",
+    "deleted": "Użytkownik i jego dane usunięte",
+    "confirmDelete": "Usunąć {email} razem z listami, udostępnieniami i sesjami? Tej operacji nie da się cofnąć."
   }
 }

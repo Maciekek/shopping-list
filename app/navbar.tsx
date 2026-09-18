@@ -12,10 +12,19 @@ import { User } from 'next-auth';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/molecules/LanguageSwitcher';
 
-export default function Navbar({ user }: { user?: User }) {
+export default function Navbar({
+  user,
+  isAdmin = false
+}: {
+  user?: User;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const t = useTranslations('Nav');
-  const navigation = [{ name: t('yourLists'), href: '/' }];
+  const navigation = [
+    { name: t('yourLists'), href: '/' },
+    ...(isAdmin ? [{ name: t('admin'), href: '/admin' }] : [])
+  ];
 
   return (
     <Disclosure as="nav" className="bg-white shadow-sm">
