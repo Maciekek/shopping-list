@@ -47,13 +47,18 @@ export async function getUserLists() {
   return ListService.getAllUserLists({ userId: user.id });
 }
 
-export async function updateListItems(listId: string, newItems: ListItem[]) {
+export async function updateListItems(
+  listId: string,
+  newItems: ListItem[],
+  clientId?: string
+) {
   const session = await auth();
 
   const result = await ListService.updateList({
     listId,
     user: session?.user,
-    newItems
+    newItems,
+    clientId
   });
 
   if (isError(result)) {
@@ -63,7 +68,7 @@ export async function updateListItems(listId: string, newItems: ListItem[]) {
   revalidatePath(`/lists/${listId}`);
 }
 
-export async function sortListByCategory(listId: string) {
+export async function sortListByCategory(listId: string, clientId?: string) {
   const user = await getCurrentUserOrThrowError();
 
   const list = await ListService.getList({ listId, userId: user.id });
@@ -96,7 +101,8 @@ export async function sortListByCategory(listId: string) {
   const result = await ListService.updateList({
     listId,
     user,
-    newItems: sortedItems
+    newItems: sortedItems,
+    clientId
   });
 
   if (isError(result)) {
@@ -106,13 +112,18 @@ export async function sortListByCategory(listId: string) {
   revalidatePath(`/lists/${listId}`);
 }
 
-export async function deleteItemFromList(listId: string, itemId: string) {
+export async function deleteItemFromList(
+  listId: string,
+  itemId: string,
+  clientId?: string
+) {
   const session = await auth();
 
   const result = await ListService.deleteItemFromList({
     listId,
     itemId,
-    user: session?.user!
+    user: session?.user!,
+    clientId
   });
 
   if (isError(result)) {

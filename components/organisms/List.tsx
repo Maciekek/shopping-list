@@ -19,6 +19,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { TrashIcon } from '@/components/atoms/Icons';
 import { useTranslations } from 'next-intl';
+import { useLiveList } from '@/hooks/use-live-list';
 
 export default function List({
   list,
@@ -32,6 +33,7 @@ export default function List({
   const formRef = useRef<HTMLFormElement>(null);
   const t = useTranslations('List');
   const tErrors = useTranslations('Errors');
+  const clientId = useLiveList(listId);
   const items = list!.items as ListItem[];
 
   const [optimisticListItems, addOptimisticListItem] = useOptimistic(
@@ -90,7 +92,7 @@ export default function List({
       action: 'ADD'
     });
 
-    const result = await updateListItems(listId, newList);
+    const result = await updateListItems(listId, newList, clientId);
 
     if (result?.hasError) {
       toast({
@@ -113,7 +115,7 @@ export default function List({
       action: 'SELECT'
     });
 
-    const result = await updateListItems(listId, updatedItem);
+    const result = await updateListItems(listId, updatedItem, clientId);
 
     if (result?.hasError) {
       toast({
@@ -127,14 +129,14 @@ export default function List({
       item,
       action: 'REMOVE'
     });
-    const result = await deleteItemFromList(listId, item.uuid);
+    await deleteItemFromList(listId, item.uuid, clientId);
   };
 
   const [isSorting, startSorting] = useTransition();
 
   const sortByCategory = () => {
     startSorting(async () => {
-      const result = await sortListByCategory(listId);
+      const result = await sortListByCategory(listId, clientId);
 
       if (result?.hasError) {
         toast({
@@ -151,7 +153,7 @@ export default function List({
       action: 'CHANGED_ORDER'
     });
 
-    const result = await updateListItems(listId, newList);
+    const result = await updateListItems(listId, newList, clientId);
 
     if (result?.hasError) {
       toast({

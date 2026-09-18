@@ -4,6 +4,7 @@ import _, { isObject } from 'lodash';
 import { User } from 'next-auth';
 import { isError } from '@/lib/utils';
 import { emailService } from '@/lib/emails';
+import { publishListChange } from '@/lib/liveEvents';
 
 /** `message` is a key in the `Errors` namespace of messages/*.json; translate it where it is shown. */
 export type ResponseError = { hasError: boolean; message: string };
@@ -41,11 +42,13 @@ const ListService = {
   updateList: async ({
     listId,
     user,
-    newItems
+    newItems,
+    clientId
   }: {
     listId: string;
     user?: User;
     newItems: ListItem[];
+    clientId?: string;
   }) => {
     const existingList = await ListService.getListById({
       listId
@@ -104,6 +107,8 @@ const ListService = {
       };
     }
 
+    publishListChange(listId, clientId);
+
     return {
       hasError: false,
       message: 'List updated successfully'
@@ -113,10 +118,13 @@ const ListService = {
   deleteItemFromList: async ({
     listId,
     itemId,
-    user}: {
+    user,
+    clientId
+  }: {
     listId: string;
     itemId: string;
     user: User;
+    clientId?: string;
   }) => {
     const existingList = await ListService.getListById({
       listId
@@ -161,6 +169,8 @@ const ListService = {
         message: 'updateList'
       };
     }
+
+    publishListChange(listId, clientId);
 
     return {
       hasError: false,
