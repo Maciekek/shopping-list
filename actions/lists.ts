@@ -172,7 +172,7 @@ export async function shareList(previousState: any, formData: FormData) {
   const user = await getCurrentUserOrThrowError();
 
   const schema = z.object({
-    email: z.string().min(3).max(60),
+    email: z.string().email(),
     listId: z.string()
   });
 
@@ -182,24 +182,27 @@ export async function shareList(previousState: any, formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    return {
-      hasError: true,
-      message: '',
-      formErrors: validatedFields.error.flatten().fieldErrors
-    };
+    return { success: false, error: 'Enter a valid email address' };
+  }
+
+  const { listId, email } = validatedFields.data;
+
+  if (email.toLowerCase() === user.email?.toLowerCase()) {
+    return { success: false, error: 'You already own this list' };
   }
 
   const result = await ListService.grantAccessToList({
-    listId: formData.get('listId')!.toString(),
-    email: formData.get('email')!.toString().toLowerCase(),
+    listId,
+    email: email.toLowerCase(),
     user
   });
 
   if (result && isError(result)) {
-    return result;
+    return { success: false, error: result.message };
   }
 
   revalidatePath('/');
+  return { success: true };
 }
 
 export async function revokeAccessToList(userId: string, listId: string) {

@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { ListItem } from '@/models';
 import { ResponseError } from '@/services/ListService';
 import { randomBytes } from 'node:crypto';
@@ -165,9 +166,17 @@ export const createList = withPrismaError(
   }
 );
 
-export const grantAccess = withPrismaError(
-  ({ listId, email, user }: { listId: string; email: string, user: User }) => {
-    return prisma.list.update({
+export const grantAccess = async ({
+  listId,
+  email,
+  user
+}: {
+  listId: string;
+  email: string;
+  user: User;
+}) => {
+  try {
+    return await prisma.list.update({
       where: {
         id: listId,
         ownerId: user.id
@@ -184,8 +193,24 @@ export const grantAccess = withPrismaError(
         }
       }
     });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      // (userId, listId) already exists
+      if (e.code === 'P2002') {
+        return { hasError: true, message: 'This user already has access' };
+      }
+      // connect by email found no user, or list not owned by current user
+      if (e.code === 'P2025') {
+        return {
+          hasError: true,
+          message: 'No account with this email. Ask them to sign in once first.'
+        };
+      }
+    }
+    console.error(e);
+    return { hasError: true, message: 'DB error occurred' };
   }
-);
+};
 
 export const revokeAccess = withPrismaError(
   ({ listId, userId }: { listId: string; userId: string }) => {

@@ -202,10 +202,7 @@ const ListService = {
     const result = await db.lists.grantAccess({ listId, email, user });
 
     if (isError(result)) {
-      return {
-        hasError: true,
-        message: 'Error granting access to list'
-      };
+      return result;
     }
 
     await emailService.sendShareEmail({
