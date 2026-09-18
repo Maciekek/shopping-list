@@ -81,7 +81,10 @@
     "sortByCategory": "Sortuj po kategoriach",
     "sorting": "Sortowanie...",
     "readOnly": "Tylko podgląd",
-    "notShared": "Ta lista nie istnieje albo nie jest już udostępniona"
+    "notShared": "Ta lista nie istnieje albo nie jest już udostępniona",
+    "saveToMyLists": "Zapisz w moich listach",
+    "signInToSave": "Zaloguj się, żeby zapisać listę",
+    "savedHint": "Masz już tę listę"
   },
   "Errors": {
     "fetchList": "Nie udało się wczytać listy",

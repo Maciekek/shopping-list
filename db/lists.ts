@@ -248,7 +248,8 @@ export const makeListPublic = withPrismaError(
     return prisma.shareList.create({
       data: {
         type: 'READ',
-        token: randomBytes(3).toString('hex'),
+        // 128 bits: the link is the only secret for public lists
+        token: randomBytes(16).toString('hex'),
         list: {
           connect: {
             id: listId

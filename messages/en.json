@@ -81,7 +81,10 @@
     "sortByCategory": "Sort by category",
     "sorting": "Sorting...",
     "readOnly": "Read only",
-    "notShared": "This list does not exist or is no longer shared"
+    "notShared": "This list does not exist or is no longer shared",
+    "saveToMyLists": "Save to my lists",
+    "signInToSave": "Sign in to save this list",
+    "savedHint": "Already in your lists"
   },
   "Errors": {
     "fetchList": "Could not load the list",

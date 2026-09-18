@@ -299,3 +299,44 @@ export async function getPublicList(token: string) {
 
   return shareList;
 }
+
+/**
+ * "Anyone with the link" list: a signed-in visitor saves it to their own
+ * lists. Only WRITE links grant membership, because membership means edit
+ * rights; READ links stay view-only at /sharedList/[token].
+ */
+export async function joinPublicList(token: string) {
+  const session = await auth();
+
+  if (!session) {
+    redirect(
+      `/api/auth/signin?callbackUrl=${encodeURIComponent(`/sharedList/${token}`)}`
+    );
+  }
+
+  const share = await prisma.shareList.findUnique({
+    where: { token },
+    include: { list: { include: { users: true } } }
+  });
+
+  if (!share) {
+    notFound();
+  }
+
+  if (share.type !== 'WRITE') {
+    return { hasError: true, message: 'noPermission' };
+  }
+
+  const userId = session!.user.id;
+  const alreadyMember = share.list.users.some((u) => u.userId === userId);
+
+  if (!alreadyMember) {
+    await prisma.listsOnUsers.create({
+      data: { listId: share.listId, userId }
+    });
+  }
+
+  revalidatePath('/');
+  redirect(`/lists/${share.listId}`);
+}
+
