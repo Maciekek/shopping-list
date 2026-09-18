@@ -46,6 +46,7 @@ import {
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/atoms/Skeleton';
 import { useErrorSupport } from '@/hooks/use-error-support';
+import { useTranslations } from 'next-intl';
 
 export default function ListTile({
   list,
@@ -57,8 +58,6 @@ export default function ListTile({
   const ownerEmail =
     list.users.filter((user) => user.userId === list.ownerId)[0]?.user.email ||
     '';
-
-  console.log(60, list);
 
   const sharedWith = list.users.filter((user) => user.userId !== list.ownerId);
   const status = user.id === list.ownerId ? 'owner' : 'shared';
@@ -73,21 +72,23 @@ export default function ListTile({
 
   const { toast } = useToast();
   const { withToastOnError } = useErrorSupport();
+  const t = useTranslations('ListTile');
+  const tErrors = useTranslations('Errors');
 
   useEffect(() => {
     if (!isUndefined(shareFormState?.success) && !shareFormState?.success) {
       toast({
-        title: shareFormState?.error
+        title: tErrors(shareFormState.error)
       });
     }
 
     if (shareFormState?.success) {
       toast({
-        title: 'Shared with friend!'
+        title: t('sharedToast')
       });
       shareFormRef.current?.reset();
     }
-  }, [toast, shareFormState]);
+  }, [toast, shareFormState, t, tErrors]);
 
   const revokeAccess = (userId: string) => {
     return revokeAccessToList(userId, list.id);
@@ -111,8 +112,8 @@ export default function ListTile({
               }
             >
               {status === 'shared'
-                ? `Owner: ${ownerEmail}`
-                : 'You are the owner of this list'}
+                ? t('owner', { email: ownerEmail })
+                : t('youAreOwner')}
             </div>
           </Link>
 
@@ -127,7 +128,7 @@ export default function ListTile({
                 <DropdownMenuItem
                   onClick={withToastOnError(() => deleteList(list.id))}
                 >
-                  Delete
+                  {t('delete')}
                 </DropdownMenuItem>
               )}
 
@@ -135,7 +136,7 @@ export default function ListTile({
                 <DropdownMenuItem
                   onClick={withToastOnError(() => revokeAccess(user.id))}
                 >
-                  Reject share
+                  {t('rejectShare')}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
@@ -143,7 +144,7 @@ export default function ListTile({
                   setIsShareModalOpen(true);
                 }}
               >
-                Share
+                {t('share')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -154,7 +155,7 @@ export default function ListTile({
         <Dialog open={true} onOpenChange={setIsShareModalOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Share with friend</DialogTitle>
+              <DialogTitle>{t('shareTitle')}</DialogTitle>
             </DialogHeader>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div>
@@ -164,7 +165,7 @@ export default function ListTile({
                       <div className=" items-center">
                         <form ref={shareFormRef} action={formAction}>
                           <div className="space-y-2 gap-2 my-3">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">{t('email')}</Label>
                             <div
                               className={'flex justify-between flex-1 gap-2'}
                             >
@@ -193,7 +194,7 @@ export default function ListTile({
                     {list.ownerId !== user.id && (
                       <div className={'pt-4'}>
                         <h3 className="text-sm font-semibold mb-2">
-                          Owner of the list:
+                          {t('listOwner')}
                         </h3>
                         <div className="flex flex-col bg-gray-100 p-2 rounded">
                           {ownerEmail}
@@ -205,7 +206,7 @@ export default function ListTile({
                       {sharedWith.length > 0 && (
                         <>
                           <div className={'space-y-2 gap-2 my-3'}>
-                            <Label>Shared with:</Label>
+                            <Label>{t('sharedWith')}</Label>
                           </div>
                           <div className="flex flex-col bg-gray-100 p-2 rounded">
                             {sharedWith.map((sharedWithUser) => {
@@ -242,7 +243,7 @@ export default function ListTile({
                                         <SelectContent>
                                           <SelectGroup>
                                             <SelectItem value="WRITE">
-                                              Editor
+                                              {t('editor')}
                                             </SelectItem>
                                           </SelectGroup>
                                         </SelectContent>
@@ -281,9 +282,9 @@ export default function ListTile({
                       className={'flex justify-between w-full'}
                     >
                       <div>
-                        <div>Public list</div>
+                        <div>{t('publicList')}</div>
                         <div className={'font-light leading-6'}>
-                          Your list can be available for anyone with the link
+                          {t('publicListHint')}
                         </div>
                       </div>
 
@@ -323,7 +324,7 @@ export default function ListTile({
                         transition={{ delay: 0.05 }}
                       >
                         <div className="space-y-2 gap-2 my-3">
-                          <Label htmlFor={'share-link-url'}>Role</Label>
+                          <Label htmlFor={'share-role'}>{t('role')}</Label>
                           <div>
                             {isPending && (
                               <Skeleton className=" mt-4 h-8 w-[250px]" />
@@ -337,23 +338,25 @@ export default function ListTile({
                                 listId: list.id,
                                 accessType: role
                               });
-                              console.log(332, res);
+                              if (res && 'hasError' in res && res.hasError) {
+                                toast({ title: tErrors(res.message as any) });
+                              }
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a fruit" />
+                              <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="READ">Viewer</SelectItem>
-                                <SelectItem value="WRITE">Editor</SelectItem>
+                                <SelectItem value="READ">{t('viewer')}</SelectItem>
+                                <SelectItem value="WRITE">{t('editor')}</SelectItem>
                               </SelectGroup>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2 gap-2 my-3">
-                          <Label htmlFor={'share-link-url'}>Share URL</Label>
+                          <Label htmlFor={'share-link-url'}>{t('shareUrl')}</Label>
                           <div>
                             {isPending && (
                               <Skeleton className=" mt-4 h-8 w-[250px]" />

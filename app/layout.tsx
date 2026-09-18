@@ -6,11 +6,13 @@ import { cn } from '@/lib/utils';
 import { Viewport } from 'next';
 import { Toaster } from '@/components/atoms/Toaster';
 import Link from 'next/link';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 
-export const metadata = {
-  title: 'Sharable shopping lists',
-  description: ''
-};
+export async function generateMetadata() {
+  const t = await getTranslations('Meta');
+  return { title: t('title'), description: t('description') };
+}
 
 // @ts-ignore
 export const fontSans = FontSans({
@@ -25,19 +27,23 @@ export const viewport: Viewport = {
   userScalable: false
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" className="h-full bg-gray-50">
+    <html lang={locale} className="h-full bg-gray-50">
       <body
         className={cn(
           'flex flex-col min-h-screen bg-background font-sans antialiased',
           fontSans.variable
         )}
       >
+        <NextIntlClientProvider locale={locale} messages={messages}>
         <Nav />
         <div
           className={
@@ -47,6 +53,7 @@ export default function RootLayout({
           {children}
         </div>
         <Toaster />
+        </NextIntlClientProvider>
 
         <footer className="bg-gray-100">
           <div className="flex items-center justify-between mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">

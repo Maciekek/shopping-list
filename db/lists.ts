@@ -21,7 +21,7 @@ function withPrismaError<T extends AnyFunction>(
       console.error(e);
       return {
         hasError: true,
-        message: 'DB error occurred'
+        message: 'dbError'
       };
     }
   };
@@ -197,18 +197,15 @@ export const grantAccess = async ({
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       // (userId, listId) already exists
       if (e.code === 'P2002') {
-        return { hasError: true, message: 'This user already has access' };
+        return { hasError: true, message: 'alreadyShared' };
       }
       // connect by email found no user, or list not owned by current user
       if (e.code === 'P2025') {
-        return {
-          hasError: true,
-          message: 'No account with this email. Ask them to sign in once first.'
-        };
+        return { hasError: true, message: 'noAccount' };
       }
     }
     console.error(e);
-    return { hasError: true, message: 'DB error occurred' };
+    return { hasError: true, message: 'dbError' };
   }
 };
 

@@ -1,7 +1,10 @@
 import { LoginButton } from '@/components/atoms/LoginButton';
 import { Separator } from '@/components/atoms/Separator';
+import { useTranslations } from 'next-intl';
 
 export const NotInLoggedHero = () => {
+  const t = useTranslations('Landing');
+
   return (
     <main className="w-full py-12 md:py-24 lg:py-32">
       <div className="container px-4 md:px-6">
@@ -9,13 +12,11 @@ export const NotInLoggedHero = () => {
           <div className='flex flex-col justify-center space-y-4'>
             <div className='space-y-2'>
               <h1 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
-                Shopping List App
+                {t('title')}
               </h1>
               <p
                 className='max-w-[500px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400'>
-                Discover the ultimate shopping list experience. Our app
-                provides you with the tools to organize your shopping needs
-                efficiently, ensuring you never miss an item on your list.
+                {t('lead')}
               </p>
             </div>
           </div>

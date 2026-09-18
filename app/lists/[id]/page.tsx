@@ -2,12 +2,14 @@ import { List as ListModel, ListOrError } from '@/models';
 import { getList } from '@/actions/lists';
 import List from '@/components/organisms/List';
 import { isError } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
 
 export default async function ListPage({ params }: { params: { id: string } }) {
   const listDetails: ListOrError = await getList(params.id, true);
 
   if (isError(listDetails)) {
-    return <div>{listDetails?.message}</div>;
+    const t = await getTranslations('Errors');
+    return <div className="p-8 text-center">{t(listDetails.message as any)}</div>;
   }
 
   return (

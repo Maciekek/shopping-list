@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { render } from '@react-email/render';
+import { getTranslations } from 'next-intl/server';
 import SharedListNotifyEmail, {
   sharedListNotifyText
 } from '@/emails/SharedListNotifyEmail';
@@ -34,7 +35,20 @@ const sendShareEmail = async ({
   }
 
   try {
-    const props = { listUrl, listName, from };
+    // Language of the person sharing; the recipient's preference is unknown.
+    const t = await getTranslations('Email');
+    const vars = { from, listName };
+    const props = {
+      listUrl,
+      copy: {
+        subject: t('subject', vars),
+        hi: t('hi'),
+        shared: t('shared', vars),
+        openHere: t('openHere'),
+        signInHint: t('signInHint'),
+        footer: t('footer', vars)
+      }
+    };
 
     await transporter.sendMail({
       // SMTP_FROM may be a bare address or "Name <address>"
@@ -42,7 +56,7 @@ const sendShareEmail = async ({
       to,
       // replies go to the person who shared, not to the app mailbox
       replyTo: from,
-      subject: `${from} shared "${listName}" with you`,
+      subject: props.copy.subject,
       text: sharedListNotifyText(props),
       html: render(SharedListNotifyEmail(props))
     });

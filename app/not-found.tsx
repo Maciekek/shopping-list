@@ -1,3 +1,6 @@
-export default function Custom404() {
-  return <h1>404 - Page Not Found</h1>
+import { getTranslations } from 'next-intl/server';
+
+export default async function NotFound() {
+  const t = await getTranslations('Errors');
+  return <h1 className="p-8 text-center text-xl">404 - {t('notFound')}</h1>;
 }

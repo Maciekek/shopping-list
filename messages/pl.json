@@ -1,0 +1,89 @@
+{
+  "Meta": {
+    "title": "Shopylist - wspólne listy zakupów",
+    "description": "Proste listy zakupów, którymi dzielisz się z rodziną i znajomymi."
+  },
+  "Nav": {
+    "yourLists": "Twoje listy",
+    "openUserMenu": "Otwórz menu użytkownika",
+    "openMainMenu": "Otwórz menu",
+    "signIn": "Zaloguj się",
+    "signOut": "Wyloguj się",
+    "avatarAlt": "Awatar {name}",
+    "language": "Język"
+  },
+  "Landing": {
+    "title": "Shopylist",
+    "lead": "Jedna lista dla całego domu. Dodajesz na telefonie, odhaczasz w sklepie, udostępniasz jednym kliknięciem.",
+    "signInWithGoogle": "Zaloguj się kontem Google"
+  },
+  "Lists": {
+    "heading": "Twoje listy",
+    "createNew": "Nowa lista",
+    "noListsTitle": "Nie masz jeszcze żadnej listy",
+    "noListsLead": "Utwórz listę i zacznij dodawać do niej produkty.",
+    "createFirst": "Utwórz pierwszą listę"
+  },
+  "CreateList": {
+    "nameLabel": "Nazwa listy",
+    "namePlaceholder": "Zakupy na imprezę"
+  },
+  "Form": {
+    "submit": "Zapisz",
+    "submitting": "Zapisywanie..."
+  },
+  "ListTile": {
+    "owner": "Właściciel: {email}",
+    "youAreOwner": "Jesteś właścicielem tej listy",
+    "delete": "Usuń",
+    "rejectShare": "Opuść listę",
+    "share": "Udostępnij",
+    "shareTitle": "Udostępnij znajomemu",
+    "email": "E-mail",
+    "listOwner": "Właściciel listy:",
+    "sharedWith": "Udostępniona dla:",
+    "editor": "Edytor",
+    "viewer": "Podgląd",
+    "publicList": "Lista publiczna",
+    "publicListHint": "Każdy z linkiem może otworzyć tę listę",
+    "role": "Uprawnienia",
+    "shareUrl": "Link do listy",
+    "sharedToast": "Udostępniono!"
+  },
+  "List": {
+    "addPlaceholder": "Dodaj produkt",
+    "add": "Dodaj",
+    "sortByCategory": "Sortuj po kategoriach",
+    "sorting": "Sortowanie...",
+    "readOnly": "Tylko podgląd",
+    "notShared": "Ta lista nie istnieje albo nie jest już udostępniona"
+  },
+  "Errors": {
+    "fetchList": "Nie udało się wczytać listy",
+    "listNotFound": "Nie znaleziono listy",
+    "noPermission": "Nie możesz edytować tej listy",
+    "updateList": "Nie udało się zapisać listy",
+    "deleteList": "Nie udało się usunąć listy",
+    "noAccess": "Nie masz dostępu do tej listy",
+    "notOwner": "Tylko właściciel może to zrobić",
+    "revokeAccess": "Nie udało się odebrać dostępu",
+    "dbError": "Coś poszło nie tak, spróbuj ponownie",
+    "alreadyShared": "Ta osoba już ma dostęp",
+    "noAccount": "Brak konta z tym adresem. Poproś, żeby ta osoba raz się zalogowała.",
+    "invalidEmail": "Podaj poprawny adres e-mail",
+    "shareWithSelf": "To już Twoja lista",
+    "listNameLength": "Nazwa musi mieć od 3 do 60 znaków",
+    "sortFailed": "Sortowanie po kategoriach nie powiodło się. Spróbuj później.",
+    "somethingWentWrong": "Coś poszło nie tak",
+    "tryAgain": "Spróbuj ponownie",
+    "notFound": "Nie znaleziono strony"
+  },
+  "Email": {
+    "subject": "{from} udostępnia Ci listę \"{listName}\"",
+    "hi": "Cześć,",
+    "shared": "{from} udostępnia Ci listę zakupów \"{listName}\" w Shopylist.",
+    "openHere": "Otwórz ją tutaj:",
+    "signInHint": "Zaloguj się kontem Google, na które przyszedł ten mail, a lista będzie na Ciebie czekać.",
+    "footer": "Dostajesz tę wiadomość, bo {from} dodał Twój adres do wspólnej listy. Odpowiedz na ten mail, żeby skontaktować się bezpośrednio."
+  }
+}

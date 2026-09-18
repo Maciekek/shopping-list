@@ -3,6 +3,7 @@ import { Button } from '@/components/atoms/Button';
 import ListTile from '@/components/molecules/ListTile';
 import { ListWithUsersAndShare } from '@/models';
 import { Session } from 'next-auth';
+import { useTranslations } from 'next-intl';
 
 export const Lists = ({
   lists,
@@ -11,13 +12,15 @@ export const Lists = ({
   lists: ListWithUsersAndShare[];
   user: Session['user'];
 }) => {
+  const t = useTranslations('Lists');
+
   return (
     <main className="overflow-hidden px-4">
       <div className="flex-1 space-y-4 pt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Your lists</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('heading')}</h2>
           <Link prefetch={true} href={'/lists/create'}>
-            <Button>Create new list</Button>
+            <Button>{t('createNew')}</Button>
           </Link>
         </div>
       </div>

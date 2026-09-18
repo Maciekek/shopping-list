@@ -1,10 +1,18 @@
 import * as React from 'react';
 import { Html, Head, Body, Container, Text, Link } from '@react-email/components';
 
+export type SharedListEmailCopy = {
+  subject: string;
+  hi: string;
+  shared: string;
+  openHere: string;
+  signInHint: string;
+  footer: string;
+};
+
 export type SharedListNotifyEmailProps = {
   listUrl: string;
-  listName: string;
-  from: string;
+  copy: SharedListEmailCopy;
 };
 
 const text = {
@@ -18,55 +26,38 @@ const text = {
 
 // Deliberately plain: a short personal note reads as transactional mail,
 // a banner + button layout reads as a promotion.
-export function SharedListNotifyEmail({
-  listUrl,
-  listName,
-  from
-}: SharedListNotifyEmailProps) {
+export function SharedListNotifyEmail({ listUrl, copy }: SharedListNotifyEmailProps) {
   return (
-    <Html lang="en">
+    <Html>
       <Head>
-        <title>{`${from} shared "${listName}" with you`}</title>
+        <title>{copy.subject}</title>
       </Head>
       <Body style={{ backgroundColor: '#ffffff', margin: 0 }}>
         <Container style={{ padding: '24px', maxWidth: '560px' }}>
-          <Text style={text}>Hi,</Text>
+          <Text style={text}>{copy.hi}</Text>
+          <Text style={text}>{copy.shared}</Text>
           <Text style={text}>
-            {from} shared the shopping list <strong>{listName}</strong> with
-            you on Shopylist.
+            {copy.openHere} <Link href={listUrl}>{listUrl}</Link>
           </Text>
-          <Text style={text}>
-            Open it here: <Link href={listUrl}>{listUrl}</Link>
-          </Text>
-          <Text style={text}>
-            Sign in with the Google account this email was sent to and the list
-            will be waiting for you.
-          </Text>
-          <Text style={{ ...text, color: '#6b7280', fontSize: '14px' }}>
-            You got this email because {from} added your address to a shared
-            list. Reply to this message to reach them directly.
-          </Text>
+          <Text style={text}>{copy.signInHint}</Text>
+          <Text style={{ ...text, color: '#6b7280', fontSize: '14px' }}>{copy.footer}</Text>
         </Container>
       </Body>
     </Html>
   );
 }
 
-export function sharedListNotifyText({
-  listUrl,
-  listName,
-  from
-}: SharedListNotifyEmailProps) {
+export function sharedListNotifyText({ listUrl, copy }: SharedListNotifyEmailProps) {
   return [
-    'Hi,',
+    copy.hi,
     '',
-    `${from} shared the shopping list "${listName}" with you on Shopylist.`,
+    copy.shared,
     '',
-    `Open it here: ${listUrl}`,
+    `${copy.openHere} ${listUrl}`,
     '',
-    'Sign in with the Google account this email was sent to and the list will be waiting for you.',
+    copy.signInHint,
     '',
-    `You got this email because ${from} added your address to a shared list. Reply to this message to reach them directly.`
+    copy.footer
   ].join('\n');
 }
 

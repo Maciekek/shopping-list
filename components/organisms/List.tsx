@@ -17,7 +17,8 @@ import {
   updateListItems
 } from '@/actions/lists';
 import { toast } from '@/hooks/use-toast';
-import { TrashIcon, UserIcon } from '@/components/atoms/Icons';
+import { TrashIcon } from '@/components/atoms/Icons';
+import { useTranslations } from 'next-intl';
 
 export default function List({
   list,
@@ -29,6 +30,8 @@ export default function List({
   isReadOnly?: boolean;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const t = useTranslations('List');
+  const tErrors = useTranslations('Errors');
   const items = list!.items as ListItem[];
 
   const [optimisticListItems, addOptimisticListItem] = useOptimistic(
@@ -91,7 +94,7 @@ export default function List({
 
     if (result?.hasError) {
       toast({
-        title: result.message
+        title: tErrors(result.message as any)
       });
     }
   };
@@ -114,7 +117,7 @@ export default function List({
 
     if (result?.hasError) {
       toast({
-        title: result.message
+        title: tErrors(result.message as any)
       });
     }
   };
@@ -135,7 +138,7 @@ export default function List({
 
       if (result?.hasError) {
         toast({
-          title: result.message
+          title: tErrors(result.message as any)
         });
       }
     });
@@ -152,7 +155,7 @@ export default function List({
 
     if (result?.hasError) {
       toast({
-        title: result.message
+        title: tErrors(result.message as any)
       });
     }
   };
@@ -166,7 +169,7 @@ export default function List({
               <Input
                 name={'itemName'}
                 className="flex-1"
-                placeholder="Add new item"
+                placeholder={t('addPlaceholder')}
               />
               <Input
                 name={'listId'}
@@ -174,7 +177,7 @@ export default function List({
                 readOnly
                 value={listId}
               />
-              <Button variant="outline">Add</Button>
+              <Button variant="outline">{t('add')}</Button>
             </div>
           </form>
         )}
@@ -189,7 +192,7 @@ export default function List({
               onClick={sortByCategory}
             >
               <SparklesIcon className="h-4 w-4 mr-2" />
-              {isSorting ? 'Sorting...' : 'Sort by category'}
+              {isSorting ? t('sorting') : t('sortByCategory')}
             </Button>
           </div>
         )}

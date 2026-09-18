@@ -89,7 +89,7 @@ export async function sortListByCategory(listId: string) {
     console.error('Failed to sort list by category', error);
     return {
       hasError: true,
-      message: 'Sorting by category failed. Try again later.'
+      message: 'sortFailed'
     };
   }
 
@@ -146,11 +146,7 @@ export async function createList(previousState: any, formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    return {
-      hasError: true,
-      message: 'Form validation error',
-      formErrors: validatedFields.error.flatten().fieldErrors
-    };
+    return { hasError: true, error: 'listNameLength' };
   }
 
   const listName = formData.get('name') ? formData.get('name')! : '';
@@ -182,13 +178,13 @@ export async function shareList(previousState: any, formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    return { success: false, error: 'Enter a valid email address' };
+    return { success: false, error: 'invalidEmail' };
   }
 
   const { listId, email } = validatedFields.data;
 
   if (email.toLowerCase() === user.email?.toLowerCase()) {
-    return { success: false, error: 'You already own this list' };
+    return { success: false, error: 'shareWithSelf' };
   }
 
   const result = await ListService.grantAccessToList({

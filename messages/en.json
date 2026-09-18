@@ -1,0 +1,89 @@
+{
+  "Meta": {
+    "title": "Shopylist - shared shopping lists",
+    "description": "Simple shopping lists you can share with family and friends."
+  },
+  "Nav": {
+    "yourLists": "Your lists",
+    "openUserMenu": "Open user menu",
+    "openMainMenu": "Open main menu",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "avatarAlt": "{name} avatar",
+    "language": "Language"
+  },
+  "Landing": {
+    "title": "Shopylist",
+    "lead": "One list for the whole household. Add items on your phone, tick them off in the store, share with anyone in a click.",
+    "signInWithGoogle": "Sign in with Google account"
+  },
+  "Lists": {
+    "heading": "Your lists",
+    "createNew": "Create new list",
+    "noListsTitle": "No shopping list yet",
+    "noListsLead": "Create a list and start adding items to it.",
+    "createFirst": "Create your first list"
+  },
+  "CreateList": {
+    "nameLabel": "List name",
+    "namePlaceholder": "Shopping for the party"
+  },
+  "Form": {
+    "submit": "Submit",
+    "submitting": "Submitting..."
+  },
+  "ListTile": {
+    "owner": "Owner: {email}",
+    "youAreOwner": "You are the owner of this list",
+    "delete": "Delete",
+    "rejectShare": "Leave shared list",
+    "share": "Share",
+    "shareTitle": "Share with a friend",
+    "email": "Email",
+    "listOwner": "Owner of the list:",
+    "sharedWith": "Shared with:",
+    "editor": "Editor",
+    "viewer": "Viewer",
+    "publicList": "Public list",
+    "publicListHint": "Anyone with the link can open this list",
+    "role": "Role",
+    "shareUrl": "Share URL",
+    "sharedToast": "Shared!"
+  },
+  "List": {
+    "addPlaceholder": "Add new item",
+    "add": "Add",
+    "sortByCategory": "Sort by category",
+    "sorting": "Sorting...",
+    "readOnly": "Read only",
+    "notShared": "This list does not exist or is no longer shared"
+  },
+  "Errors": {
+    "fetchList": "Could not load the list",
+    "listNotFound": "List not found",
+    "noPermission": "You cannot edit this list",
+    "updateList": "Could not update the list",
+    "deleteList": "Could not delete the list",
+    "noAccess": "You have no access to this list",
+    "notOwner": "Only the owner can do that",
+    "revokeAccess": "Could not remove access",
+    "dbError": "Something went wrong, try again",
+    "alreadyShared": "This person already has access",
+    "noAccount": "No account with this email. Ask them to sign in once first.",
+    "invalidEmail": "Enter a valid email address",
+    "shareWithSelf": "You already own this list",
+    "listNameLength": "Name must be 3 to 60 characters",
+    "sortFailed": "Sorting by category failed. Try again later.",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again",
+    "notFound": "Page not found"
+  },
+  "Email": {
+    "subject": "{from} shared \"{listName}\" with you",
+    "hi": "Hi,",
+    "shared": "{from} shared the shopping list \"{listName}\" with you on Shopylist.",
+    "openHere": "Open it here:",
+    "signInHint": "Sign in with the Google account this email was sent to and the list will be waiting for you.",
+    "footer": "You got this email because {from} added your address to a shared list. Reply to this message to reach them directly."
+  }
+}

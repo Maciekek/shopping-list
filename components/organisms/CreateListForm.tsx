@@ -4,6 +4,7 @@ import { useFormState } from 'react-dom';
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
 import { Input } from '@/components/atoms/Input';
 import { createList } from '@/actions/lists';
+import { useTranslations } from 'next-intl';
 
 const initialState = {
   name: ''
@@ -11,6 +12,8 @@ const initialState = {
 
 export function CreateListForm() {
   const [state, formAction] = useFormState(createList, initialState);
+  const t = useTranslations('CreateList');
+  const tErrors = useTranslations('Errors');
 
   return (
     <form action={formAction} className={'px-4 pt-20 mx-auto max-w-md'}>
@@ -19,18 +22,18 @@ export function CreateListForm() {
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           htmlFor=":r1l:-form-item"
         >
-          List name
+          {t('nameLabel')}
         </label>
 
         <Input
           aria-invalid="false"
           name="name"
-          placeholder={'Shopping list for the party'}
+          placeholder={t('namePlaceholder')}
           required={true}
         />
 
         <p aria-live="polite" className={'text-red-700 '}>
-          {state.errors?.name.map((error: string) => error)}
+          {state.error ? tErrors(state.error) : null}
         </p>
 
         <SubmitFormButton />

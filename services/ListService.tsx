@@ -5,6 +5,7 @@ import { User } from 'next-auth';
 import { isError } from '@/lib/utils';
 import { emailService } from '@/lib/emails';
 
+/** `message` is a key in the `Errors` namespace of messages/*.json; translate it where it is shown. */
 export type ResponseError = { hasError: boolean; message: string };
 
 const ListService = {
@@ -22,7 +23,7 @@ const ListService = {
     if (isError(result)) {
       return {
         hasError: true,
-        message: 'Error fetching list'
+        message: 'fetchList'
       };
     }
 
@@ -49,12 +50,11 @@ const ListService = {
     const existingList = await ListService.getListById({
       listId
     });
-    console.log(52, 'UPDATE')
 
     if (!existingList || isError(existingList)) {
       return {
         hasError: true,
-        message: 'List not found'
+        message: 'listNotFound'
       };
     }
 
@@ -71,7 +71,7 @@ const ListService = {
     if (noWritePermission) {
       return {
         hasError: true,
-        message: 'User have no permission to update this list'
+        message: 'noPermission'
       };
     }
 
@@ -100,7 +100,7 @@ const ListService = {
     if (isError(updateListResult)) {
       return {
         hasError: true,
-        message: 'Error updating list'
+        message: 'updateList'
       };
     }
 
@@ -125,7 +125,7 @@ const ListService = {
     if (!existingList || isError(existingList)) {
       return {
         hasError: true,
-        message: 'List not found'
+        message: 'listNotFound'
       };
     }
 
@@ -142,7 +142,7 @@ const ListService = {
     if (noWritePermission) {
       return {
         hasError: true,
-        message: 'User have no permission to update this list'
+        message: 'noPermission'
       };
     }
 
@@ -158,7 +158,7 @@ const ListService = {
     if (isError(updateListResult)) {
       return {
         hasError: true,
-        message: 'Error updating list'
+        message: 'updateList'
       };
     }
 
@@ -181,7 +181,7 @@ const ListService = {
     if (isError(result)) {
       return {
         hasError: true,
-        message: 'Error deleting list'
+        message: 'deleteList'
       };
     }
   },
@@ -227,7 +227,7 @@ const ListService = {
     if (isError(list) || !list) {
       return {
         hasError: true,
-        message: 'no-access'
+        message: 'noAccess'
       };
     }
 
@@ -238,7 +238,7 @@ const ListService = {
     if (list && !userIsOwner && !isUserInSharedWithList) {
       return {
         hasError: true,
-        message: 'You are not the owner of this list'
+        message: 'notOwner'
       };
     }
 
@@ -247,7 +247,7 @@ const ListService = {
     if (isError(result)) {
       return {
         hasError: true,
-        message: 'Error revoking access to list'
+        message: 'revokeAccess'
       };
     }
   },
@@ -258,7 +258,7 @@ const ListService = {
     if (!list || isError(list)) {
       return {
         hasError: true,
-        message: 'no-access'
+        message: 'noAccess'
       };
     }
 
@@ -279,7 +279,7 @@ const ListService = {
     if (isError(list) || !list) {
       return {
         hasError: true,
-        message: 'no-access'
+        message: 'noAccess'
       };
     }
 
@@ -301,7 +301,7 @@ const ListService = {
     if (!list || isError(list)) {
       return {
         hasError: true,
-        message: 'no-access'
+        message: 'noAccess'
       };
     }
 

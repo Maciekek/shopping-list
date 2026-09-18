@@ -9,11 +9,13 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { User } from 'next-auth';
-
-const navigation = [{ name: 'Your lists', href: '/' }];
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/molecules/LanguageSwitcher';
 
 export default function Navbar({ user }: { user?: User }) {
   const pathname = usePathname();
+  const t = useTranslations('Nav');
+  const navigation = [{ name: t('yourLists'), href: '/' }];
 
   return (
     <Disclosure as="nav" className="bg-white shadow-sm">
@@ -62,18 +64,19 @@ export default function Navbar({ user }: { user?: User }) {
                     ))}
                 </div>
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:items-center">
+              <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
+                <LanguageSwitcher />
                 {user && (
                   <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
-                        <span className="sr-only">Open user menu</span>
+                        <span className="sr-only">{t('openUserMenu')}</span>
                         <Image
                           className="h-8 w-8 rounded-full"
                           src={user?.image || 'https://avatar.vercel.sh/leerob'}
                           height={32}
                           width={32}
-                          alt={`${user?.name || 'placeholder'} avatar`}
+                          alt={t('avatarAlt', { name: user?.name || '' })}
                         />
                       </Menu.Button>
                     </div>
@@ -97,7 +100,7 @@ export default function Navbar({ user }: { user?: User }) {
                                 )}
                                 onClick={() => signOut()}
                               >
-                                Sign out
+                                {t('signOut')}
                               </button>
                             )}
                           </Menu.Item>
@@ -111,7 +114,7 @@ export default function Navbar({ user }: { user?: User }) {
                                 )}
                                 onClick={() => signIn('google')}
                               >
-                                Sign in
+                                {t('signIn')}
                               </button>
                             )}
                           </Menu.Item>
@@ -121,10 +124,11 @@ export default function Navbar({ user }: { user?: User }) {
                   </Menu>
                 )}
               </div>
-              <div className="-mr-2 flex items-center sm:hidden">
+              <div className="-mr-2 flex items-center gap-3 sm:hidden">
+                <LanguageSwitcher />
                 {user && (
                   <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
-                    <span className="sr-only">Open main menu</span>
+                    <span className="sr-only">{t('openMainMenu')}</span>
                     {open ? (
                       <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                     ) : (
@@ -166,7 +170,7 @@ export default function Navbar({ user }: { user?: User }) {
                         src={user.image!}
                         height={32}
                         width={32}
-                        alt={`${user.name} avatar`}
+                        alt={t('avatarAlt', { name: user.name || '' })}
                       />
                     </div>
                     <div className="ml-3">
@@ -183,7 +187,7 @@ export default function Navbar({ user }: { user?: User }) {
                       onClick={() => signOut()}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
-                      Sign out
+                      {t('signOut')}
                     </button>
                   </div>
                 </>
@@ -193,7 +197,7 @@ export default function Navbar({ user }: { user?: User }) {
                     onClick={() => signIn('google')}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
-                    Sign in
+                    {t('signIn')}
                   </button>
                 </div>
               )}
