@@ -2,7 +2,7 @@
 
 Runs the prebuilt image from GHCR. Nothing is built on the server.
 
-- **Database**: Mikrus shared PostgreSQL (`psql.mikr.us`), credentials from the Mikrus panel.
+- **Database**: Mikrus shared PostgreSQL (`psql01.mikr.us`), credentials from the Mikrus panel.
 - **TLS / reverse proxy**: the shared [vps-proxy](https://github.com/Maciekek/vps-proxy) stack.
   This compose only declares its domain via labels and joins the `web` network.
 - **Migrations**: `prisma migrate deploy` runs automatically when the container starts.
