@@ -5,7 +5,11 @@ import { PrivacyEn } from '@/components/legal/PrivacyEn';
 
 export async function generateMetadata() {
   const t = await getTranslations('Meta');
-  return { title: `${t('privacyTitle')} - Shopylist` };
+  return {
+    title: t('privacyTitle'),
+    description: t('privacyDescription'),
+    alternates: { canonical: '/privacy' }
+  };
 }
 
 export default async function PrivacyPage() {

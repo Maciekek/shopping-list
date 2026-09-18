@@ -3,15 +3,47 @@ import './globals.css';
 import Nav from './nav';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Toaster } from '@/components/atoms/Toaster';
 import Link from 'next/link';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 
-export async function generateMetadata() {
+const SITE_URL = process.env.NEXTAUTH_URL || 'https://shopylist.pl';
+
+export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Meta');
-  return { title: t('title'), description: t('description') };
+  const locale = await getLocale();
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: t('title'),
+      template: '%s - Shopylist'
+    },
+    description: t('description'),
+    applicationName: 'Shopylist',
+    keywords: t('keywords').split(', '),
+    alternates: { canonical: '/' },
+    openGraph: {
+      type: 'website',
+      siteName: 'Shopylist',
+      url: '/',
+      title: t('title'),
+      description: t('description'),
+      locale: locale === 'pl' ? 'pl_PL' : 'en_US',
+      alternateLocale: locale === 'pl' ? ['en_US'] : ['pl_PL']
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description')
+    },
+    robots: {
+      index: true,
+      follow: true
+    }
+  };
 }
 
 // @ts-ignore

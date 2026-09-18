@@ -3,7 +3,11 @@
     "title": "Shopylist - shared shopping lists",
     "description": "Simple shopping lists you can share with family and friends.",
     "termsTitle": "Terms of use",
-    "privacyTitle": "Privacy policy"
+    "privacyTitle": "Privacy policy",
+    "keywords": "shopping list, shared shopping list, grocery list, family shopping list, free shopping list app",
+    "termsDescription": "Terms of use of the Shopylist shared shopping list app.",
+    "privacyDescription": "What data Shopylist stores, why, and how to delete it.",
+    "listsTitle": "Your lists"
   },
   "Nav": {
     "yourLists": "Your lists",

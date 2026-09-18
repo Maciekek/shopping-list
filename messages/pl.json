@@ -3,7 +3,11 @@
     "title": "Shopylist - wspólne listy zakupów",
     "description": "Proste listy zakupów, którymi dzielisz się z rodziną i znajomymi.",
     "termsTitle": "Regulamin",
-    "privacyTitle": "Polityka prywatności"
+    "privacyTitle": "Polityka prywatności",
+    "keywords": "lista zakupów, wspólna lista zakupów, lista zakupów online, lista zakupów dla rodziny, darmowa aplikacja lista zakupów",
+    "termsDescription": "Regulamin aplikacji Shopylist do wspólnych list zakupów.",
+    "privacyDescription": "Jakie dane przechowuje Shopylist, po co i jak je usunąć.",
+    "listsTitle": "Twoje listy"
   },
   "Nav": {
     "yourLists": "Twoje listy",

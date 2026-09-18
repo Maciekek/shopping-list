@@ -5,7 +5,11 @@ import { TermsEn } from '@/components/legal/TermsEn';
 
 export async function generateMetadata() {
   const t = await getTranslations('Meta');
-  return { title: `${t('termsTitle')} - Shopylist` };
+  return {
+    title: t('termsTitle'),
+    description: t('termsDescription'),
+    alternates: { canonical: '/terms' }
+  };
 }
 
 export default async function TermsPage() {
