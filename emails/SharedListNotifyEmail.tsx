@@ -1,90 +1,73 @@
 import * as React from 'react';
-import {
-  Html,
-  Button,
-  Text,
-  Container,
-  Head,
-  Heading,
-  Font,
-  Tailwind,
-  Body
-} from '@react-email/components';
+import { Html, Head, Body, Container, Text, Link } from '@react-email/components';
 
-export function SharedListNotifyEmail({ listUrl, from }: {
-  listUrl: string,
-  from: string,
-}) {
+export type SharedListNotifyEmailProps = {
+  listUrl: string;
+  listName: string;
+  from: string;
+};
 
+const text = {
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  fontSize: '16px',
+  lineHeight: '24px',
+  color: '#1f2937',
+  margin: '0 0 16px'
+};
+
+// Deliberately plain: a short personal note reads as transactional mail,
+// a banner + button layout reads as a promotion.
+export function SharedListNotifyEmail({
+  listUrl,
+  listName,
+  from
+}: SharedListNotifyEmailProps) {
   return (
-    <Tailwind
-      config={{
-        theme: {
-          extend: {
-            colors: {
-              brand: '#007291'
-            }
-          }
-        }
-      }}
-    >
-      <Html lang="en">
-        <Head>
-          <Font
-            fontFamily="Roboto"
-            fallbackFontFamily="Verdana"
-            webFont={{
-              url: 'https://fonts.gstatic.com/s/roboto/v27/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-              format: 'woff2'
-            }}
-            fontWeight={400}
-            fontStyle="normal"
-          />
-          <title>Someone has shared list with you!</title>
-        </Head>
-        <Body>
-
-
-          <div className="mx-auto max-w-xl p-8 border-solid rounded-md border  border-slate-800">
-            <div className="flex items-center justify-center mb-6"></div>
-            <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
-              Shopping list is shared with you
-            </h1>
-            <p className="text-center text-gray-600 mb-10 flex items-center">
-              <h2
-                className={'text-xl font-bold text-center text-gray-800 mb-4'}
-              >
-                Hello,{' '}
-              </h2>
-              <p className={'text-center'}>We would like to inform you, that</p>
-              <p className={'text-center'}>
-                <strong>{from}</strong>
-              </p>
-              <p className={'text-center'}>has shared the shopping list with you</p>
-            </p>
-            <div className="mb-6 w-full text-center">
-              <Button>
-                <a href={listUrl}>
-                <div
-                  className={
-                    'inline-flex bg-black text-white rounded-md text-sm font-medium cursor-pointer leading-10 h-10 px-4'
-                  }
-                >
-                  Click here to see the list
-                </div>
-                </a>
-              </Button>
-
-            </div>
-            {/*<footer className="text-center text-gray-600">*/}
-            {/*  If you have any issues, please contact our support team at*/}
-            {/*  support@example.com or call us at (123) 456-7890.*/}
-            {/*</footer>*/}
-          </div>
-        </Body>
-      </Html>
-    </Tailwind>
+    <Html lang="en">
+      <Head>
+        <title>{`${from} shared "${listName}" with you`}</title>
+      </Head>
+      <Body style={{ backgroundColor: '#ffffff', margin: 0 }}>
+        <Container style={{ padding: '24px', maxWidth: '560px' }}>
+          <Text style={text}>Hi,</Text>
+          <Text style={text}>
+            {from} shared the shopping list <strong>{listName}</strong> with
+            you on Shopylist.
+          </Text>
+          <Text style={text}>
+            Open it here: <Link href={listUrl}>{listUrl}</Link>
+          </Text>
+          <Text style={text}>
+            Sign in with the Google account this email was sent to and the list
+            will be waiting for you.
+          </Text>
+          <Text style={{ ...text, color: '#6b7280', fontSize: '14px' }}>
+            You got this email because {from} added your address to a shared
+            list. Reply to this message to reach them directly.
+          </Text>
+        </Container>
+      </Body>
+    </Html>
   );
+}
+
+export function sharedListNotifyText({
+  listUrl,
+  listName,
+  from
+}: SharedListNotifyEmailProps) {
+  return [
+    'Hi,',
+    '',
+    `${from} shared the shopping list "${listName}" with you on Shopylist.`,
+    '',
+    `Open it here: ${listUrl}`,
+    '',
+    'Sign in with the Google account this email was sent to and the list will be waiting for you.',
+    '',
+    `You got this email because ${from} added your address to a shared list. Reply to this message to reach them directly.`
+  ].join('\n');
 }
 
 export default SharedListNotifyEmail;

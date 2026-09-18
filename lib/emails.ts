@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 import { render } from '@react-email/render';
-import SharedListNotifyEmail from '@/emails/SharedListNotifyEmail';
+import SharedListNotifyEmail, {
+  sharedListNotifyText
+} from '@/emails/SharedListNotifyEmail';
 
 const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_FROM);
 
@@ -18,11 +20,13 @@ const transporter = smtpConfigured
 const sendShareEmail = async ({
   to,
   from,
-  listUrl
+  listUrl,
+  listName
 }: {
   to: string;
   from: string;
   listUrl: string;
+  listName: string;
 }) => {
   if (!transporter) {
     console.warn('[emails] SMTP not configured, skipping share email to', to);
@@ -30,11 +34,17 @@ const sendShareEmail = async ({
   }
 
   try {
+    const props = { listUrl, listName, from };
+
     await transporter.sendMail({
+      // SMTP_FROM may be a bare address or "Name <address>"
       from: process.env.SMTP_FROM,
       to,
-      subject: 'Shared list is waiting for you',
-      html: render(SharedListNotifyEmail({ listUrl, from }))
+      // replies go to the person who shared, not to the app mailbox
+      replyTo: from,
+      subject: `${from} shared "${listName}" with you`,
+      text: sharedListNotifyText(props),
+      html: render(SharedListNotifyEmail(props))
     });
   } catch (error) {
     console.error('[emails] failed to send share email to', to, error);

@@ -208,7 +208,8 @@ const ListService = {
     await emailService.sendShareEmail({
       to: email,
       from: user.email!,
-      listUrl: `${process.env.NEXTAUTH_URL}/lists/${listId}`
+      listUrl: `${process.env.NEXTAUTH_URL}/lists/${listId}`,
+      listName: result.name
     });
   },
 
