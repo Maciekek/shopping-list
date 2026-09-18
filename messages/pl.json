@@ -1,7 +1,9 @@
 {
   "Meta": {
     "title": "Shopylist - wspólne listy zakupów",
-    "description": "Proste listy zakupów, którymi dzielisz się z rodziną i znajomymi."
+    "description": "Proste listy zakupów, którymi dzielisz się z rodziną i znajomymi.",
+    "termsTitle": "Regulamin",
+    "privacyTitle": "Polityka prywatności"
   },
   "Nav": {
     "yourLists": "Twoje listy",
@@ -14,8 +16,26 @@
   },
   "Landing": {
     "title": "Shopylist",
-    "lead": "Jedna lista dla całego domu. Dodajesz na telefonie, odhaczasz w sklepie, udostępniasz jednym kliknięciem.",
-    "signInWithGoogle": "Zaloguj się kontem Google"
+    "tagline": "Jedna lista zakupów dla całego domu",
+    "lead": "Dodajesz produkty na telefonie, odhaczasz w sklepie, dzielisz się listą z rodziną lub znajomymi jednym kliknięciem. Za darmo, bez reklam.",
+    "signInWithGoogle": "Zaloguj się kontem Google",
+    "featuresHeading": "Co potrafi",
+    "feature1Title": "Wspólna w czasie rzeczywistym",
+    "feature1Text": "Wszyscy z dostępem widzą tę samą listę. Ktoś dopisze mleko w domu, Ty widzisz to w sklepie.",
+    "feature2Title": "Odhaczasz w trakcie zakupów",
+    "feature2Text": "Stuknij produkt, żeby oznaczyć go jako kupiony. Kupione spadają na dół, reszta zostaje w Twojej kolejności.",
+    "feature3Title": "Ułożona jak sklep",
+    "feature3Text": "Jedno kliknięcie grupuje produkty po alejkach: warzywa, pieczywo, nabiał, mięso, mrożonki, napoje, chemia.",
+    "feature4Title": "Udostępniasz jak chcesz",
+    "feature4Text": "Zaproś po e-mailu do edycji albo włącz publiczny link do podglądu lub edycji bez konta.",
+    "howHeading": "Jak to działa",
+    "step1": "Logujesz się kontem Google. Bez nowego hasła.",
+    "step2": "Tworzysz listę i dodajesz produkty, na telefonie lub komputerze.",
+    "step3": "Udostępniasz osobom, z którymi robisz zakupy, i idziesz do sklepu.",
+    "ctaHeading": "Gotowe, kiedy Ty",
+    "ctaText": "Zaloguj się i utwórz pierwszą listę w niecałą minutę.",
+    "previewTitle": "Zakupy",
+    "previewItems": "Mleko, Chleb, Pomidory, Ser żółty, Kawa"
   },
   "Lists": {
     "heading": "Twoje listy",
@@ -85,5 +105,15 @@
     "openHere": "Otwórz ją tutaj:",
     "signInHint": "Zaloguj się kontem Google, na które przyszedł ten mail, a lista będzie na Ciebie czekać.",
     "footer": "Dostajesz tę wiadomość, bo {from} dodał Twój adres do wspólnej listy. Odpowiedz na ten mail, żeby skontaktować się bezpośrednio."
+  },
+  "Footer": {
+    "terms": "Regulamin",
+    "privacy": "Polityka prywatności",
+    "contact": "Kontakt",
+    "source": "Kod źródłowy"
+  },
+  "Legal": {
+    "updated": "Ostatnia aktualizacja",
+    "back": "Wróć do Shopylist"
   }
 }

@@ -1,7 +1,9 @@
 {
   "Meta": {
     "title": "Shopylist - shared shopping lists",
-    "description": "Simple shopping lists you can share with family and friends."
+    "description": "Simple shopping lists you can share with family and friends.",
+    "termsTitle": "Terms of use",
+    "privacyTitle": "Privacy policy"
   },
   "Nav": {
     "yourLists": "Your lists",
@@ -14,8 +16,26 @@
   },
   "Landing": {
     "title": "Shopylist",
-    "lead": "One list for the whole household. Add items on your phone, tick them off in the store, share with anyone in a click.",
-    "signInWithGoogle": "Sign in with Google account"
+    "tagline": "One shopping list for the whole household",
+    "lead": "Add items on your phone, tick them off in the store, share the list with family or friends in one click. Free, no ads.",
+    "signInWithGoogle": "Sign in with Google account",
+    "featuresHeading": "What it does",
+    "feature1Title": "Shared in real time",
+    "feature1Text": "Everyone with access sees the same list. Someone adds milk at home, you see it in the store.",
+    "feature2Title": "Tick off while you shop",
+    "feature2Text": "Tap an item to mark it as bought. Bought items drop to the bottom, the rest stays in your order.",
+    "feature3Title": "Sorted like the store",
+    "feature3Text": "One tap groups items by aisle: produce, bakery, dairy, meat, frozen, drinks, household.",
+    "feature4Title": "Share your way",
+    "feature4Text": "Invite by email for editing, or turn on a public link for viewing or editing without an account.",
+    "howHeading": "How it works",
+    "step1": "Sign in with your Google account. No new password.",
+    "step2": "Create a list and add items, on the phone or on the computer.",
+    "step3": "Share it with the people you shop with and go shopping.",
+    "ctaHeading": "Ready when you are",
+    "ctaText": "Sign in and create your first list in under a minute.",
+    "previewTitle": "Groceries",
+    "previewItems": "Milk, Bread, Tomatoes, Cheese, Coffee"
   },
   "Lists": {
     "heading": "Your lists",
@@ -85,5 +105,15 @@
     "openHere": "Open it here:",
     "signInHint": "Sign in with the Google account this email was sent to and the list will be waiting for you.",
     "footer": "You got this email because {from} added your address to a shared list. Reply to this message to reach them directly."
+  },
+  "Footer": {
+    "terms": "Terms",
+    "privacy": "Privacy policy",
+    "contact": "Contact",
+    "source": "Source code"
+  },
+  "Legal": {
+    "updated": "Last updated",
+    "back": "Back to Shopylist"
   }
 }
