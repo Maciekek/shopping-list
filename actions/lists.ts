@@ -10,6 +10,7 @@ import ListService from '@/services/ListService';
 import { isError } from '@/lib/utils';
 import { ListItem } from '@/models';
 import { sortItemsByCategory } from '@/lib/categorize';
+import { db } from '@/db';
 
 const getCurrentUserOrThrowError = async () => {
   const session = await auth();
@@ -211,6 +212,59 @@ export async function shareList(previousState: any, formData: FormData) {
   revalidatePath('/');
   revalidatePath(`/lists/${listId}`);
   return { success: true, invited: result.invited };
+}
+
+export async function createInviteLink(listId: string) {
+  const user = await getCurrentUserOrThrowError();
+
+  const result = await ListService.createInviteLink({ listId, user });
+
+  if (isError(result)) {
+    return result;
+  }
+
+  revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
+  return { hasError: false as const, token: result.token };
+}
+
+/** Invite page data; null when the token is unknown or expired. */
+export async function getInvite(token: string) {
+  const invite = await db.lists.getInviteByToken({ token });
+  if (!invite || isError(invite) || invite.expiresAt < new Date()) return null;
+
+  const inviter = invite.invitedById
+    ? await prisma.user.findUnique({
+        where: { id: invite.invitedById },
+        select: { name: true, email: true }
+      })
+    : null;
+
+  return {
+    listId: invite.list.id,
+    listName: invite.list.name,
+    memberCount: invite.list.users.length,
+    inviterName: inviter?.name ?? inviter?.email ?? null
+  };
+}
+
+/** Signed-in user joins the list behind an invite link, then lands on it. */
+export async function claimInvite(token: string) {
+  const session = await auth();
+
+  if (!session) {
+    redirect(`/api/auth/signin?callbackUrl=${encodeURIComponent(`/i/${token}`)}`);
+  }
+
+  const claimed = await db.lists.claimInviteByToken({ token, userId: session!.user.id });
+
+  if (!claimed || typeof claimed !== 'string') {
+    return { hasError: true, message: 'inviteInvalid' };
+  }
+  const listId = claimed;
+
+  revalidatePath('/');
+  redirect(`/lists/${listId}`);
 }
 
 export async function revokeInvite(inviteId: string, listId: string) {

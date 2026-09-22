@@ -5,6 +5,19 @@ import { ResponseError } from '@/services/ListService';
 import { randomBytes } from 'node:crypto';
 import { User } from 'next-auth';
 
+const INVITE_SELECT = {
+  id: true,
+  email: true,
+  token: true,
+  expiresAt: true,
+  uses: true
+} as const;
+
+export const INVITE_TTL_DAYS = 30;
+const inviteExpiry = () =>
+  new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000);
+const inviteToken = () => randomBytes(16).toString('hex');
+
 type FuncWithArgs<T extends unknown[], R> = (...args: T) => R;
 
 type AnyFunction = (...args: any[]) => any;
@@ -51,7 +64,7 @@ export const getUserList = withPrismaError(
           ? { include: { user: { select: { email: true, id: true } } } }
           : false,
         share: true,
-        invites: { select: { id: true, email: true } }
+        invites: { select: INVITE_SELECT }
       }
     });
 
@@ -69,7 +82,7 @@ export const getListById = withPrismaError(
       include: {
         users: true,
         share: true,
-        invites: { select: { id: true, email: true } }
+        invites: { select: INVITE_SELECT }
       }
     });
   }
@@ -102,7 +115,7 @@ export const getUserLists = withPrismaError(
             }
           }
         },
-        invites: { select: { id: true, email: true } }
+        invites: { select: INVITE_SELECT }
       }
     });
   }
@@ -213,9 +226,52 @@ export const createInvite = withPrismaError(
   ({ listId, email, invitedById }: { listId: string; email: string; invitedById: string }) => {
     return prisma.listInvite.upsert({
       where: { listId_email: { listId, email } },
-      create: { listId, email, invitedById },
-      update: {}
+      create: { listId, email, invitedById, token: inviteToken(), expiresAt: inviteExpiry() },
+      update: { expiresAt: inviteExpiry() }
     });
+  }
+);
+
+/** Link invite: no e-mail, anyone who opens it and signs in joins. */
+export const createInviteLink = withPrismaError(
+  ({ listId, invitedById }: { listId: string; invitedById: string }) => {
+    return prisma.listInvite.create({
+      data: { listId, invitedById, token: inviteToken(), expiresAt: inviteExpiry() }
+    });
+  }
+);
+
+export const getInviteByToken = withPrismaError(
+  ({ token }: { token: string }) => {
+    return prisma.listInvite.findUnique({
+      where: { token },
+      include: {
+        list: { select: { id: true, name: true, ownerId: true, users: { select: { userId: true } } } }
+      }
+    });
+  }
+);
+
+/**
+ * Membership for the signed-in user via an invite link. An e-mail invite is
+ * single-use and removed; a link invite stays until expiry or withdrawal.
+ */
+export const claimInviteByToken = withPrismaError(
+  async ({ token, userId }: { token: string; userId: string }) => {
+    const invite = await prisma.listInvite.findUnique({ where: { token } });
+    if (!invite || invite.expiresAt < new Date()) return null;
+
+    await prisma.$transaction([
+      prisma.listsOnUsers.createMany({
+        data: [{ listId: invite.listId, userId }],
+        skipDuplicates: true
+      }),
+      invite.email
+        ? prisma.listInvite.delete({ where: { id: invite.id } })
+        : prisma.listInvite.update({ where: { id: invite.id }, data: { uses: { increment: 1 } } })
+    ]);
+
+    return invite.listId;
   }
 );
 
@@ -231,16 +287,17 @@ export const deleteInvite = withPrismaError(
  */
 export const claimInvites = async ({ userId, email }: { userId: string; email: string }) => {
   try {
-    const invites = await prisma.listInvite.findMany({ where: { email } });
+    const invites = await prisma.listInvite.findMany({
+      where: { email, expiresAt: { gt: new Date() } }
+    });
+    // Expired e-mail invites are dropped without granting anything.
+    await prisma.listInvite.deleteMany({ where: { email } });
     if (invites.length === 0) return 0;
 
-    await prisma.$transaction([
-      prisma.listsOnUsers.createMany({
-        data: invites.map((i) => ({ listId: i.listId, userId })),
-        skipDuplicates: true
-      }),
-      prisma.listInvite.deleteMany({ where: { email } })
-    ]);
+    await prisma.listsOnUsers.createMany({
+      data: invites.map((i) => ({ listId: i.listId, userId })),
+      skipDuplicates: true
+    });
     return invites.length;
   } catch (e) {
     console.error('[invites] claim failed for user', userId, e);

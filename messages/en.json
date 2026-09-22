@@ -78,7 +78,16 @@
     "copyFailed": "Could not copy, select the link and copy it manually",
     "invitedToast": "Invitation sent. The list will appear after they sign in.",
     "pendingInvites": "Invited, no account yet:",
-    "pendingInvitesHint": "They get access the first time they sign in with this e-mail."
+    "pendingInvitesHint": "They get access the first time they sign in with this e-mail.",
+    "inviteLink": "Invite link",
+    "inviteLinkHint": "Send it by SMS, WhatsApp or show the QR code. Whoever opens it and signs in joins the list. Valid 30 days.",
+    "createInviteLink": "New link",
+    "shareInvite": "Share",
+    "revokeInviteLink": "Withdraw",
+    "inviteExpires": "Valid until {date}",
+    "inviteUses": "{count, plural, =0 {nobody joined yet} one {# person joined} other {# people joined}}",
+    "inviteShareText": "Join my shopping list \"{listName}\" on Shopylist",
+    "inviteLinkCopied": "Link copied"
   },
   "List": {
     "addPlaceholder": "Add new item",
@@ -111,7 +120,8 @@
     "tryAgain": "Try again",
     "notFound": "Page not found",
     "cannotDeleteSelf": "You cannot delete your own account here",
-    "alreadyInvited": "This person is already invited"
+    "alreadyInvited": "This person is already invited",
+    "inviteInvalid": "This invitation is invalid or has expired"
   },
   "Email": {
     "subject": "{from} shared \"{listName}\" with you",
@@ -171,5 +181,16 @@
     "userNotFound": "User not found",
     "lastActive": "Last active",
     "noActivityYet": "no data yet"
+  },
+  "Invite": {
+    "invitedBy": "{name} invites you to the list",
+    "invited": "You are invited to the list",
+    "members": "{count, plural, one {# person} other {# people}} on this list",
+    "joinHint": "Click to add this list to your lists.",
+    "signInHint": "Sign in with Google to join. It takes a moment, no new password.",
+    "join": "Join the list",
+    "signInAndJoin": "Sign in and join",
+    "invalidTitle": "Invitation not found",
+    "invalidText": "This link is invalid, was withdrawn or has expired. Ask for a new one."
   }
 }

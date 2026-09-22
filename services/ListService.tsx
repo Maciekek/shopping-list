@@ -230,7 +230,8 @@ const ListService = {
       await emailService.sendInviteEmail({
         to: email,
         from: user.email!,
-        appUrl: `${process.env.NEXTAUTH_URL}/`,
+        // Token link: works even if they sign in with a different Google address.
+        appUrl: `${process.env.NEXTAUTH_URL}/i/${invite.token}`,
         listName: list.name
       });
 
@@ -251,6 +252,15 @@ const ListService = {
     });
 
     return { invited: false as const };
+  },
+
+  createInviteLink: async ({ listId, user }: { listId: string; user: User }) => {
+    const list = await db.lists.getListById({ listId, ownerId: user.id });
+    if (!list || isError(list)) {
+      return { hasError: true, message: 'noAccess' };
+    }
+
+    return db.lists.createInviteLink({ listId, invitedById: user.id! });
   },
 
   revokeInvite: async ({ listId, inviteId, user }: { listId: string; inviteId: string; user: User }) => {

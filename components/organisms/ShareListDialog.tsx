@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, Link2, Share2 } from 'lucide-react';
 import { useFormState } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -34,10 +34,12 @@ import {
   changePublicListRole,
   makeListProtected,
   makeListPublic,
+  createInviteLink,
   revokeAccessToList,
   revokeInvite,
   shareList
 } from '@/actions/lists';
+import { QrCode } from '@/components/atoms/QrCode';
 
 /**
  * Sharing controls for one list: invite by e-mail, list of members, public
@@ -74,14 +76,37 @@ export function ShareListDialog({
     ? `${window.location.origin}/sharedList/${list.share.token}`
     : '';
 
-  const copyShareUrl = async () => {
+  const copyText = async (text: string, onDone?: () => void) => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
+      onDone?.();
     } catch {
       toast({ title: t('copyFailed'), variant: 'destructive' });
     }
+  };
+
+  const copyShareUrl = () =>
+    copyText(shareUrl, () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+
+  const emailInvites = list.invites.filter((i) => i.email);
+  const linkInvites = list.invites.filter((i) => !i.email);
+  const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
+  const inviteUrl = (token: string) => `${window.location.origin}/i/${token}`;
+  const shortDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+
+  const shareInvite = async (url: string) => {
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: list.name, text: t('inviteShareText', { listName: list.name }), url });
+        return;
+      } catch (e) {
+        if ((e as Error).name === 'AbortError') return;
+      }
+    }
+    copyText(url, () => toast({ title: t('inviteLinkCopied') }));
   };
   const tErrors = useTranslations('Errors');
 
@@ -223,7 +248,7 @@ export function ShareListDialog({
                     </>
                   )}
 
-                  {list.invites.length > 0 && (
+                  {emailInvites.length > 0 && (
                     <>
                       <div className={'space-y-2 gap-2 my-3'}>
                         <Label>{t('pendingInvites')}</Label>
@@ -232,7 +257,7 @@ export function ShareListDialog({
                         </p>
                       </div>
                       <div className="flex flex-col bg-gray-100 p-2 rounded">
-                        {list.invites.map((invite) => (
+                        {emailInvites.map((invite) => (
                           <div
                             className="flex items-center justify-between gap-2 p-2"
                             key={invite.id}
@@ -264,6 +289,94 @@ export function ShareListDialog({
 
           {status === 'owner' && (
             <>
+              <Separator />
+
+              <div className="space-y-3 my-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div>{t('inviteLink')}</div>
+                    <div className={'font-light leading-6 text-sm'}>
+                      {t('inviteLinkHint')}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-none"
+                    disabled={isPending}
+                    onClick={() => {
+                      startTransition(async () => {
+                        const result = await createInviteLink(list.id);
+                        if (result.hasError) {
+                          toast({ title: tErrors(result.message as any) });
+                        }
+                      });
+                    }}
+                  >
+                    <Link2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                    {t('createInviteLink')}
+                  </Button>
+                </div>
+
+                {linkInvites.map((invite) => {
+                  const url = inviteUrl(invite.token);
+                  return (
+                    <div key={invite.id} className="rounded bg-gray-100 p-3 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <QrCode value={url} size={112} className="flex-none rounded bg-white p-1" />
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <Input readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
+                          <div className="flex flex-wrap gap-2">
+                            <Button type="button" variant="outline" size="sm" onClick={() => shareInvite(url)}>
+                              <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                              {t('shareInvite')}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                copyText(url, () => {
+                                  setCopiedInviteId(invite.id);
+                                  setTimeout(() => setCopiedInviteId(null), 2000);
+                                })
+                              }
+                            >
+                              {copiedInviteId === invite.id ? (
+                                <Check className="h-4 w-4 mr-2 text-green-600" aria-hidden="true" />
+                              ) : (
+                                <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
+                              )}
+                              {t('copyUrl')}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-500"
+                              disabled={isPending}
+                              onClick={() => {
+                                startTransition(() => {
+                                  revokeInvite(invite.id, list.id);
+                                });
+                              }}
+                            >
+                              {t('revokeInviteLink')}
+                            </Button>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {t('inviteExpires', { date: shortDate.format(new Date(invite.expiresAt)) })}
+                            {' · '}
+                            {t('inviteUses', { count: invite.uses })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
               <Separator />
 
               <div className="flex items-center space-x-2">

@@ -16,7 +16,10 @@ export type ListWithUsersAndShare = Prisma.ListGetPayload<{
     invites: {
       select: {
         id: true,
-        email: true
+        email: true,
+        token: true,
+        expiresAt: true,
+        uses: true
       }
     },
     share: {

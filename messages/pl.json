@@ -78,7 +78,16 @@
     "copyFailed": "Nie udało się skopiować, zaznacz link i skopiuj ręcznie",
     "invitedToast": "Zaproszenie wysłane. Lista pojawi się po zalogowaniu tej osoby.",
     "pendingInvites": "Zaproszeni, jeszcze bez konta:",
-    "pendingInvitesHint": "Dostaną dostęp przy pierwszym logowaniu tym adresem."
+    "pendingInvitesHint": "Dostaną dostęp przy pierwszym logowaniu tym adresem.",
+    "inviteLink": "Link z zaproszeniem",
+    "inviteLinkHint": "Wyślij SMS-em, WhatsAppem albo pokaż kod QR. Kto otworzy i się zaloguje, dołącza do listy. Ważny 30 dni.",
+    "createInviteLink": "Nowy link",
+    "shareInvite": "Udostępnij",
+    "revokeInviteLink": "Unieważnij",
+    "inviteExpires": "Ważny do {date}",
+    "inviteUses": "{count, plural, =0 {nikt jeszcze nie dołączył} one {dołączyła # osoba} few {dołączyły # osoby} other {dołączyło # osób}}",
+    "inviteShareText": "Dołącz do mojej listy zakupów \"{listName}\" w Shopylist",
+    "inviteLinkCopied": "Link skopiowany"
   },
   "List": {
     "addPlaceholder": "Dodaj produkt",
@@ -111,7 +120,8 @@
     "tryAgain": "Spróbuj ponownie",
     "notFound": "Nie znaleziono strony",
     "cannotDeleteSelf": "Nie możesz usunąć tutaj własnego konta",
-    "alreadyInvited": "Ta osoba jest już zaproszona"
+    "alreadyInvited": "Ta osoba jest już zaproszona",
+    "inviteInvalid": "To zaproszenie jest nieprawidłowe lub wygasło"
   },
   "Email": {
     "subject": "{from} udostępnia Ci listę \"{listName}\"",
@@ -171,5 +181,16 @@
     "userNotFound": "Nie znaleziono użytkownika",
     "lastActive": "Ostatnia aktywność",
     "noActivityYet": "brak danych"
+  },
+  "Invite": {
+    "invitedBy": "{name} zaprasza Cię do listy",
+    "invited": "Zaproszenie do listy",
+    "members": "{count, plural, one {# osoba} few {# osoby} other {# osób}} na tej liście",
+    "joinHint": "Kliknij, żeby dodać tę listę do swoich list.",
+    "signInHint": "Zaloguj się kontem Google, żeby dołączyć. Chwila, bez nowego hasła.",
+    "join": "Dołącz do listy",
+    "signInAndJoin": "Zaloguj się i dołącz",
+    "invalidTitle": "Nie znaleziono zaproszenia",
+    "invalidText": "Ten link jest nieprawidłowy, został unieważniony albo wygasł. Poproś o nowy."
   }
 }
