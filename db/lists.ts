@@ -50,7 +50,8 @@ export const getUserList = withPrismaError(
         users: withUsers
           ? { include: { user: { select: { email: true, id: true } } } }
           : false,
-        share: true
+        share: true,
+        invites: { select: { id: true, email: true } }
       }
     });
 
@@ -67,7 +68,8 @@ export const getListById = withPrismaError(
       },
       include: {
         users: true,
-        share: true
+        share: true,
+        invites: { select: { id: true, email: true } }
       }
     });
   }
@@ -99,7 +101,8 @@ export const getUserLists = withPrismaError(
               }
             }
           }
-        }
+        },
+        invites: { select: { id: true, email: true } }
       }
     });
   }
@@ -196,6 +199,52 @@ export const grantAccess = async ({
     }
     console.error(e);
     return { hasError: true, message: 'dbError' };
+  }
+};
+
+export const findUserByEmail = withPrismaError(
+  ({ email }: { email: string }) => {
+    return prisma.user.findUnique({ where: { email }, select: { id: true } });
+  }
+);
+
+/** Pending share for an address with no account yet; owner check is done by the caller. */
+export const createInvite = withPrismaError(
+  ({ listId, email, invitedById }: { listId: string; email: string; invitedById: string }) => {
+    return prisma.listInvite.upsert({
+      where: { listId_email: { listId, email } },
+      create: { listId, email, invitedById },
+      update: {}
+    });
+  }
+);
+
+export const deleteInvite = withPrismaError(
+  ({ inviteId, listId }: { inviteId: string; listId: string }) => {
+    return prisma.listInvite.delete({ where: { id: inviteId, listId } });
+  }
+);
+
+/**
+ * Turns every pending invite for `email` into a membership and removes the
+ * invites. Called from the sign-in event, so it must never throw.
+ */
+export const claimInvites = async ({ userId, email }: { userId: string; email: string }) => {
+  try {
+    const invites = await prisma.listInvite.findMany({ where: { email } });
+    if (invites.length === 0) return 0;
+
+    await prisma.$transaction([
+      prisma.listsOnUsers.createMany({
+        data: invites.map((i) => ({ listId: i.listId, userId })),
+        skipDuplicates: true
+      }),
+      prisma.listInvite.deleteMany({ where: { email } })
+    ]);
+    return invites.length;
+  } catch (e) {
+    console.error('[invites] claim failed for user', userId, e);
+    return 0;
   }
 };
 

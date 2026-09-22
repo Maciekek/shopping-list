@@ -35,6 +35,7 @@ import {
   makeListProtected,
   makeListPublic,
   revokeAccessToList,
+  revokeInvite,
   shareList
 } from '@/actions/lists';
 
@@ -93,7 +94,7 @@ export function ShareListDialog({
 
     if (shareFormState?.success) {
       toast({
-        title: t('sharedToast')
+        title: shareFormState.invited ? t('invitedToast') : t('sharedToast')
       });
       shareFormRef.current?.reset();
     }
@@ -218,6 +219,41 @@ export function ShareListDialog({
                             </div>
                           );
                         })}
+                      </div>
+                    </>
+                  )}
+
+                  {list.invites.length > 0 && (
+                    <>
+                      <div className={'space-y-2 gap-2 my-3'}>
+                        <Label>{t('pendingInvites')}</Label>
+                        <p className="text-sm font-light text-gray-500">
+                          {t('pendingInvitesHint')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col bg-gray-100 p-2 rounded">
+                        {list.invites.map((invite) => (
+                          <div
+                            className="flex items-center justify-between gap-2 p-2"
+                            key={invite.id}
+                          >
+                            <div className="min-w-0 truncate">{invite.email}</div>
+                            {status === 'owner' && (
+                              <Button
+                                className="flex-none text-gray-500"
+                                variant="ghost"
+                                disabled={isPending}
+                                onClick={() => {
+                                  startTransition(() => {
+                                    revokeInvite(invite.id, list.id);
+                                  });
+                                }}
+                              >
+                                ✕
+                              </Button>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </>
                   )}

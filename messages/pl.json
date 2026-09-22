@@ -75,7 +75,10 @@
     "shareUrl": "Link do listy",
     "sharedToast": "Udostępniono!",
     "copyUrl": "Kopiuj link",
-    "copyFailed": "Nie udało się skopiować, zaznacz link i skopiuj ręcznie"
+    "copyFailed": "Nie udało się skopiować, zaznacz link i skopiuj ręcznie",
+    "invitedToast": "Zaproszenie wysłane. Lista pojawi się po zalogowaniu tej osoby.",
+    "pendingInvites": "Zaproszeni, jeszcze bez konta:",
+    "pendingInvitesHint": "Dostaną dostęp przy pierwszym logowaniu tym adresem."
   },
   "List": {
     "addPlaceholder": "Dodaj produkt",
@@ -107,7 +110,8 @@
     "somethingWentWrong": "Coś poszło nie tak",
     "tryAgain": "Spróbuj ponownie",
     "notFound": "Nie znaleziono strony",
-    "cannotDeleteSelf": "Nie możesz usunąć tutaj własnego konta"
+    "cannotDeleteSelf": "Nie możesz usunąć tutaj własnego konta",
+    "alreadyInvited": "Ta osoba jest już zaproszona"
   },
   "Email": {
     "subject": "{from} udostępnia Ci listę \"{listName}\"",
@@ -115,7 +119,11 @@
     "shared": "{from} udostępnia Ci listę zakupów \"{listName}\" w Shopylist.",
     "openHere": "Otwórz ją tutaj:",
     "signInHint": "Zaloguj się kontem Google, na które przyszedł ten mail, a lista będzie na Ciebie czekać.",
-    "footer": "Dostajesz tę wiadomość, bo {from} dodał Twój adres do wspólnej listy. Odpowiedz na ten mail, żeby skontaktować się bezpośrednio."
+    "footer": "Dostajesz tę wiadomość, bo {from} dodał Twój adres do wspólnej listy. Odpowiedz na ten mail, żeby skontaktować się bezpośrednio.",
+    "inviteSubject": "{from} zaprasza Cię do Shopylist",
+    "inviteBody": "{from} chce udostępnić Ci listę zakupów \"{listName}\" w Shopylist, darmowej wspólnej liście zakupów.",
+    "inviteOpenHere": "Otwórz aplikację tutaj:",
+    "inviteSignInHint": "Zaloguj się kontem Google, na które przyszedł ten mail, a lista będzie na Ciebie czekać."
   },
   "Footer": {
     "terms": "Regulamin",

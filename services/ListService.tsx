@@ -205,6 +205,38 @@ const ListService = {
     email: string;
     user: User;
   }) => {
+    const list = await db.lists.getListById({ listId, ownerId: user.id });
+    if (!list || isError(list)) {
+      return { hasError: true, message: 'noAccess' };
+    }
+
+    if (list.invites.some((i) => i.email === email)) {
+      return { hasError: true, message: 'alreadyInvited' };
+    }
+
+    const existing = await db.lists.findUserByEmail({ email });
+    if (isError(existing)) {
+      return existing;
+    }
+
+    // No account yet: keep a pending invite, claimed on their first sign-in,
+    // and send an invitation to the app instead of a "list shared" note.
+    if (!existing) {
+      const invite = await db.lists.createInvite({ listId, email, invitedById: user.id! });
+      if (isError(invite)) {
+        return invite;
+      }
+
+      await emailService.sendInviteEmail({
+        to: email,
+        from: user.email!,
+        appUrl: `${process.env.NEXTAUTH_URL}/`,
+        listName: list.name
+      });
+
+      return { invited: true as const };
+    }
+
     const result = await db.lists.grantAccess({ listId, email, user });
 
     if (isError(result)) {
@@ -217,6 +249,20 @@ const ListService = {
       listUrl: `${process.env.NEXTAUTH_URL}/lists/${listId}`,
       listName: result.name
     });
+
+    return { invited: false as const };
+  },
+
+  revokeInvite: async ({ listId, inviteId, user }: { listId: string; inviteId: string; user: User }) => {
+    const list = await db.lists.getListById({ listId, ownerId: user.id });
+    if (!list || isError(list)) {
+      return { hasError: true, message: 'noAccess' };
+    }
+
+    const result = await db.lists.deleteInvite({ inviteId, listId });
+    if (isError(result)) {
+      return { hasError: true, message: 'revokeAccess' };
+    }
   },
 
   revokeAccessToList: async ({

@@ -65,8 +65,54 @@ const sendShareEmail = async ({
   }
 };
 
+/** For an address with no account: invite to the app, list will be there after sign-in. */
+const sendInviteEmail = async ({
+  to,
+  from,
+  appUrl,
+  listName
+}: {
+  to: string;
+  from: string;
+  appUrl: string;
+  listName: string;
+}) => {
+  if (!transporter) {
+    console.warn('[emails] SMTP not configured, skipping invite email to', to);
+    return;
+  }
+
+  try {
+    const t = await getTranslations('Email');
+    const vars = { from, listName };
+    const props = {
+      listUrl: appUrl,
+      copy: {
+        subject: t('inviteSubject', vars),
+        hi: t('hi'),
+        shared: t('inviteBody', vars),
+        openHere: t('inviteOpenHere'),
+        signInHint: t('inviteSignInHint'),
+        footer: t('footer', vars)
+      }
+    };
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      replyTo: from,
+      subject: props.copy.subject,
+      text: sharedListNotifyText(props),
+      html: render(SharedListNotifyEmail(props))
+    });
+  } catch (error) {
+    console.error('[emails] failed to send invite email to', to, error);
+  }
+};
+
 const emailService = {
-  sendShareEmail
+  sendShareEmail,
+  sendInviteEmail
 };
 
 export { emailService };

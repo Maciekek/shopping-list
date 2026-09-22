@@ -13,6 +13,12 @@ import { Prisma } from '@prisma/client'
 
 export type ListWithUsersAndShare = Prisma.ListGetPayload<{
   include: {
+    invites: {
+      select: {
+        id: true,
+        email: true
+      }
+    },
     share: {
       select: {
         token: true,

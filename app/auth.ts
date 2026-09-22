@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/prisma/prisma';
+import { db } from '@/db';
 
 export const {
   handlers: { GET, POST },
@@ -20,6 +21,9 @@ export const {
     // so this is a faithful "who logged in when" log for the admin panel.
     async signIn({ user, account }) {
       if (!user?.id) return;
+      if (user.email) {
+        await db.lists.claimInvites({ userId: user.id, email: user.email.toLowerCase() });
+      }
       try {
         await prisma.$transaction([
           prisma.loginEvent.create({

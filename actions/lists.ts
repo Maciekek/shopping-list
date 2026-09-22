@@ -204,13 +204,26 @@ export async function shareList(previousState: any, formData: FormData) {
     user
   });
 
-  if (result && isError(result)) {
+  if (isError(result)) {
     return { success: false, error: result.message };
   }
 
   revalidatePath('/');
   revalidatePath(`/lists/${listId}`);
-  return { success: true };
+  return { success: true, invited: result.invited };
+}
+
+export async function revokeInvite(inviteId: string, listId: string) {
+  const user = await getCurrentUserOrThrowError();
+
+  const result = await ListService.revokeInvite({ listId, inviteId, user });
+
+  if (result && isError(result)) {
+    return result;
+  }
+
+  revalidatePath('/');
+  revalidatePath(`/lists/${listId}`);
 }
 
 export async function revokeAccessToList(userId: string, listId: string) {

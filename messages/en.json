@@ -75,7 +75,10 @@
     "shareUrl": "Share URL",
     "sharedToast": "Shared!",
     "copyUrl": "Copy link",
-    "copyFailed": "Could not copy, select the link and copy it manually"
+    "copyFailed": "Could not copy, select the link and copy it manually",
+    "invitedToast": "Invitation sent. The list will appear after they sign in.",
+    "pendingInvites": "Invited, no account yet:",
+    "pendingInvitesHint": "They get access the first time they sign in with this e-mail."
   },
   "List": {
     "addPlaceholder": "Add new item",
@@ -107,7 +110,8 @@
     "somethingWentWrong": "Something went wrong",
     "tryAgain": "Try again",
     "notFound": "Page not found",
-    "cannotDeleteSelf": "You cannot delete your own account here"
+    "cannotDeleteSelf": "You cannot delete your own account here",
+    "alreadyInvited": "This person is already invited"
   },
   "Email": {
     "subject": "{from} shared \"{listName}\" with you",
@@ -115,7 +119,11 @@
     "shared": "{from} shared the shopping list \"{listName}\" with you on Shopylist.",
     "openHere": "Open it here:",
     "signInHint": "Sign in with the Google account this email was sent to and the list will be waiting for you.",
-    "footer": "You got this email because {from} added your address to a shared list. Reply to this message to reach them directly."
+    "footer": "You got this email because {from} added your address to a shared list. Reply to this message to reach them directly.",
+    "inviteSubject": "{from} invites you to Shopylist",
+    "inviteBody": "{from} wants to share the shopping list \"{listName}\" with you on Shopylist, a free shared shopping list.",
+    "inviteOpenHere": "Open the app here:",
+    "inviteSignInHint": "Sign in with the Google account this e-mail was sent to and the list will be waiting for you."
   },
   "Footer": {
     "terms": "Terms",
