@@ -105,24 +105,12 @@ export const getUserLists = withPrismaError(
   }
 );
 
+/** Authorization happens in ListService.canWriteList; this only writes. */
 export const updateListItems = withPrismaError(
-  async ({
-    listId,
-    items,
-    userId
-  }: {
-    listId: string;
-    items: ListItem[];
-    userId?: string;
-  }) => {
+  async ({ listId, items }: { listId: string; items: ListItem[] }) => {
     return prisma.list.update({
       where: {
-        id: listId,
-        users: {
-          some: {
-            userId
-          }
-        }
+        id: listId
       },
       data: {
         items: items

@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { ListItem } from '@/models';
-import _, { isObject } from 'lodash';
+import _ from 'lodash';
 import { User } from 'next-auth';
 import { isError } from '@/lib/utils';
 import { emailService } from '@/lib/emails';
@@ -8,6 +8,24 @@ import { publishListChange } from '@/lib/liveEvents';
 
 /** `message` is a key in the `Errors` namespace of messages/*.json; translate it where it is shown. */
 export type ResponseError = { hasError: boolean; message: string };
+
+type ListWithUsersAndShare = {
+  ownerId: string | null;
+  users: { userId: string }[];
+  share: { type: 'READ' | 'WRITE' } | null;
+};
+
+const isMember = (list: ListWithUsersAndShare, userId?: string) =>
+  !!userId && list.users.some((u) => u.userId === userId);
+
+/**
+ * Who may change items: anyone on a public WRITE link, otherwise only a
+ * signed-in member. Never rely on Prisma `where` filters with an undefined
+ * userId for this: Prisma drops undefined fields, so the filter matches
+ * every list.
+ */
+const canWriteList = (list: ListWithUsersAndShare, user?: User) =>
+  list.share?.type === 'WRITE' || isMember(list, user?.id);
 
 const ListService = {
   getList: async ({
@@ -61,17 +79,7 @@ const ListService = {
       };
     }
 
-    const isPublicList = isObject(existingList.share);
-    const isSharedWithCurrentUser = existingList?.users.find(
-      (u) => u.userId === user?.id
-    );
-
-    const noWritePermission =
-      isPublicList &&
-      existingList.share!.type === 'READ' &&
-      !isSharedWithCurrentUser;
-
-    if (noWritePermission) {
+    if (!canWriteList(existingList, user)) {
       return {
         hasError: true,
         message: 'noPermission'
@@ -93,7 +101,6 @@ const ListService = {
 
     const updateListResult = await db.lists.updateListItems({
       listId,
-      userId: existingList?.share?.type === 'WRITE' ? undefined : user?.id,
       items: _.uniqBy(
         [...updatedList.active, ...updatedList.finished, ...items],
         'uuid'
@@ -137,17 +144,7 @@ const ListService = {
       };
     }
 
-    const isPublicList = isObject(existingList.share);
-    const isSharedWithCurrentUser = existingList?.users.find(
-      (u) => u.userId === user?.id
-    );
-
-    const noWritePermission =
-      isPublicList &&
-      existingList.share!.type === 'READ' &&
-      !isSharedWithCurrentUser;
-
-    if (noWritePermission) {
+    if (!canWriteList(existingList, user)) {
       return {
         hasError: true,
         message: 'noPermission'
@@ -159,7 +156,6 @@ const ListService = {
     const updatedList = items.filter((item) => item.uuid !== itemId);
     const updateListResult = await db.lists.updateListItems({
       listId,
-      userId: existingList?.share?.type === 'WRITE' ? undefined : user?.id,
       items: updatedList
     });
 
@@ -241,11 +237,12 @@ const ListService = {
       };
     }
 
+    // The owner may remove anyone but themselves; a member may only leave.
     const userIsOwner = list.ownerId === user.id;
-    const isUserInSharedWithList = list.users.find((u) => u.userId === user.id);
+    const isLeaving = userId === user.id && isMember(list, user.id);
+    const removingOwner = userId === list.ownerId;
 
-
-    if (list && !userIsOwner && !isUserInSharedWithList) {
+    if (removingOwner || !(userIsOwner || isLeaving)) {
       return {
         hasError: true,
         message: 'notOwner'
