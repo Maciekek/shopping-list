@@ -90,9 +90,14 @@ export default async function RootLayout({
 
         <footer className="bg-gray-100">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
-            <Link href={'/'} prefetch={true} className="text-lg font-bold tracking-tight text-gray-900">
-              Shopylist
-            </Link>
+            <div className="flex items-baseline gap-2">
+              <Link href={'/'} prefetch={true} className="text-lg font-bold tracking-tight text-gray-900">
+                Shopylist
+              </Link>
+              <span className="text-xs text-gray-400" title="Version">
+                v{process.env.NEXT_PUBLIC_APP_VERSION}
+              </span>
+            </div>
             <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
               <Link href="/terms" className="hover:text-gray-900">
                 {tFooter('terms')}
