@@ -86,7 +86,6 @@
     "shareListTitle": "Share list",
     "tabEmail": "E-mail",
     "tabLink": "Link",
-    "tabPublic": "Public",
     "emailPlaceholder": "name@example.com",
     "emailHint": "They get an e-mail. No account yet? They get an invitation and access on first sign-in.",
     "membersTitle": "Who has access",
@@ -97,7 +96,8 @@
     "anotherInviteLink": "Another link",
     "publicReadHint": "Viewers see the list without signing in. Editing needs an account and an invite.",
     "publicWriteHint": "Anyone with the link can edit without signing in. Signed-in visitors can save the list to their lists.",
-    "inviteVia": "Invite by"
+    "inviteVia": "Invite by",
+    "publicOnHint": "The list is public. Anyone with the link can open it, so invitations are not needed."
   },
   "List": {
     "addPlaceholder": "Add new item",

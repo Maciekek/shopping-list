@@ -86,7 +86,6 @@
     "shareListTitle": "Udostępnij listę",
     "tabEmail": "E-mail",
     "tabLink": "Link",
-    "tabPublic": "Publiczna",
     "emailPlaceholder": "imie@przyklad.pl",
     "emailHint": "Ta osoba dostanie e-mail. Bez konta? Dostanie zaproszenie i dostęp przy pierwszym logowaniu.",
     "membersTitle": "Kto ma dostęp",
@@ -97,7 +96,8 @@
     "anotherInviteLink": "Kolejny link",
     "publicReadHint": "Oglądający widzą listę bez logowania. Edycja wymaga konta i zaproszenia.",
     "publicWriteHint": "Każdy z linkiem może edytować bez logowania. Zalogowani mogą zapisać listę u siebie.",
-    "inviteVia": "Zaproś przez"
+    "inviteVia": "Zaproś przez",
+    "publicOnHint": "Lista jest publiczna. Każdy z linkiem ją otworzy, więc zaproszenia nie są potrzebne."
   },
   "List": {
     "addPlaceholder": "Dodaj produkt",
