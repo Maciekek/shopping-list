@@ -5,6 +5,12 @@ import prisma from '@/lib/prisma';
 import { getAdminUser } from '@/lib/admin';
 import type { ListItem } from '@/models';
 
+/** Latest of "signed in" and "opened a page"; either alone can be stale. */
+function lastActive(u: { lastLoginAt: Date | null; lastSeenAt: Date | null }) {
+  const dates = [u.lastLoginAt, u.lastSeenAt].filter((d): d is Date => !!d);
+  return dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : null;
+}
+
 export async function getAdminOverview() {
   const admin = await getAdminUser();
   if (!admin) return null;
@@ -22,6 +28,7 @@ export async function getAdminOverview() {
         image: true,
         createdAt: true,
         lastLoginAt: true,
+        lastSeenAt: true,
         _count: { select: { lists: true, logins: true } }
       }
     }),
@@ -44,6 +51,7 @@ export async function getAdminOverview() {
       image: u.image,
       createdAt: u.createdAt.toISOString(),
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
+      lastActiveAt: lastActive(u)?.toISOString() ?? null,
       loginCount: u._count.logins,
       ownedLists: ownedByUser.get(u.id) ?? 0,
       memberOfLists: u._count.lists
@@ -70,6 +78,7 @@ export async function getAdminUserDetails(userId: string) {
       image: true,
       createdAt: true,
       lastLoginAt: true,
+      lastSeenAt: true,
       _count: { select: { logins: true } },
       logins: {
         orderBy: { createdAt: 'desc' },
@@ -143,6 +152,7 @@ export async function getAdminUserDetails(userId: string) {
       image: user.image,
       createdAt: user.createdAt.toISOString(),
       lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
+      lastActiveAt: lastActive(user)?.toISOString() ?? null,
       loginCount: user._count.logins
     },
     logins: user.logins.map((l) => ({

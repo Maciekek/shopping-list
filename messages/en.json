@@ -158,6 +158,8 @@
     "loginHistory": "Sign-ins",
     "noLogins": "No sign-ins recorded yet",
     "loginHistoryNote": "Last {limit} of {total}",
-    "userNotFound": "User not found"
+    "userNotFound": "User not found",
+    "lastActive": "Last active",
+    "noActivityYet": "no data yet"
   }
 }

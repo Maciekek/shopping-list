@@ -61,6 +61,8 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   lastLoginAt   DateTime?      @map("last_login_at")
+  /// Last page render with a valid session; refreshed at most every few minutes.
+  lastSeenAt    DateTime?      @map("last_seen_at")
   lists         ListsOnUsers[]
   accounts      Account[]
   sessions      Session[]

@@ -44,6 +44,8 @@ export default async function AdminUserPage({ params }: { params: { id: string }
           <p className="truncate text-sm text-gray-500">{user.email}</p>
           <p className="text-sm text-gray-500">
             {t('joined')}: {dateFormat.format(new Date(user.createdAt))} ·{' '}
+            {t('lastActive').toLowerCase()}:{' '}
+            {user.lastActiveAt ? dateTimeFormat.format(new Date(user.lastActiveAt)) : t('never')} ·{' '}
             {t('lastLogin').toLowerCase()}:{' '}
             {user.lastLoginAt ? dateTimeFormat.format(new Date(user.lastLoginAt)) : t('never')} ·{' '}
             {t('loginCount', { count: user.loginCount })}

@@ -23,6 +23,7 @@ export type AdminUserRow = {
   image: string | null;
   createdAt: string;
   lastLoginAt: string | null;
+  lastActiveAt: string | null;
   loginCount: number;
   ownedLists: number;
   memberOfLists: number;
@@ -65,7 +66,7 @@ export function AdminUsersTable({
           <TableRow>
             <TableHead>{t('user')}</TableHead>
             <TableHead>{t('joined')}</TableHead>
-            <TableHead>{t('lastLogin')}</TableHead>
+            <TableHead>{t('lastActive')}</TableHead>
             <TableHead className="text-right">{t('ownedLists')}</TableHead>
             <TableHead className="text-right">{t('memberOf')}</TableHead>
             <TableHead />
@@ -102,15 +103,18 @@ export function AdminUsersTable({
                 {dateFormat.format(new Date(user.createdAt))}
               </TableCell>
               <TableCell className="whitespace-nowrap text-gray-600">
-                {user.lastLoginAt ? (
+                {user.lastActiveAt ? (
                   <>
-                    <div>{dateTimeFormat.format(new Date(user.lastLoginAt))}</div>
+                    <div>{dateTimeFormat.format(new Date(user.lastActiveAt))}</div>
                     <div className="text-xs text-gray-400">
-                      {t('loginCount', { count: user.loginCount })}
+                      {t('lastLogin')}:{' '}
+                      {user.lastLoginAt
+                        ? dateFormat.format(new Date(user.lastLoginAt))
+                        : t('never')}
                     </div>
                   </>
                 ) : (
-                  <span className="text-gray-400">{t('never')}</span>
+                  <span className="text-gray-400">{t('noActivityYet')}</span>
                 )}
               </TableCell>
               <TableCell className="text-right">{user.ownedLists}</TableCell>
