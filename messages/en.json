@@ -40,7 +40,8 @@
     "ctaHeading": "Ready when you are",
     "ctaText": "Sign in and create your first list in under a minute.",
     "previewTitle": "Groceries",
-    "previewItems": "Milk, Bread, Tomatoes, Cheese, Coffee"
+    "previewItems": "Milk, Bread, Tomatoes, Cheese, Coffee",
+    "installApp": "Install app"
   },
   "Lists": {
     "heading": "Your lists",
@@ -202,5 +203,9 @@
     "signInAndJoin": "Sign in and join",
     "invalidTitle": "Invitation not found",
     "invalidText": "This link is invalid, was withdrawn or has expired. Ask for a new one."
+  },
+  "Offline": {
+    "title": "You are offline",
+    "text": "This page is not saved on your device. Lists you opened recently should still work. Connect and try again."
   }
 }

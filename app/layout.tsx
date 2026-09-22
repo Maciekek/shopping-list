@@ -42,6 +42,12 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: {
       index: true,
       follow: true
+    },
+    manifest: '/manifest.webmanifest',
+    appleWebApp: {
+      capable: true,
+      title: 'Shopylist',
+      statusBarStyle: 'default'
     }
   };
 }
@@ -56,7 +62,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false
+  userScalable: false,
+  themeColor: '#454545'
 };
 
 export default async function RootLayout({

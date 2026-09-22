@@ -40,3 +40,8 @@ next-env.d.ts
 
 .mailing
 .playwright-mcp/
+
+# serwist build output
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker-*.js

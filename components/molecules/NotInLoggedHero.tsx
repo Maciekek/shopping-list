@@ -7,6 +7,7 @@ import {
   type LucideIcon
 } from 'lucide-react';
 import { LoginButton } from '@/components/atoms/LoginButton';
+import { InstallAppButton } from '@/components/atoms/InstallAppButton';
 
 function Feature({
   icon: Icon,
@@ -83,8 +84,9 @@ export const NotInLoggedHero = () => {
         <div className="space-y-6">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t('tagline')}</h1>
           <p className="max-w-xl text-lg leading-8 text-gray-600">{t('lead')}</p>
-          <div className="max-w-xs">
+          <div className="max-w-xs space-y-2">
             <LoginButton />
+            <InstallAppButton className="w-full" />
           </div>
         </div>
         <ListPreview

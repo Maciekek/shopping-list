@@ -37,6 +37,8 @@ RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 nextjs
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# icons, manifest assets and the service worker built by Serwist
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # prisma CLI + engines, needed for `migrate deploy` at container start
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma

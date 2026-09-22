@@ -40,7 +40,8 @@
     "ctaHeading": "Gotowe, kiedy Ty",
     "ctaText": "Zaloguj się i utwórz pierwszą listę w niecałą minutę.",
     "previewTitle": "Zakupy",
-    "previewItems": "Mleko, Chleb, Pomidory, Ser żółty, Kawa"
+    "previewItems": "Mleko, Chleb, Pomidory, Ser żółty, Kawa",
+    "installApp": "Zainstaluj aplikację"
   },
   "Lists": {
     "heading": "Twoje listy",
@@ -202,5 +203,9 @@
     "signInAndJoin": "Zaloguj się i dołącz",
     "invalidTitle": "Nie znaleziono zaproszenia",
     "invalidText": "Ten link jest nieprawidłowy, został unieważniony albo wygasł. Poproś o nowy."
+  },
+  "Offline": {
+    "title": "Brak połączenia",
+    "text": "Ta strona nie jest zapisana na urządzeniu. Ostatnio otwierane listy powinny nadal działać. Połącz się z siecią i spróbuj ponownie."
   }
 }
