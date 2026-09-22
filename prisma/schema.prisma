@@ -108,6 +108,9 @@ model ListInvite {
   invitedById String?   @map("invited_by_id")
   expiresAt   DateTime  @map("expires_at")
   uses        Int       @default(0)
+  /// E-mail invites are kept after being claimed so the link in the mail still
+  /// resolves (it redirects to the list); the dialog hides claimed ones.
+  claimedAt   DateTime? @map("claimed_at")
   createdAt   DateTime  @default(now()) @map("created_at")
   list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
 

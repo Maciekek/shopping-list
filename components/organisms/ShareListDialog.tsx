@@ -229,7 +229,7 @@ export function ShareListDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
-        <DialogHeader>
+        <DialogHeader className="mb-2">
           <DialogTitle>{t('shareListTitle')}</DialogTitle>
         </DialogHeader>
 

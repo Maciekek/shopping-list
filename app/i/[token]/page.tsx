@@ -24,10 +24,21 @@ export default async function InvitePage({ params }: { params: { token: string }
     );
   }
 
-  // Already a member: nothing to claim, go straight to the list.
+  // Already a member (e.g. the e-mail invite was claimed on sign-in a moment
+  // ago): nothing to claim, go straight to the list.
   if (session) {
     const list = await db.lists.getUserList({ listId: invite.listId, userId: session.user.id });
     if (list && !isError(list)) redirect(`/lists/${invite.listId}`);
+  }
+
+  // Someone else already used this single-use e-mail invite.
+  if (invite.claimed) {
+    return (
+      <main className="px-4 pt-20 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">{t('invalidTitle')}</h1>
+        <p className="mt-2 text-gray-600">{t('invalidText')}</p>
+      </main>
+    );
   }
 
   return (

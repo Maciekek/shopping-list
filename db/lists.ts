@@ -64,7 +64,7 @@ export const getUserList = withPrismaError(
           ? { include: { user: { select: { email: true, id: true } } } }
           : false,
         share: true,
-        invites: { select: INVITE_SELECT }
+        invites: { where: { claimedAt: null }, select: INVITE_SELECT }
       }
     });
 
@@ -82,7 +82,7 @@ export const getListById = withPrismaError(
       include: {
         users: true,
         share: true,
-        invites: { select: INVITE_SELECT }
+        invites: { where: { claimedAt: null }, select: INVITE_SELECT }
       }
     });
   }
@@ -115,7 +115,7 @@ export const getUserLists = withPrismaError(
             }
           }
         },
-        invites: { select: INVITE_SELECT }
+        invites: { where: { claimedAt: null }, select: INVITE_SELECT }
       }
     });
   }
@@ -227,7 +227,7 @@ export const createInvite = withPrismaError(
     return prisma.listInvite.upsert({
       where: { listId_email: { listId, email } },
       create: { listId, email, invitedById, token: inviteToken(), expiresAt: inviteExpiry() },
-      update: { expiresAt: inviteExpiry() }
+      update: { expiresAt: inviteExpiry(), claimedAt: null }
     });
   }
 );
@@ -260,15 +260,23 @@ export const claimInviteByToken = withPrismaError(
   async ({ token, userId }: { token: string; userId: string }) => {
     const invite = await prisma.listInvite.findUnique({ where: { token } });
     if (!invite || invite.expiresAt < new Date()) return null;
+    // A claimed e-mail invite is single-use; only the person who claimed it may reopen it.
+    if (invite.claimedAt) {
+      const member = await prisma.listsOnUsers.findUnique({
+        where: { userId_listId: { userId, listId: invite.listId } }
+      });
+      return member ? invite.listId : null;
+    }
 
     await prisma.$transaction([
       prisma.listsOnUsers.createMany({
         data: [{ listId: invite.listId, userId }],
         skipDuplicates: true
       }),
-      invite.email
-        ? prisma.listInvite.delete({ where: { id: invite.id } })
-        : prisma.listInvite.update({ where: { id: invite.id }, data: { uses: { increment: 1 } } })
+      prisma.listInvite.update({
+        where: { id: invite.id },
+        data: invite.email ? { claimedAt: new Date(), uses: { increment: 1 } } : { uses: { increment: 1 } }
+      })
     ]);
 
     return invite.listId;

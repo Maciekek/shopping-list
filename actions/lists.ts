@@ -244,7 +244,8 @@ export async function getInvite(token: string) {
     listId: invite.list.id,
     listName: invite.list.name,
     memberCount: invite.list.users.length,
-    inviterName: inviter?.name ?? inviter?.email ?? null
+    inviterName: inviter?.name ?? inviter?.email ?? null,
+    claimed: !!invite.claimedAt
   };
 }
 
