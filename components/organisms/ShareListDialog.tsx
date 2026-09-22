@@ -230,7 +230,6 @@ export function ShareListDialog({
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>{t('shareListTitle')}</DialogTitle>
-          <p className="truncate text-sm text-gray-500">{list.name}</p>
         </DialogHeader>
 
         {!isOwner ? (
