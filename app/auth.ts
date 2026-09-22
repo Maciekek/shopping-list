@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/prisma/prisma';
-import { db } from '@/db';
+import { claimInvites } from '@/lib/invites';
 
 export const {
   handlers: { GET, POST },
@@ -22,7 +22,7 @@ export const {
     async signIn({ user, account }) {
       if (!user?.id) return;
       if (user.email) {
-        await db.lists.claimInvites({ userId: user.id, email: user.email.toLowerCase() });
+        await claimInvites({ userId: user.id, email: user.email.toLowerCase() });
       }
       try {
         await prisma.$transaction([
