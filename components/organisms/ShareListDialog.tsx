@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Check, Copy, Globe, Link2, Mail, Share2, Trash2, X } from 'lucide-react';
 import { useFormState } from 'react-dom';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Session } from 'next-auth';
 import { isUndefined } from 'lodash';
 import {
@@ -98,7 +98,8 @@ export function ShareListDialog({
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const publicUrl = list.share ? `${origin}/sharedList/${list.share.token}` : '';
   const inviteUrl = (token: string) => `${origin}/i/${token}`;
-  const shortDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+  const locale = useLocale();
+  const shortDate = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
 
   const copyText = async (text: string, key: string) => {
     try {
@@ -305,7 +306,7 @@ export function ShareListDialog({
                               size={112}
                               className="flex-none rounded border bg-white p-1"
                             />
-                            <div className="min-w-0 flex-1 space-y-2">
+                            <div className="flex min-w-0 flex-1 flex-col self-stretch gap-2">
                               <div className="flex gap-2">
                                 <Input
                                   readOnly
@@ -315,33 +316,41 @@ export function ShareListDialog({
                                 />
                                 <CopyButton text={url} id={invite.id} />
                               </div>
-                              <div className="flex flex-wrap gap-2">
-                                {canShare && (
-                                  <Button type="button" size="sm" onClick={() => shareUrl(url)}>
-                                    <Share2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                                    {t('shareInvite')}
+                              <div className="mt-auto flex items-end justify-between gap-2">
+                                <p className="text-xs text-gray-500">
+                                  {t('inviteExpires', {
+                                    date: shortDate.format(new Date(invite.expiresAt))
+                                  })}
+                                  <br />
+                                  {t('inviteUses', { count: invite.uses })}
+                                </p>
+                                <div className="flex flex-none gap-1">
+                                  {canShare && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => shareUrl(url)}
+                                      aria-label={t('shareInvite')}
+                                      title={t('shareInvite')}
+                                    >
+                                      <Share2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-gray-400 hover:text-red-600"
+                                    disabled={isPending}
+                                    aria-label={t('revokeInviteLink')}
+                                    title={t('revokeInviteLink')}
+                                    onClick={() => run(() => revokeInvite(invite.id, list.id))}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
-                                )}
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-gray-400 hover:text-red-600"
-                                  disabled={isPending}
-                                  aria-label={t('revokeInviteLink')}
-                                  title={t('revokeInviteLink')}
-                                  onClick={() => run(() => revokeInvite(invite.id, list.id))}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                </div>
                               </div>
-                              <p className="text-xs text-gray-500">
-                                {t('inviteExpires', {
-                                  date: shortDate.format(new Date(invite.expiresAt))
-                                })}
-                                {' · '}
-                                {t('inviteUses', { count: invite.uses })}
-                              </p>
                             </div>
                           </div>
                         </div>
