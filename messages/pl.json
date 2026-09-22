@@ -96,7 +96,8 @@
     "removeMember": "Odebierz dostęp",
     "anotherInviteLink": "Kolejny link",
     "publicReadHint": "Oglądający widzą listę bez logowania. Edycja wymaga konta i zaproszenia.",
-    "publicWriteHint": "Każdy z linkiem może edytować bez logowania. Zalogowani mogą zapisać listę u siebie."
+    "publicWriteHint": "Każdy z linkiem może edytować bez logowania. Zalogowani mogą zapisać listę u siebie.",
+    "inviteVia": "Zaproś przez"
   },
   "List": {
     "addPlaceholder": "Dodaj produkt",

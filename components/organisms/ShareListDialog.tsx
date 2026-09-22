@@ -236,7 +236,8 @@ export function ShareListDialog({
         {!isOwner ? (
           membersSection
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
+            <Label>{t('inviteVia')}</Label>
             <div role="tablist" className="grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
               {modes.map(({ key, label, icon: Icon }) => (
                 <button
@@ -276,7 +277,6 @@ export function ShareListDialog({
                   </div>
                   <p className="text-xs text-gray-500">{t('emailHint')}</p>
                 </form>
-                {membersSection}
               </div>
             )}
 
@@ -449,6 +449,13 @@ export function ShareListDialog({
                   </>
                 )}
               </div>
+            )}
+
+            {mode !== 'public' && (
+              <>
+                <hr className="border-gray-200" />
+                {membersSection}
+              </>
             )}
           </div>
         )}

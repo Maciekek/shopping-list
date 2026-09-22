@@ -96,7 +96,8 @@
     "removeMember": "Remove access",
     "anotherInviteLink": "Another link",
     "publicReadHint": "Viewers see the list without signing in. Editing needs an account and an invite.",
-    "publicWriteHint": "Anyone with the link can edit without signing in. Signed-in visitors can save the list to their lists."
+    "publicWriteHint": "Anyone with the link can edit without signing in. Signed-in visitors can save the list to their lists.",
+    "inviteVia": "Invite by"
   },
   "List": {
     "addPlaceholder": "Add new item",
