@@ -138,6 +138,26 @@
     "memberOf": "Member of",
     "delete": "Delete",
     "deleted": "User and their data deleted",
-    "confirmDelete": "Delete {email} with all their lists, shares and sessions? This cannot be undone."
+    "confirmDelete": "Delete {email} with all their lists, shares and sessions? This cannot be undone.",
+    "lastLogin": "Last login",
+    "never": "never",
+    "loginCount": "{count, plural, one {# login} other {# logins}}",
+    "view": "View",
+    "backToAdmin": "Back to admin",
+    "userLists": "Lists",
+    "noLists": "No lists",
+    "owner": "owner",
+    "memberOfList": "member",
+    "ownerLabel": "Owner: {email}",
+    "members": "{count, plural, one {# member} other {# members}}",
+    "publicRead": "public link: read",
+    "publicWrite": "public link: edit",
+    "itemsCount": "{count, plural, one {# item} other {# items}}",
+    "noItems": "Empty list",
+    "bought": "bought",
+    "loginHistory": "Sign-ins",
+    "noLogins": "No sign-ins recorded yet",
+    "loginHistoryNote": "Last {limit} of {total}",
+    "userNotFound": "User not found"
   }
 }

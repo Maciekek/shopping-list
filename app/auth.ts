@@ -15,6 +15,26 @@ export const {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET
     })
   ],
+  events: {
+    // Fires once per completed sign-in (not per request, sessions are JWTs),
+    // so this is a faithful "who logged in when" log for the admin panel.
+    async signIn({ user, account }) {
+      if (!user?.id) return;
+      try {
+        await prisma.$transaction([
+          prisma.loginEvent.create({
+            data: { userId: user.id, provider: account?.provider ?? null }
+          }),
+          prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() }
+          })
+        ]);
+      } catch (e) {
+        console.error('[auth] failed to record sign-in', e);
+      }
+    }
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;

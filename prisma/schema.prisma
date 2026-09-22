@@ -60,11 +60,25 @@ model User {
   image         String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?      @map("last_login_at")
   lists         ListsOnUsers[]
   accounts      Account[]
   sessions      Session[]
+  logins        LoginEvent[]
 
   @@map("users")
+}
+
+/// One row per completed sign-in (OAuth round trip), for the admin panel.
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  provider  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("login_events")
 }
 
 model List {

@@ -138,6 +138,26 @@
     "memberOf": "Członek",
     "delete": "Usuń",
     "deleted": "Użytkownik i jego dane usunięte",
-    "confirmDelete": "Usunąć {email} razem z listami, udostępnieniami i sesjami? Tej operacji nie da się cofnąć."
+    "confirmDelete": "Usunąć {email} razem z listami, udostępnieniami i sesjami? Tej operacji nie da się cofnąć.",
+    "lastLogin": "Ostatnie logowanie",
+    "never": "nigdy",
+    "loginCount": "{count, plural, one {# logowanie} few {# logowania} other {# logowań}}",
+    "view": "Podgląd",
+    "backToAdmin": "Wróć do admina",
+    "userLists": "Listy",
+    "noLists": "Brak list",
+    "owner": "właściciel",
+    "memberOfList": "członek",
+    "ownerLabel": "Właściciel: {email}",
+    "members": "{count, plural, one {# osoba} few {# osoby} other {# osób}}",
+    "publicRead": "link publiczny: podgląd",
+    "publicWrite": "link publiczny: edycja",
+    "itemsCount": "{count, plural, one {# produkt} few {# produkty} other {# produktów}}",
+    "noItems": "Pusta lista",
+    "bought": "kupione",
+    "loginHistory": "Logowania",
+    "noLogins": "Brak zarejestrowanych logowań",
+    "loginHistoryNote": "Ostatnie {limit} z {total}",
+    "userNotFound": "Nie znaleziono użytkownika"
   }
 }

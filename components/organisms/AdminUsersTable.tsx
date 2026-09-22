@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { deleteUserAsAdmin } from '@/actions/admin';
@@ -21,6 +22,8 @@ export type AdminUserRow = {
   email: string | null;
   image: string | null;
   createdAt: string;
+  lastLoginAt: string | null;
+  loginCount: number;
   ownedLists: number;
   memberOfLists: number;
 };
@@ -39,6 +42,10 @@ export function AdminUsersTable({
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
+  const dateTimeFormat = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
 
   const remove = (user: AdminUserRow) => {
     if (!window.confirm(t('confirmDelete', { email: user.email ?? user.name }))) return;
@@ -58,6 +65,7 @@ export function AdminUsersTable({
           <TableRow>
             <TableHead>{t('user')}</TableHead>
             <TableHead>{t('joined')}</TableHead>
+            <TableHead>{t('lastLogin')}</TableHead>
             <TableHead className="text-right">{t('ownedLists')}</TableHead>
             <TableHead className="text-right">{t('memberOf')}</TableHead>
             <TableHead />
@@ -80,7 +88,12 @@ export function AdminUsersTable({
                     <div className="h-8 w-8 rounded-full bg-gray-200" />
                   )}
                   <div className="min-w-0">
-                    <div className="truncate font-medium">{user.name}</div>
+                    <Link
+                      href={`/admin/users/${user.id}`}
+                      className="block truncate font-medium hover:underline"
+                    >
+                      {user.name}
+                    </Link>
                     <div className="truncate text-sm text-gray-500">{user.email}</div>
                   </div>
                 </div>
@@ -88,9 +101,24 @@ export function AdminUsersTable({
               <TableCell className="whitespace-nowrap text-gray-600">
                 {dateFormat.format(new Date(user.createdAt))}
               </TableCell>
+              <TableCell className="whitespace-nowrap text-gray-600">
+                {user.lastLoginAt ? (
+                  <>
+                    <div>{dateTimeFormat.format(new Date(user.lastLoginAt))}</div>
+                    <div className="text-xs text-gray-400">
+                      {t('loginCount', { count: user.loginCount })}
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-gray-400">{t('never')}</span>
+                )}
+              </TableCell>
               <TableCell className="text-right">{user.ownedLists}</TableCell>
               <TableCell className="text-right">{user.memberOfLists}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="whitespace-nowrap text-right">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={`/admin/users/${user.id}`}>{t('view')}</Link>
+                </Button>
                 {user.id !== currentUserId && (
                   <Button
                     variant="ghost"
