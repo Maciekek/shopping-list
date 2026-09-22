@@ -69,7 +69,7 @@ export function ShareListDialog({
   const emailInvites = list.invites.filter((i) => i.email);
   const linkInvites = list.invites.filter((i) => !i.email);
 
-  const [mode, setMode] = useState<Mode>('email');
+  const [mode, setMode] = useState<Mode>('link');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   // System share sheet exists on phones; on desktop it would only duplicate Copy.
   const [canShare, setCanShare] = useState(false);
@@ -137,8 +137,8 @@ export function ShareListDialog({
   if (!open) return null;
 
   const modes: { key: Mode; label: string; icon: typeof Mail }[] = [
-    { key: 'email', label: t('tabEmail'), icon: Mail },
     { key: 'link', label: t('tabLink'), icon: Link2 },
+    { key: 'email', label: t('tabEmail'), icon: Mail },
     { key: 'public', label: t('tabPublic'), icon: Globe }
   ];
 
