@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { Check, Copy, Link2, Share2 } from 'lucide-react';
+import { Check, Copy, Globe, Link2, Mail, Share2, Trash2, X } from 'lucide-react';
 import { useFormState } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
 import { Session } from 'next-auth';
 import { isUndefined } from 'lodash';
 import {
@@ -16,9 +15,8 @@ import {
 import { Input } from '@/components/atoms/Input';
 import { Label } from '@/components/atoms/Label';
 import { Button } from '@/components/atoms/Button';
+import { Badge } from '@/components/atoms/Badge';
 import { Switch } from '@/components/atoms/Switch';
-import { Separator } from '@/components/atoms/Separator';
-import { Skeleton } from '@/components/atoms/Skeleton';
 import {
   Select,
   SelectContent,
@@ -28,22 +26,26 @@ import {
   SelectValue
 } from '@/components/atoms/Select';
 import { SubmitFormButton } from '@/components/molecules/SubmitFormButton';
+import { QrCode } from '@/components/atoms/QrCode';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { ListWithUsersAndShare } from '@/models';
 import {
   changePublicListRole,
+  createInviteLink,
   makeListProtected,
   makeListPublic,
-  createInviteLink,
   revokeAccessToList,
   revokeInvite,
   shareList
 } from '@/actions/lists';
-import { QrCode } from '@/components/atoms/QrCode';
+
+type Mode = 'email' | 'link' | 'public';
 
 /**
- * Sharing controls for one list: invite by e-mail, list of members, public
- * link toggle with role. Used from the list tile menu and from the list page.
+ * Sharing controls for one list in three modes: by e-mail (members and
+ * pending invites), by invite link (QR, share sheet) and a public link.
+ * Non-owners only see the members and can leave the list.
  */
 export function ShareListDialog({
   list,
@@ -56,11 +58,24 @@ export function ShareListDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const ownerEmail =
-    list.users.filter((u) => u.userId === list.ownerId)[0]?.user.email || '';
-  const sharedWith = list.users.filter((u) => u.userId !== list.ownerId);
-  const status = user.id === list.ownerId ? 'owner' : 'shared';
+  const t = useTranslations('ListTile');
+  const tErrors = useTranslations('Errors');
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+
+  const isOwner = user.id === list.ownerId;
+  const owner = list.users.find((u) => u.userId === list.ownerId)?.user;
+  const members = list.users.filter((u) => u.userId !== list.ownerId);
+  const emailInvites = list.invites.filter((i) => i.email);
+  const linkInvites = list.invites.filter((i) => !i.email);
+
+  const [mode, setMode] = useState<Mode>('email');
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  // System share sheet exists on phones; on desktop it would only duplicate Copy.
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+  }, []);
 
   const [shareFormState, formAction] = useFormState(shareList, {
     email: '',
@@ -68,55 +83,10 @@ export function ShareListDialog({
   });
   const shareFormRef = useRef<HTMLFormElement>(null);
 
-  const { toast } = useToast();
-  const t = useTranslations('ListTile');
-  const [copied, setCopied] = useState(false);
-
-  const shareUrl = list.share
-    ? `${window.location.origin}/sharedList/${list.share.token}`
-    : '';
-
-  const copyText = async (text: string, onDone?: () => void) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      onDone?.();
-    } catch {
-      toast({ title: t('copyFailed'), variant: 'destructive' });
-    }
-  };
-
-  const copyShareUrl = () =>
-    copyText(shareUrl, () => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-
-  const emailInvites = list.invites.filter((i) => i.email);
-  const linkInvites = list.invites.filter((i) => !i.email);
-  const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
-  const inviteUrl = (token: string) => `${window.location.origin}/i/${token}`;
-  const shortDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
-
-  const shareInvite = async (url: string) => {
-    if (typeof navigator.share === 'function') {
-      try {
-        await navigator.share({ title: list.name, text: t('inviteShareText', { listName: list.name }), url });
-        return;
-      } catch (e) {
-        if ((e as Error).name === 'AbortError') return;
-      }
-    }
-    copyText(url, () => toast({ title: t('inviteLinkCopied') }));
-  };
-  const tErrors = useTranslations('Errors');
-
   useEffect(() => {
     if (!isUndefined(shareFormState?.success) && !shareFormState?.success) {
-      toast({
-        title: tErrors(shareFormState.error)
-      });
+      toast({ title: tErrors(shareFormState.error) });
     }
-
     if (shareFormState?.success) {
       toast({
         title: shareFormState.invited ? t('invitedToast') : t('sharedToast')
@@ -125,328 +95,309 @@ export function ShareListDialog({
     }
   }, [toast, shareFormState, t, tErrors]);
 
-  const revokeAccess = (userId: string) => {
-    return revokeAccessToList(userId, list.id);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const publicUrl = list.share ? `${origin}/sharedList/${list.share.token}` : '';
+  const inviteUrl = (token: string) => `${origin}/i/${token}`;
+  const shortDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+
+  const copyText = async (text: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch {
+      toast({ title: t('copyFailed'), variant: 'destructive' });
+    }
+  };
+
+  const shareUrl = async (url: string) => {
+    try {
+      await navigator.share({
+        title: list.name,
+        text: t('inviteShareText', { listName: list.name }),
+        url
+      });
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        toast({ title: t('copyFailed'), variant: 'destructive' });
+      }
+    }
+  };
+
+  const run = (action: () => Promise<unknown>) => {
+    startTransition(async () => {
+      const res = (await action()) as { hasError?: boolean; message?: string } | undefined;
+      if (res?.hasError && res.message) {
+        toast({ title: tErrors(res.message as any) });
+      }
+    });
   };
 
   if (!open) return null;
 
+  const modes: { key: Mode; label: string; icon: typeof Mail }[] = [
+    { key: 'email', label: t('tabEmail'), icon: Mail },
+    { key: 'link', label: t('tabLink'), icon: Link2 },
+    { key: 'public', label: t('tabPublic'), icon: Globe }
+  ];
+
+  const CopyButton = ({ text, id }: { text: string; id: string }) => (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="flex-none"
+      onClick={() => copyText(text, id)}
+      aria-label={t('copyUrl')}
+      title={t('copyUrl')}
+    >
+      {copiedKey === id ? (
+        <Check className="h-4 w-4 text-green-600" />
+      ) : (
+        <Copy className="h-4 w-4" />
+      )}
+    </Button>
+  );
+
+  const RemoveButton = ({ label, onClick }: { label: string; onClick: () => void }) => (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="h-7 w-7 text-gray-400 hover:text-red-600"
+      disabled={isPending}
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+    >
+      <X className="h-4 w-4" />
+    </Button>
+  );
+
+  const membersSection = (
+    <section className="space-y-2">
+      <Label>{t('membersTitle')}</Label>
+      <ul className="divide-y rounded-lg border bg-white text-sm">
+        <li className="flex items-center justify-between gap-2 px-3 py-2">
+          <span className="min-w-0 truncate">
+            {owner?.email}
+            {isOwner && <span className="text-gray-400"> · {t('you')}</span>}
+          </span>
+          <Badge variant="secondary">{t('ownerBadge')}</Badge>
+        </li>
+        {members.map((m) => (
+          <li key={m.userId} className="flex items-center justify-between gap-2 px-3 py-2">
+            <span className="min-w-0 truncate">
+              {m.user.email}
+              {m.userId === user.id && <span className="text-gray-400"> · {t('you')}</span>}
+            </span>
+            <div className="flex flex-none items-center gap-1">
+              <Badge variant="outline">{t('editor')}</Badge>
+              {(isOwner || m.userId === user.id) && (
+                <RemoveButton
+                  label={m.userId === user.id ? t('rejectShare') : t('removeMember')}
+                  onClick={() => run(() => revokeAccessToList(m.userId, list.id))}
+                />
+              )}
+            </div>
+          </li>
+        ))}
+        {emailInvites.map((invite) => (
+          <li key={invite.id} className="flex items-center justify-between gap-2 px-3 py-2">
+            <span className="min-w-0 truncate text-gray-600">{invite.email}</span>
+            <div className="flex flex-none items-center gap-1">
+              <Badge variant="outline" className="text-gray-500" title={t('pendingInvitesHint')}>
+                {t('invitedBadge')}
+              </Badge>
+              {isOwner && (
+                <RemoveButton
+                  label={t('revokeInviteLink')}
+                  onClick={() => run(() => revokeInvite(invite.id, list.id))}
+                />
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      {emailInvites.length > 0 && (
+        <p className="text-xs text-gray-500">{t('pendingInvitesHint')}</p>
+      )}
+    </section>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>{t('shareTitle')}</DialogTitle>
+          <DialogTitle>{t('shareListTitle')}</DialogTitle>
+          <p className="truncate text-sm text-gray-500">{list.name}</p>
         </DialogHeader>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div>
-            <div>
-              <div className="bg-white p-26">
-                <div>
-                  <div className=" items-center">
-                    <form ref={shareFormRef} action={formAction}>
-                      <div className="space-y-2 gap-2 my-3">
-                        <Label htmlFor="email">{t('email')}</Label>
-                        <div
-                          className={'flex justify-between flex-1 gap-2'}
-                        >
-                          <Input
-                            aria-invalid="false"
-                            name="email"
-                            required={true}
-                            defaultValue={''}
-                          />
 
-                          <Input
-                            aria-invalid="false"
-                            className={'hidden'}
-                            name="listId"
-                            readOnly={true}
-                            value={list.id}
-                            required={true}
-                          />
-
-                          <SubmitFormButton />
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-                {list.ownerId !== user.id && (
-                  <div className={'pt-4'}>
-                    <h3 className="text-sm font-semibold mb-2">
-                      {t('listOwner')}
-                    </h3>
-                    <div className="flex flex-col bg-gray-100 p-2 rounded">
-                      {ownerEmail}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  {sharedWith.length > 0 && (
-                    <>
-                      <div className={'space-y-2 gap-2 my-3'}>
-                        <Label>{t('sharedWith')}</Label>
-                      </div>
-                      <div className="flex flex-col bg-gray-100 p-2 rounded">
-                        {sharedWith.map((sharedWithUser) => {
-                          return (
-                            <div
-                              className={'flex justify-between'}
-                              key={sharedWithUser.userId}
-                            >
-                              <div className="flex  w-full bg-gray-100 p-2 rounded">
-                                <div
-                                  className={'flex items-center'}
-                                  style={{
-                                    flex: '1 1 100%',
-                                    minWidth: '0px'
-                                  }}
-                                >
-                                  <div className={'truncate'}>
-                                    {sharedWithUser.user.email}
-                                  </div>
-                                </div>
-
-                                <div
-                                  className={
-                                    'flex items-center font-light w-[100px]'
-                                  }
-                                >
-                                  <Select
-                                    value={'WRITE'}
-                                    disabled={true}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectGroup>
-                                        <SelectItem value="WRITE">
-                                          {t('editor')}
-                                        </SelectItem>
-                                      </SelectGroup>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                {status === 'owner' && (
-                                  <Button
-                                    className="text-gray-500"
-                                    variant="ghost"
-                                    onClick={() => {
-                                      revokeAccess(sharedWithUser.userId);
-                                    }}
-                                  >
-                                    ✕
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
+        {!isOwner ? (
+          membersSection
+        ) : (
+          <div className="space-y-4">
+            <div role="tablist" className="grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
+              {modes.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  role="tab"
+                  type="button"
+                  aria-selected={mode === key}
+                  onClick={() => setMode(key)}
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors',
+                    mode === key
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
                   )}
-
-                  {emailInvites.length > 0 && (
-                    <>
-                      <div className={'space-y-2 gap-2 my-3'}>
-                        <Label>{t('pendingInvites')}</Label>
-                        <p className="text-sm font-light text-gray-500">
-                          {t('pendingInvitesHint')}
-                        </p>
-                      </div>
-                      <div className="flex flex-col bg-gray-100 p-2 rounded">
-                        {emailInvites.map((invite) => (
-                          <div
-                            className="flex items-center justify-between gap-2 p-2"
-                            key={invite.id}
-                          >
-                            <div className="min-w-0 truncate">{invite.email}</div>
-                            {status === 'owner' && (
-                              <Button
-                                className="flex-none text-gray-500"
-                                variant="ghost"
-                                disabled={isPending}
-                                onClick={() => {
-                                  startTransition(() => {
-                                    revokeInvite(invite.id, list.id);
-                                  });
-                                }}
-                              >
-                                ✕
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  {label}
+                </button>
+              ))}
             </div>
-          </div>
 
-          {status === 'owner' && (
-            <>
-              <Separator />
-
-              <div className="space-y-3 my-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div>{t('inviteLink')}</div>
-                    <div className={'font-light leading-6 text-sm'}>
-                      {t('inviteLinkHint')}
-                    </div>
+            {mode === 'email' && (
+              <div className="space-y-4">
+                <form ref={shareFormRef} action={formAction} className="space-y-2">
+                  <Label htmlFor="share-email">{t('email')}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="share-email"
+                      type="email"
+                      name="email"
+                      required
+                      autoComplete="email"
+                      placeholder={t('emailPlaceholder')}
+                    />
+                    <input type="hidden" name="listId" value={list.id} />
+                    <SubmitFormButton />
                   </div>
+                  <p className="text-xs text-gray-500">{t('emailHint')}</p>
+                </form>
+                {membersSection}
+              </div>
+            )}
+
+            {mode === 'link' && (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">{t('inviteLinkHint')}</p>
+
+                {linkInvites.length === 0 ? (
                   <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    className="flex-none"
+                    className="w-full"
                     disabled={isPending}
-                    onClick={() => {
-                      startTransition(async () => {
-                        const result = await createInviteLink(list.id);
-                        if (result.hasError) {
-                          toast({ title: tErrors(result.message as any) });
-                        }
-                      });
-                    }}
+                    onClick={() => run(() => createInviteLink(list.id))}
                   >
-                    <Link2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />
                     {t('createInviteLink')}
                   </Button>
-                </div>
-
-                {linkInvites.map((invite) => {
-                  const url = inviteUrl(invite.token);
-                  return (
-                    <div key={invite.id} className="rounded bg-gray-100 p-3 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <QrCode value={url} size={112} className="flex-none rounded bg-white p-1" />
-                        <div className="min-w-0 flex-1 space-y-2">
-                          <Input readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
-                          <div className="flex flex-wrap gap-2">
-                            <Button type="button" variant="outline" size="sm" onClick={() => shareInvite(url)}>
-                              <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
-                              {t('shareInvite')}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                copyText(url, () => {
-                                  setCopiedInviteId(invite.id);
-                                  setTimeout(() => setCopiedInviteId(null), 2000);
-                                })
-                              }
-                            >
-                              {copiedInviteId === invite.id ? (
-                                <Check className="h-4 w-4 mr-2 text-green-600" aria-hidden="true" />
-                              ) : (
-                                <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
-                              )}
-                              {t('copyUrl')}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-500"
-                              disabled={isPending}
-                              onClick={() => {
-                                startTransition(() => {
-                                  revokeInvite(invite.id, list.id);
-                                });
-                              }}
-                            >
-                              {t('revokeInviteLink')}
-                            </Button>
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {t('inviteExpires', { date: shortDate.format(new Date(invite.expiresAt)) })}
-                            {' · '}
-                            {t('inviteUses', { count: invite.uses })}
+                ) : (
+                  <>
+                    {linkInvites.map((invite) => {
+                      const url = inviteUrl(invite.token);
+                      return (
+                        <div key={invite.id} className="rounded-lg border bg-white p-3">
+                          <div className="flex items-start gap-3">
+                            <QrCode
+                              value={url}
+                              size={112}
+                              className="flex-none rounded border bg-white p-1"
+                            />
+                            <div className="min-w-0 flex-1 space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  readOnly
+                                  value={url}
+                                  className="text-xs"
+                                  onFocus={(e) => e.currentTarget.select()}
+                                />
+                                <CopyButton text={url} id={invite.id} />
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {canShare && (
+                                  <Button type="button" size="sm" onClick={() => shareUrl(url)}>
+                                    <Share2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                                    {t('shareInvite')}
+                                  </Button>
+                                )}
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-gray-400 hover:text-red-600"
+                                  disabled={isPending}
+                                  aria-label={t('revokeInviteLink')}
+                                  title={t('revokeInviteLink')}
+                                  onClick={() => run(() => revokeInvite(invite.id, list.id))}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {t('inviteExpires', {
+                                  date: shortDate.format(new Date(invite.expiresAt))
+                                })}
+                                {' · '}
+                                {t('inviteUses', { count: invite.uses })}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center space-x-2">
-                <Label
-                  htmlFor="public-list"
-                  className={'flex justify-between w-full'}
-                >
-                  <div>
-                    <div>{t('publicList')}</div>
-                    <div className={'font-light leading-6'}>
-                      {t('publicListHint')}
-                    </div>
-                  </div>
-
-                  <Switch
-                    disabled={isPending}
-                    checked={!!list.share?.token}
-                    onCheckedChange={() => {
-                      startTransition(() => {
-                        if (list.share?.token) {
-                          makeListProtected(list.id);
-                        } else {
-                          makeListPublic(list.id);
-                        }
-                      });
-                    }}
-                    id="public-list"
-                  />
-                </Label>
-              </div>
-
-              <div>
-                {isPending && (
-                  <>
-                    <Skeleton className=" mt-4 h-8 w-[50px]" />
-                    <Skeleton className=" mt-2 h-8 w-[250px]" />
-                    <Skeleton className=" mt-8 h-8 w-[50px]" />
-                    <Skeleton className=" mt-2 h-8 w-[250px]" />
+                      );
+                    })}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isPending}
+                      onClick={() => run(() => createInviteLink(list.id))}
+                    >
+                      <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                      {t('anotherInviteLink')}
+                    </Button>
                   </>
                 )}
               </div>
+            )}
 
-              {list.share?.token && !isPending && (
-                <div>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.05 }}
-                  >
-                    <div className="space-y-2 gap-2 my-3">
-                      <Label htmlFor={'share-role'}>{t('role')}</Label>
-                      <div>
-                        {isPending && (
-                          <Skeleton className=" mt-4 h-8 w-[250px]" />
-                        )}
-                      </div>
+            {mode === 'public' && (
+              <div className="space-y-4">
+                <Label
+                  htmlFor="public-list"
+                  className="flex w-full items-center justify-between gap-4 rounded-lg border bg-white p-3"
+                >
+                  <div>
+                    <div>{t('publicList')}</div>
+                    <div className="text-sm font-light leading-6 text-gray-600">
+                      {t('publicListHint')}
+                    </div>
+                  </div>
+                  <Switch
+                    id="public-list"
+                    disabled={isPending}
+                    checked={!!list.share?.token}
+                    onCheckedChange={() =>
+                      run(() =>
+                        list.share?.token ? makeListProtected(list.id) : makeListPublic(list.id)
+                      )
+                    }
+                  />
+                </Label>
 
+                {list.share?.token && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="share-role">{t('role')}</Label>
                       <Select
                         value={list.share.type.toUpperCase()}
-                        onValueChange={async (role: 'READ' | 'WRITE') => {
-                          const res = await changePublicListRole({
-                            listId: list.id,
-                            accessType: role
-                          });
-                          if (res && 'hasError' in res && res.hasError) {
-                            toast({ title: tErrors(res.message as any) });
-                          }
-                        }}
+                        onValueChange={(role: 'READ' | 'WRITE') =>
+                          run(() => changePublicListRole({ listId: list.id, accessType: role }))
+                        }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="share-role">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -456,47 +407,43 @@ export function ShareListDialog({
                           </SelectGroup>
                         </SelectContent>
                       </Select>
+                      <p className="text-xs text-gray-500">
+                        {list.share.type === 'WRITE' ? t('publicWriteHint') : t('publicReadHint')}
+                      </p>
                     </div>
 
-                    <div className="space-y-2 gap-2 my-3">
-                      <Label htmlFor={'share-link-url'}>{t('shareUrl')}</Label>
-                      <div>
-                        {isPending && (
-                          <Skeleton className=" mt-4 h-8 w-[250px]" />
-                        )}
-                      </div>
-
+                    <div className="space-y-2">
+                      <Label htmlFor="share-link-url">{t('shareUrl')}</Label>
                       <div className="flex gap-2">
                         <Input
-                          aria-invalid="false"
-                          readOnly={true}
-                          value={shareUrl}
+                          id="share-link-url"
+                          readOnly
+                          value={publicUrl}
+                          className="text-xs"
                           onFocus={(e) => e.currentTarget.select()}
-                          id={'share-link-url'}
                         />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="flex-none"
-                          onClick={copyShareUrl}
-                          aria-label={t('copyUrl')}
-                          title={t('copyUrl')}
-                        >
-                          {copied ? (
-                            <Check className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <CopyButton text={publicUrl} id="public" />
+                        {canShare && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="flex-none"
+                            onClick={() => shareUrl(publicUrl)}
+                            aria-label={t('shareInvite')}
+                            title={t('shareInvite')}
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
-                  </motion.div>
-                </div>
-              )}
-            </>
-          )}
-        </motion.div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
