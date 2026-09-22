@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { Check, Copy } from 'lucide-react';
 import { useFormState } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -66,6 +67,21 @@ export function ShareListDialog({
 
   const { toast } = useToast();
   const t = useTranslations('ListTile');
+  const [copied, setCopied] = useState(false);
+
+  const shareUrl = list.share
+    ? `${window.location.origin}/sharedList/${list.share.token}`
+    : '';
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: t('copyFailed'), variant: 'destructive' });
+    }
+  };
   const tErrors = useTranslations('Errors');
 
   useEffect(() => {
@@ -301,16 +317,30 @@ export function ShareListDialog({
                         )}
                       </div>
 
-                      <Input
-                        aria-invalid="false"
-                        readOnly={true}
-                        value={`${window.location.origin}/sharedList/${list.share.token}`}
-                        required={true}
-                        id={'share-link-url'}
-                      />
-                      {/*<Button className="ml-auto w-8 h-8" size="icon">*/}
-                      {/*  <span className="sr-only">Settings</span>*/}
-                      {/*</Button>*/}
+                      <div className="flex gap-2">
+                        <Input
+                          aria-invalid="false"
+                          readOnly={true}
+                          value={shareUrl}
+                          onFocus={(e) => e.currentTarget.select()}
+                          id={'share-link-url'}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="flex-none"
+                          onClick={copyShareUrl}
+                          aria-label={t('copyUrl')}
+                          title={t('copyUrl')}
+                        >
+                          {copied ? (
+                            <Check className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 </div>

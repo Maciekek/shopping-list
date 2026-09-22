@@ -73,7 +73,9 @@
     "publicListHint": "Każdy z linkiem może otworzyć tę listę",
     "role": "Uprawnienia",
     "shareUrl": "Link do listy",
-    "sharedToast": "Udostępniono!"
+    "sharedToast": "Udostępniono!",
+    "copyUrl": "Kopiuj link",
+    "copyFailed": "Nie udało się skopiować, zaznacz link i skopiuj ręcznie"
   },
   "List": {
     "addPlaceholder": "Dodaj produkt",

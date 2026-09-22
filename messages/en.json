@@ -73,7 +73,9 @@
     "publicListHint": "Anyone with the link can open this list",
     "role": "Role",
     "shareUrl": "Share URL",
-    "sharedToast": "Shared!"
+    "sharedToast": "Shared!",
+    "copyUrl": "Copy link",
+    "copyFailed": "Could not copy, select the link and copy it manually"
   },
   "List": {
     "addPlaceholder": "Add new item",
